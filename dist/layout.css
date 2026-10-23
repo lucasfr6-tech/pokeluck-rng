@@ -1,6 +1,9 @@
+/* Chiffres lisibles : la police pixel rend 8, 6, 5 et 3 presque identiques. Les chiffres (et + - × / %) utilisent une police nette,
+   le reste du texte garde la police pixel. */
+@font-face{font-family:'Chiffres';font-weight:100 900;src:local('Segoe UI Bold'),local('SegoeUI-Bold'),local('Roboto-Bold'),local('Arial-BoldMT'),local('Arial Bold'),local('Helvetica-Bold'),local('HelveticaNeue-Bold'),local('DejaVuSans-Bold'),local('LiberationSans-Bold'),local('NotoSans-Bold');unicode-range:U+0030-0039,U+002B,U+002D,U+002F,U+0025,U+00D7}
 /* Mise en page « Océan & or » :
    bannière (haut) · rail de menu (gauche) · scène/combat (centre) · carte et équipe de six (bas) */
-:root{--gap:12px;--pad:14px;--rail-w:104px;--map-size:clamp(170px,min(25dvh,28vw),270px);--frame-bg:#0a2036f2;--gold:#ffc94a;--teal:#19c3b1;--line:#2c5f86;--line2:#3b86ad;--pixel:'Pixelify Sans','Trebuchet MS',Arial,sans-serif}
+:root{--gap:12px;--pad:14px;--rail-w:104px;--map-size:clamp(170px,min(25dvh,28vw),270px);--frame-bg:#0a2036f2;--gold:#ffc94a;--teal:#19c3b1;--line:#2c5f86;--line2:#3b86ad;--pixel:'Chiffres','Pixelify Sans','Trebuchet MS',Arial,sans-serif}
 
 .game{display:grid;grid-template-columns:var(--rail-w) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:var(--gap);padding:max(var(--pad),env(safe-area-inset-top)) max(var(--pad),env(safe-area-inset-right)) max(30px,calc(env(safe-area-inset-bottom) + 24px)) max(var(--pad),env(safe-area-inset-left))}
 .px,.game .banner-info>strong,.game .scene-place strong,.game .team-card strong,.game .team-panel-head strong,.game .map-panel-head strong,.game .hp-top b,.fighter b,.v-card h2,.move b,.battle-log{font-family:var(--pixel)}
