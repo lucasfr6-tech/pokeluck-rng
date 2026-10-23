@@ -65,8 +65,12 @@ export function damage(attacker, defender, move, rand = Math.random) {
   return {hit:true, dmg, eff, stab};
 }
 
-export function makeFighter({id, name, level, types, base, moves, training}) {
-  const stats = computeStats(base, level, training);
+// Bonus chromatique : un Pokémon chromatique de l'équipe a toutes ses statistiques ×1,5 (jamais l'adversaire).
+export const SHINY_BOOST = 1.5;
+export const boostStats = (stats, mult) => mult === 1 ? stats : Object.fromEntries(Object.entries(stats).map(([k, v]) => [k, Math.floor(v * mult)]));
+
+export function makeFighter({id, name, level, types, base, moves, training, boost = 1}) {
+  const stats = boostStats(computeStats(base, level, training), boost);
   return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp};
 }
 
