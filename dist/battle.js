@@ -130,8 +130,9 @@ export function makeFighter({id, name, level, types, base, moves, training, boos
 // et s'il est plus faible, malus jusqu'à ×0,5. Ex. : sauvage niv. 30 contre un niveau 8 → 90 XP ; niv. 5 contre niv. 5 → 5 XP.
 export const xpReward = (wildLevel, ownLevel = wildLevel) => Math.max(1, Math.round(wildLevel * Math.min(3, Math.max(0.5, wildLevel / Math.max(1, ownLevel)))));
 
-export function createBattle(team, wild, rand = Math.random) {
-  const b = {team, wild, active:0, over:false, winner:null, participants:new Set([team[0].id]), rand, intro:[]};
+// `queue` : adversaires suivants (combat d'arène : le champion envoie ses Pokémon un par un).
+export function createBattle(team, wild, rand = Math.random, queue = []) {
+  const b = {team, wild, active:0, over:false, winner:null, participants:new Set([team[0].id]), rand, intro:[], queue:[...queue], defeated:[]};
   const E = engine(b, b.intro); E.entry('wild'); E.entry('player');
   return b;
 }
@@ -209,12 +210,20 @@ export function chooseAutoSwitch(b, usedSwitches = 0) {
 const abilityFrName = f => ABILITIES[f.ability]?.fr || f.ability;
 function engine(b, events) {
   const rand = b.rand, A = side => side === 'player' ? activeFighter(b) : b.wild, O = side => side === 'player' ? 'wild' : 'player';
-  const snap = f => ({hp:f.hp, status:f.status?.type || null, conf:f.confused > 0});
+  const snap = f => ({hp:f.hp, maxHp:f.maxHp, status:f.status?.type || null, conf:f.confused > 0});
   const msg = (text, f, side) => events.push({type:'msg', text, side, id:f.id, snap:snap(f)});
   const checkFaint = side => {
     const f = A(side); if (f.hp > 0) return false;
     events.push({type:'faint', side, name:f.name});
-    if (side === 'wild') { b.over = true; b.winner = 'player'; return true; }
+    if (side === 'wild') {
+      b.defeated.push({id:f.id, level:f.level});
+      if (b.queue.length) {
+        b.wild = b.queue.shift(); const w = b.wild;
+        events.push({type:'foeSwitch', name:w.name, id:w.id, level:w.level, hp:w.hp, maxHp:w.maxHp, snap:snap(w)});
+        E.entry('wild'); E.entry('player'); return false;
+      }
+      b.over = true; b.winner = 'player'; return true;
+    }
     const next = b.team.findIndex(x => x.hp > 0);
     if (next < 0) { b.over = true; b.winner = 'wild'; return true; }
     b.active = next; b.participants.add(b.team[next].id);
@@ -309,7 +318,7 @@ function engine(b, events) {
         if (d.status?.type === 'frz' && move.type === 'fire' && d.hp > 0) { d.status = null; msg(`${d.name} dégèle !`, d, dside); }
         if (move.drain > 0) { const h = Math.max(1, Math.floor(r.dmg * move.drain / 100)), real = Math.min(h, a.maxHp - a.hp); a.hp += real; if (real) msg(`${a.name} absorbe de l’énergie : +${real} PV !`, a, side); }
       }
-      if (checkFaint(dside)) return;
+      if (checkFaint(dside) || d.hp <= 0) return;
       if (r.hit && r.dmg > 0) {
         if (move.drain < 0 && a.ability !== 'rock-head') { const rec = Math.max(1, Math.floor(r.dmg * -move.drain / 100)); a.hp = Math.max(0, a.hp - rec); msg(`${a.name} est blessé par le contrecoup !`, a, side); if (checkFaint(side)) return; }
         // Effets secondaires
@@ -397,7 +406,7 @@ export function takeTurn(b, move, switchIndex = null, heal = null) {
   const me = activeFighter(b), wildMove = chooseAiMove(b.wild, me, b.rand);
   const pp = move.priority || 0, wp = wildMove.priority || 0;
   const playerFirst = pp !== wp ? pp > wp : effStat(me, 'spe') >= effStat(b.wild, 'spe');
-  if (playerFirst) { E.strike('player', true, move); E.strike('wild', false, wildMove); }
+  if (playerFirst) { const foe0 = b.wild; E.strike('player', true, move); if (b.wild === foe0) E.strike('wild', false, wildMove); }
   else { E.strike('wild', true, wildMove); if (!b.over && activeFighter(b).hp > 0 && !E.switched) E.strike('player', false, move); }
   if (!b.over) E.residual();
   return events;

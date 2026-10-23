@@ -30,7 +30,7 @@ for(const zone of zones){
 for(const z of zones)for(const p of zonePool(z.id))assert.ok(tierOf(p.id)<=z.tier,'Palier dépassé '+z.id+' #'+p.id);
 assert.ok(zonePool('route').length<zonePool('route2').length&&zonePool('cave').length<zonePool('power').length);assert.ok(zonePool('route').every(p=>tierOf(p.id)===1));const sh=id=>zones.find(z=>z.id===id).shares;assert.ok(sh('route2')[0]<sh('route')[0]&&sh('forest')[0]<sh('route2')[0]&&sh('cave')[3]>0&&sh('route4')[4]===undefined);
 assert.ok(!zonePool('route').some(p=>[150,151,144,6,101].includes(p.id)),'Pas de rare ni de légendaire sur la Route 1');
-assert.ok([150,151,144,145,146].every(id=>zonePool('power').some(p=>p.id===id)&&!zonePool('route4').some(p=>p.id===id)),'Légendaires uniquement à la Centrale');
+assert.ok([150,151,144,145,146].every(id=>zonePool('power').some(p=>p.id===id)&&!zonePool('route4').some(p=>p.id===id)&&!zonePool('safari').some(p=>p.id===id)),'Légendaires seulement à partir de la Centrale');
 assert.equal(zones.find(z=>z.id==='power').tier,5);assert.equal(Math.max(...zones.map(z=>z.tier)),5);
 assert.equal(tierOf(25),1);assert.equal(tierOf(4),1);assert.equal(tierOf(29),1);assert.equal(tierOf(6),4);assert.equal(tierOf(9),4);assert.equal(tierOf(150),5);
 // Les chances dépendent des statistiques de base : Pikachu bien plus fréquent que Dracaufeu, Tortank ≈ Dracaufeu.
@@ -108,7 +108,7 @@ assert.deepEqual(sp.learnset,[['scratch',1],['ember',7]]);assert.equal(sp.stats.
 assert.deepEqual({...parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]})},{...parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]}),name:'ember',fr:'Flammèche',power:40,acc:100,type:'fire',cls:'special'});
 for(const z of zones){for(let id=1;id<=151;id++)for(const r of [0,.5,.999]){const l=wildLevel(z.id,id,()=>r);if(l>z.levels[1]||l<z.levels[0])throw new Error('Niveau sauvage hors zone '+z.id+' #'+id);}}
 if(wildLevel('route',101,()=>.999)>7)throw new Error('Électrode trop fort sur la Route 1');
-if(zones.find(z=>z.id==='power').levels[1]!==100)throw new Error('Dernière zone ≠ 100');
+if(zones.at(-1).levels[1]!==100||zones.at(-1).id!=='league')throw new Error('Dernière zone ≠ 100');
 console.log(`OK : 151 espèces, puissances, ${zones.length} zones normalisées, bonus de type, intervalles de tirage et parcours Kanto.`);
 
 // Les limites de paliers et les préférences héritées ne doivent pas produire de progression invalide.
@@ -423,3 +423,22 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 for(const own of [1,5,13,35,40,99,100])for(const r of [0,.2,.5,.8,.999]){const l=wildLevelNear(own,()=>r);if(l<Math.max(1,own-2)||l>Math.min(100,own+2))throw new Error('Niveau sauvage hors ±2 : '+own+' → '+l);}
 assert.equal(wildLevelNear(35,()=>.999),37);assert.equal(wildLevelNear(13,()=>0),11);assert.equal(wildLevelNear(100,()=>.999),100);assert.equal(wildLevelNear(1,()=>0),1);
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');
+{
+  const A = await import('../dist/arena.js');
+  assert.equal(A.ARENAS.length, 8); assert.equal(zones.length, 16);
+  assert.deepEqual(A.ZONE_ORDER, zones.map(z => z.id));
+  for (let i = 1; i < zones.length; i++) assert.ok(zones[i].min > zones[i - 1].min, 'niveaux minimaux croissants');
+  assert.equal(zones[0].min <= 1, true); assert.equal(zones.at(-1).min, 94);
+  A.ARENAS.forEach((a, i) => { assert.equal(a.n, i + 1); assert.equal(Math.max(...a.team.map(t => t[1])), a.ace); assert.ok(a.need < a.ace); if (i) assert.ok(a.ace > A.ARENAS[i - 1].ace); });
+  assert.equal(A.ARENAS.at(-1).ace, 100);
+  const path = A.buildPath([{id:'s1', after:'forest'}]);
+  assert.equal(path.filter(n => n.kind !== 'shop').length, 24);
+  path.filter(n => n.kind !== 'shop').forEach((n, i) => assert.equal(n.kind === 'arena', i % 3 === 2));
+  assert.equal(A.zoneAccess('route2', 8, {}).ok, true); assert.equal(A.zoneAccess('route2', 7, {}).reason, 'level');
+  assert.equal(A.zoneAccess('route3', 99, {}).reason, 'badge'); assert.equal(A.zoneAccess('route3', 99, {argenta:true}).ok, true);
+  assert.equal(A.arenaAccess(A.ARENAS[0], 11, {}).ok, false); assert.equal(A.arenaAccess(A.ARENAS[0], 12, {}).ok, true);
+  assert.equal(A.arenaAccess(A.ARENAS[1], 99, {}).reason, 'badge');
+  assert.deepEqual(A.sanitizeBadges({argenta:true, x:true, azuria:1}), {argenta:true}); assert.deepEqual(A.sanitizeBadges(null), {});
+  assert.ok(A.arenaPrize(A.ARENAS[0], true) > A.arenaPrize(A.ARENAS[0], false));
+  console.log('OK : 8 arènes, 16 zones, niveaux minimaux, accès par badge, champion niveau 100, parcours de 24 étapes.');
+}

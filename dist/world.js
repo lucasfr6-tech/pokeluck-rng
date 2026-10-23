@@ -3,19 +3,30 @@ const typeRows=['grass poison','grass poison','grass poison','fire','fire','fire
  'poison','poison','poison ground','normal','normal','fire','fire','normal','normal','poison flying','poison flying','grass poison','grass poison','grass poison','bug grass','bug grass','bug poison','bug poison','ground','ground','normal','normal','water','water','fighting','fighting','fire','fire','water','water','water fighting','psychic','psychic','psychic','fighting','fighting','fighting','grass poison','grass poison','grass poison','water poison','water poison','rock ground','rock ground','rock ground','fire','fire','water psychic','water psychic','electric','electric','normal flying','normal flying','normal flying','water','water ice','poison','poison','water','water ice','ghost poison','ghost poison','ghost poison','rock ground','psychic','psychic','water','water','electric','electric','grass psychic','grass psychic','ground','ground','fighting','fighting','normal','poison','poison','ground rock','ground rock','normal','grass','normal','water','water','water','water','water','water psychic','psychic','bug flying','ice psychic','electric','fire','bug','normal','water','water flying','water ice','normal','normal','water','electric','fire','normal','rock water','rock water','rock water','rock water','rock flying','normal','ice flying','electric flying','fire flying','dragon','dragon','dragon flying','psychic','psychic'];
 if(typeRows.length!==pool.length)throw new Error('Types et espèces désynchronisés');
 export const types=Object.fromEntries(typeRows.map((s,i)=>[i+1,s.split(' ')]));
+// 16 zones sur un parcours en serpentin (voir arena.js : 2 zones, puis une arène). `min` = niveau minimal du Pokémon de tête pour y entrer ;
+// il n'y a pas de niveau maximal : les sauvages ont le niveau de ton Pokémon de tête ±2. `levels` ne sert plus qu'à l'ancien tirage par zone.
 export const zones=[
- {id:'route',shares:[1],levels:[3,7],name:'Route 1',symbol:'⌁',label:'Les premiers pas',bonus:[],desc:'Un chemin tranquille pour commencer ton aventure.',note:'Tirage classique · aucun bonus',color:'route'},
- {id:'forest',shares:[.55,.30,.15],levels:[14,26],name:'Forêt de Jade',symbol:'♧',label:'Au cœur de la forêt',bonus:['grass','bug'],desc:'Sous les feuillages, de nouvelles rencontres t’attendent.',note:'Plante & Insecte · poids ×3',color:'forest'},
- {id:'cave',shares:[.34,.30,.24,.12],levels:[36,54],name:'Mont Sélénite',symbol:'◇',label:'Dans les profondeurs',bonus:['rock','ground'],desc:'Une grotte mystérieuse où chaque rencontre résonne.',note:'Roche & Sol · poids ×3',color:'cave'},
- {id:'power',shares:[.22,.26,.26,.254,.006],levels:[72,100],name:'Centrale',symbol:'ϟ',label:'Une rencontre électrique',bonus:['electric'],desc:'Quelque chose crépite entre les vieux générateurs.',note:'Électrik · poids ×3',color:'power'},
- {id:'route2',shares:[.75,.25],levels:[7,15],name:'Route 2',bonus:['normal','bug'],note:'Normal & Insecte · poids ×3',color:'route'},
- {id:'route3',shares:[.40,.35,.25],levels:[24,38],name:'Route 3',bonus:['normal','flying'],note:'Normal & Vol · poids ×3',color:'route'},
- {id:'route4',shares:[.28,.28,.26,.18],levels:[52,75],name:'Route 4',bonus:['ground','flying'],note:'Sol & Vol · poids ×3',color:'route'}
+ {id:'route',min:1,shares:[1],levels:[3,7],name:'Route 1',symbol:'⌁',label:'Les premiers pas',bonus:[],desc:'Un chemin tranquille pour commencer ton aventure.',note:'Tirage classique · aucun bonus',color:'route'},
+ {id:'route2',min:8,shares:[.75,.25],levels:[7,15],name:'Route 2',bonus:['normal','bug'],note:'Normal & Insecte · poids ×3',color:'route'},
+ {id:'forest',min:16,shares:[.55,.30,.15],levels:[14,26],name:'Forêt de Jade',symbol:'♧',label:'Au cœur de la forêt',bonus:['grass','bug'],desc:'Sous les feuillages, de nouvelles rencontres t’attendent.',note:'Plante & Insecte · poids ×3',color:'forest'},
+ {id:'route3',min:22,shares:[.40,.35,.25],levels:[24,38],name:'Route 3',bonus:['normal','flying'],note:'Normal & Vol · poids ×3',color:'route'},
+ {id:'cave',min:28,shares:[.34,.30,.24,.12],levels:[36,54],name:'Mont Sélénite',symbol:'◇',label:'Dans les profondeurs',bonus:['rock','ground'],desc:'Une grotte mystérieuse où chaque rencontre résonne.',note:'Roche & Sol · poids ×3',color:'cave'},
+ {id:'route4',min:34,shares:[.28,.28,.26,.18],levels:[52,75],name:'Route 4',bonus:['ground','flying'],note:'Sol & Vol · poids ×3',color:'route'},
+ {id:'bridge',min:40,shares:[.26,.27,.26,.21],levels:[40,45],name:'Pont Pépite',bonus:['water','bug'],note:'Eau & Insecte · poids ×3',color:'route'},
+ {id:'rocktunnel',min:46,shares:[.24,.26,.26,.24],levels:[46,51],name:'Tunnel Roche',bonus:['rock','fighting'],note:'Roche & Combat · poids ×3',color:'cave'},
+ {id:'tower',min:52,shares:[.22,.25,.26,.27],levels:[52,57],name:'Tour Pokémon',bonus:['ghost','poison'],note:'Spectre & Poison · poids ×3',color:'cave'},
+ {id:'safari',min:58,shares:[.20,.24,.26,.30],levels:[58,63],name:'Parc Safari',bonus:['grass','normal'],note:'Plante & Normal · poids ×3',color:'forest'},
+ {id:'power',min:64,shares:[.22,.26,.26,.254,.006],levels:[64,69],name:'Centrale',symbol:'ϟ',label:'Une rencontre électrique',bonus:['electric'],desc:'Quelque chose crépite entre les vieux générateurs.',note:'Électrik · poids ×3',color:'power'},
+ {id:'seafoam',min:70,shares:[.20,.25,.26,.28,.01],levels:[70,75],name:'Îles Écume',bonus:['ice','water'],note:'Glace & Eau · poids ×3',color:'cave'},
+ {id:'mansion',min:76,shares:[.17,.23,.26,.31,.03],levels:[76,81],name:'Manoir Pokémon',bonus:['fire','psychic'],note:'Feu & Psy · poids ×3',color:'cave'},
+ {id:'ceruleancave',min:82,shares:[.14,.21,.26,.35,.04],levels:[82,87],name:'Grotte Azurée',bonus:['psychic','water'],note:'Psy & Eau · poids ×3',color:'cave'},
+ {id:'victory',min:88,shares:[.12,.19,.26,.38,.05],levels:[88,93],name:'Route Victoire',bonus:['fighting','dragon'],note:'Combat & Dragon · poids ×3',color:'route'},
+ {id:'league',min:94,shares:[.10,.18,.24,.40,.08],levels:[94,100],name:'Plateau Indigo',bonus:['dragon','psychic'],note:'Dragon & Psy · poids ×3',color:'route'}
 ];
 zones.forEach(z=>{z.tier=z.shares.length;});
 export const itinerary=[{town:'Bourg Palette'},{zone:'route'},{town:'Jadielle'},{zone:'route2'},{zone:'forest'},{town:'Argenta'},{zone:'route3'},{zone:'cave'},{zone:'route4'},{town:'Azuria'}];
 // Arrière-plans du cadre 1, un par zone (fichiers dans assets/backgrounds/).
-export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant'};
+export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant',bridge:'skyblueplains',rocktunnel:'echocave',tower:'echocave',safari:'wildplains',seafoam:'echocave',mansion:'ravagedfield',ceruleancave:'echocave',victory:'ravagedfield',league:'skyblueplains'};
 export const backgroundFor=id=>`assets/backgrounds/${backgrounds[id]||backgrounds.route}.png`;
 // Puissance de référence (au niveau 5) : ≈ 375 × (total des stats de base / 300)^5. Elle grandit ensuite avec le niveau (voir levels.js).
 // Valeurs PROVISOIRES : Bulbizarre démarre vers 500, une équipe de légendaires niveau 100 se compte en milliards.

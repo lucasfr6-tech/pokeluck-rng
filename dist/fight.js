@@ -21,7 +21,7 @@ export async function buildFighter(spec, level, types, id, name, training, known
 
 // ctx : {team(), level(id), name(id), types(id), backSprite(id), reduced(), addXp(id, amount) → {before, after}}
 export function createFight(ctx) {
-  let token = 0, autoSwitches = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false, starting = false, vWait = 0;
+  let token = 0, boss = null, autoSwitches = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false, starting = false, vWait = 0;
   const el = {battle: $('#battle'), log: $('#battle-log'), moves: $('#moves'), card: $('#fighter'), cardImg: $('#ally'), cardXp: $('#fighter-xp'), cardXpText: $('#fighter-xptext'), cardName: $('#fighter-name'), cardFill: $('#fighter-fill'), cardText: $('#fighter-text'),
     victory: $('#victory'), swBtn: $('#switch'), swPanel: $('#switch-panel'), flee: $('#flee'), hp: $('#hp'), hpName: $('#hp-name'), hpSt: $('#hp-st'), cardSt: $('#fighter-st'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
   if (window.ResizeObserver) new ResizeObserver(() => { const h = el.battle.offsetHeight; if (h) document.querySelector('.scene').style.setProperty('--strip', h + 'px'); }).observe(el.battle);
@@ -30,7 +30,7 @@ export function createFight(ctx) {
   const say = text => { el.log.textContent = text; };
   const chips = s => s ? `${s.status ? `<i class="st-chip st-${s.status}">${STATUS_TAG[s.status]}</i>` : ''}${s.conf ? '<i class="st-chip st-conf">CONF</i>' : ''}` : '';
   const snapOf = f => ({status: f.status?.type || null, conf: f.confused > 0});
-  const setWild = (hp, s = snapOf(bt.wild)) => { el.hpSt.innerHTML = chips(s); el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(bt.wild.maxHp)}`; bar(el.hpFill, hp, bt.wild.maxHp); };
+  const setWild = (hp, s = snapOf(bt.wild), max = s?.maxHp ?? bt.wild.maxHp) => { el.hpSt.innerHTML = chips(s); el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(max)}`; bar(el.hpFill, hp, max); };
   const setCard = (f, hp = f.hp, s = snapOf(f)) => { el.cardSt.innerHTML = chips(s); const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
   function renderMoves(enabled = true) {
     el.swBtn.disabled = !enabled || !bt || bt.team.filter(t => t.hp > 0).length < 2; $('#bag').disabled = !enabled || !bt;
@@ -55,7 +55,7 @@ export function createFight(ctx) {
         if (!e.hit) { say(`${e.user} utilise ${e.move} ! Raté !`); await delay(600); }
       } else if (e.type === 'attack') {
         say(`${e.user} utilise ${e.move} !`); playAttackEffect(e); await delay(650);
-        if (e.target === 'wild') setWild(e.hp); else setCard(bt.team.find(t => t.name === e.targetName), e.hp);
+        if (e.target === 'wild') setWild(e.hp, undefined, e.maxHp); else setCard(bt.team.find(t => t.name === e.targetName), e.hp);
         if (e.hit && e.dmg) flash(e.target === 'wild' ? $('#result img') : el.cardImg);
         const t = effectText(e); if (t) { say(`${e.user} utilise ${e.move} ! ${t}`); await delay(700); }
         if (e.hit && e.hits > 1) { say(`Touché ${e.hits} fois !`); await delay(700); }
@@ -63,6 +63,10 @@ export function createFight(ctx) {
         if (e.sashSaved && e.target === 'player') { say(`${e.targetName} s’accroche grâce à sa Ceinture Force !`); ctx.consumeHeld?.(e.targetId, 'band'); await delay(1000); }
       } else if (e.type === 'berry') { if (e.side === 'player') setCard(bt.team.find(t => t.id === e.targetId), e.hp); say(`${e.name} mange sa Baie Oran et récupère ${e.healed} PV !`); ctx.consumeHeld?.(e.targetId, 'oran'); await delay(1000); }
       else if (e.type === 'heal') { if (activeFighter(bt).id === e.id) setCard(activeFighter(bt), e.hp, e.snap); say(e.healed ? `${e.name} récupère ${e.healed} PV grâce à ${e.item} !` : `${e.name} est soigné grâce à ${e.item} !`); await delay(900); }
+      else if (e.type === 'foeSwitch') {
+        say(`${boss?.leader || 'L’adversaire'} envoie ${e.name} !`); ctx.showFoe?.(e.id);
+        el.hpName.textContent = `${e.name} · Niv. ${e.level}`; setWild(e.hp, e.snap); wildLevel = e.level; await delay(1100);
+      }
       else if (e.type === 'faint') { say(`${e.name} est K.O. !`); const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
       else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, e.hp, e.snap); say(`${e.name} entre au combat !`); await delay(800); }
     }
@@ -77,17 +81,20 @@ export function createFight(ctx) {
       const rows = [];
       for (const id of resolvedBattle.participants) {
         if(bt!==resolvedBattle)return;
-        const earned=resolvedBattle.team.find(f=>f.id===id)?.hp>0?ctx.addEVs?.(id,effortYield(resolvedBattle.wild.id)):null;
+        const foes = resolvedBattle.defeated.length ? resolvedBattle.defeated : [{id:resolvedBattle.wild.id, level:wildLevel}];
+        let earned = null;
+        if (resolvedBattle.team.find(f => f.id === id)?.hp > 0) for (const foe of foes) { const g = ctx.addEVs?.(id, effortYield(foe.id)); if (g) { earned = earned || {}; for (const k of STAT_KEYS) if (g[k]) earned[k] = (earned[k] || 0) + g[k]; } }
         const evText=earned?STAT_KEYS.filter(key=>earned[key]).map(key=>'+'+earned[key]+' '+STAT_NAMES[key]).join(' · '):'';
-        const gain = Math.max(1, Math.round(xpReward(wildLevel, ctx.level(id)) * (ctx.xpMult?.(id) || 1))), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
+        const gain = foes.reduce((n, foe) => n + Math.max(1, Math.round(xpReward(foe.level, ctx.level(id)) * (ctx.xpMult?.(id) || 1))), 0), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
         const fresh = (learnsets[id] || []).filter(([, at]) => at > r.before && at <= r.after), defs = await Promise.all(fresh.map(([mv]) => getMove(mv)));
         const moves = fresh.map(([, at], k) => `<span class="new-move">Nouvelle attaque disponible : ${esc(defs[k].fr)} (niv. ${at})</span>`).join('');
         rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${evText?`<span class="ev-reward">EV : ${esc(evText)}</span>`:earned?'<span class="ev-reward">EV au plafond pour ces statistiques</span>':''}${moves}</li>`);
       }
       if(bt!==resolvedBattle)return;
       setCard(activeFighter(bt), activeFighter(bt).hp);
-      const prize = ctx.addMoney?.(bt.wild.id, wildLevel) || 0;
-      html = `<div class="v-card" role="dialog" aria-label="Victoire"><h2>Victoire !</h2><p>${esc(bt.wild.name)} sauvage est K.O. · l’XP dépend de son niveau (${wildLevel})</p>${prize?`<p class="v-money">+${prize.toLocaleString('fr-FR')} ₽</p>`:''}<ul class="v-list">${rows.join('')}</ul><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
+      const win = boss ? ctx.arenaWin?.(boss) : null, prize = boss ? (win?.money || 0) : (ctx.addMoney?.(bt.wild.id, wildLevel) || 0);
+      const bossHead = boss ? `<p>${esc(boss.leader)} est vaincu !</p>${win?.first ? `<p class="v-badge"><img src="${boss.badgeSprite}" alt=""> ${esc(boss.badgeName)} obtenu !</p>` : '<p>Revanche gagnée · prime réduite.</p>'}${win?.tm ? `<p class="v-tm">CT reçue : ${esc(win.tm)}</p>` : ''}` : '';
+      html = `<div class="v-card" role="dialog" aria-label="Victoire"><h2>Victoire !</h2>${boss ? bossHead : `<p>${esc(bt.wild.name)} sauvage est K.O. · l’XP dépend de son niveau (${wildLevel})</p>`}${prize?`<p class="v-money">+${prize.toLocaleString('fr-FR')} ₽</p>`:''}<ul class="v-list">${rows.join('')}</ul><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     } else html = `<div class="v-card lost" role="dialog" aria-label="Défaite"><h2>Défaite…</h2><p>Toute ton équipe est K.O. Aucune pénalité : relance un tirage pour retenter ta chance.</p><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     await delay(500);
     if (bt!==resolvedBattle) return;
@@ -160,7 +167,7 @@ export function createFight(ctx) {
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !el.swPanel.hidden) { e.preventDefault(); closeSwitch(); } });
 
-  el.flee.onclick = () => ctx.onFlee();
+  el.flee.onclick = () => { if (!boss) ctx.onFlee(); };
   document.addEventListener('keydown', e => {
     if (!/^[1-4]$/.test(e.key) || playing || !bt || bt.over || document.querySelector('dialog[open]')) return;
     const b = el.moves.querySelectorAll('.move')[+e.key - 1]; if (b && !b.disabled) b.click();
@@ -168,7 +175,8 @@ export function createFight(ctx) {
 
   return {
     active: () => !!bt && !bt.over,
-    cancel() { token++; bt = null; playing = false; starting = false; vWait = 0; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
+    isBoss: () => !!boss,
+    cancel() { token++; boss = null; document.body.classList.remove('boss-fight'); bt = null; playing = false; starting = false; vWait = 0; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
     // Mode Auto : joue le tour (meilleure attaque selon l'efficacité, le STAB et la précision) ou passe l'écran de fin.
     autoStep(wait = 2) {
       if (starting || playing) return 'wait';
@@ -179,6 +187,29 @@ export function createFight(ctx) {
       }
       if (!el.victory.hidden && $('#v-continue')) { if (++vWait >= wait) { vWait = 0; $('#v-continue').click(); return 'continue'; } return 'wait'; }
       return bt ? 'wait' : 'idle';
+    },
+    // Combat d'arène : le champion envoie ses Pokémon l'un après l'autre (équipe réelle, niveaux fixes).
+    async startBoss(arena) {
+      this.cancel(); const my = token; starting = true; autoSwitches = 0; boss = arena;
+      el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = ''; say(`${arena.leader} veut se battre !`);
+      try {
+        const ids = ctx.team();
+        if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
+        const [foes, mine] = await Promise.all([
+          Promise.all(arena.team.map(([id, lvl]) => buildFighter(null, lvl, ctx.types(id), id, ctx.foeName?.(id) || String(id), createTraining()))),
+          Promise.all(ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id))))]);
+        if (my !== token) return;
+        learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
+        bt = createBattle(mine.map(m => m.fighter), foes[0].fighter, undefined, foes.slice(1).map(f => f.fighter));
+        this.wild = foes[0].fighter; wildLevel = foes[0].fighter.level;
+        ctx.showFoe?.(foes[0].fighter.id);
+        el.hpName.textContent = `${foes[0].fighter.name} · Niv. ${wildLevel}`; setWild(foes[0].fighter.hp); el.hp.hidden = false;
+        setCard(activeFighter(bt));
+        say(`${arena.leader} veut se battre ! Il envoie ${foes[0].fighter.name} !`); await wait(ctx.reduced() ? 150 : 1100);
+        if (bt.intro.length) { playing = true; await play(bt.intro); playing = false; if (my !== token) return; }
+        say(`Que doit faire ${activeFighter(bt).name} ?`); renderMoves(true);
+      } catch { if (my === token) say('Combat indisponible pour le moment.'); }
+      finally { if (my === token) starting = false; }
     },
     async start(p, types, encounterTraining=createTraining()) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; wildLevel = ctx.wildLevel(p.id);

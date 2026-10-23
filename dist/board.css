@@ -1,0 +1,88 @@
+/* Carte en serpentin : 3 rangées de 8 étapes (zones bleues, arènes rouges, boutiques). Rangées 1 et 3 vers la droite, rangée 2 vers la gauche. */
+.game .rail{grid-row:2}
+@media(min-width:701px){
+  .game .bottom{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);align-items:stretch}
+  .game .map-panel{width:auto;min-width:0;display:flex;flex-direction:column}
+}
+.game .map-panel{padding:8px 10px 6px}
+#map-mount{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.board-scroll{overflow-x:auto;overflow-y:hidden;padding:2px 0 4px;scrollbar-width:thin}
+.board{--nh:54px;display:flex;flex-direction:column;gap:22px;min-width:720px;padding:6px 4px 4px;background:
+  linear-gradient(#ffffff08 1px,transparent 1px) 0 0/100% 12px,linear-gradient(90deg,#ffffff08 1px,transparent 1px) 0 0/12px 100%;border-radius:12px}
+.board-row{display:flex;gap:18px;align-items:stretch;position:relative}
+.board-row.rev{flex-direction:row-reverse}
+.bnode{--c:#2f79ad;--bg:linear-gradient(#17456b,#0f2d4a);position:relative;flex:1 1 0;min-width:0;height:var(--nh);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px 5px 3px 20px;text-align:left;align-items:flex-start;color:#e8f6ff;font:inherit;background:var(--bg);border:2px solid var(--c);border-radius:12px;cursor:pointer;box-shadow:0 3px 0 #06182a;transition:transform .12s,filter .12s}
+.bnode b{font-size:11px;line-height:1.1;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;font-weight:800;letter-spacing:-.1px}
+.bnode small{display:flex;align-items:center;gap:3px;font-size:9.5px;opacity:.8;white-space:nowrap}
+.bnode:hover:not(:disabled),.bnode:focus-visible{transform:translateY(-2px);filter:brightness(1.15);outline:none}
+.bnode:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.bn-n{position:absolute;left:-7px;top:-8px;min-width:20px;height:20px;padding:0 4px;border-radius:10px;background:#0b1f33;border:2px solid var(--c);font:700 11px/16px var(--pixel);text-align:center;color:#fff}
+.bn-lock{width:10px;height:10px;fill:#f0c34a;stroke:#f0c34a;flex:none}
+/* flèches entre les étapes */
+.bnode::after{content:'';position:absolute;top:50%;right:-15px;width:0;height:0;margin-top:-5px;border:5px solid transparent;border-left:8px solid #ffd27c;border-right:0;opacity:.9;pointer-events:none}
+.board-row.rev .bnode::after{right:auto;left:-15px;border-left:0;border-right:8px solid #ffd27c}
+.board-row .bnode:last-child::after{display:none}
+.board-row:not(:last-child) .bnode:last-child::after{display:block;top:auto;bottom:-17px;right:50%;left:auto;margin:0 -6px 0 0;border:6px solid transparent;border-top:9px solid #ffd27c;border-bottom:0}
+.board-row.rev:not(:last-child) .bnode:last-child::after{left:50%;right:auto;margin:0 0 0 -6px}
+/* étape en cours */
+.bnode.n-zone.current{--c:#fff0b0;--bg:linear-gradient(#ffcf5a,#e8891d);color:#2a1c00;box-shadow:0 0 0 2px #ffd27c88,0 0 14px #ffb84a99,0 3px 0 #7a4a10}
+.bnode.n-zone.current .bn-n{background:#2a1c00;color:#ffd27c;border-color:#fff0b0}
+.bnode.n-zone.current small{opacity:.9}
+.bnode.locked{--c:#4a6377;--bg:linear-gradient(#1b3347,#12263a);color:#9fb3c4;filter:saturate(.6)}
+.bnode.locked:hover:not(:disabled){filter:saturate(.6) brightness(1.1)}
+/* arènes */
+.bnode.n-arena{--c:#ff7a7a;--bg:linear-gradient(#a9162f,#5c0b1c);flex:1.35 1 0;padding-left:34px;box-shadow:0 3px 0 #2d0510,0 0 10px #d1294455}
+.bnode.n-arena b{font-size:12px}
+.bn-badge{position:absolute;left:5px;top:50%;width:26px;height:26px;margin-top:-13px;object-fit:contain;image-rendering:pixelated;filter:grayscale(1) brightness(.6) drop-shadow(0 1px 0 #000a)}
+.bnode.n-arena.won{--c:#ffd27c;--bg:linear-gradient(#c0392b,#701122);box-shadow:0 3px 0 #2d0510,0 0 12px #ffd27c88}
+.bnode.n-arena.won .bn-badge{filter:drop-shadow(0 0 4px #ffd27c)}
+.bnode.n-arena.locked{--c:#8d4a55;--bg:linear-gradient(#5b2230,#38121c);color:#d9b3ba;filter:saturate(.7)}
+.bnode.n-arena.champion{--c:#ffe28a;--bg:linear-gradient(#d6283e,#6a0c1e);flex:1.7 1 0;height:calc(var(--nh) + 10px);margin-top:-5px;box-shadow:0 3px 0 #2d0510,0 0 16px #ffd27caa}
+.bnode.n-arena.champion b{font-size:13px}.bnode.n-arena.champion .bn-badge{width:32px;height:32px;margin-top:-16px}
+/* boutiques */
+.bnode.n-shop{flex:0 0 40px;padding:0;align-items:center;border-radius:12px;--c:#6a5a2a;--bg:#f4e6b0}
+.bshop-art{display:block;width:30px;height:30px}.bshop-art svg{display:block;width:100%;height:100%}
+.bnode.n-shop .sh-roof{fill:#3a78d8;stroke:#0c141c;stroke-width:2;stroke-linejoin:round}.bnode.n-shop .sh-stripe{stroke:#fff;stroke-width:2}.bnode.n-shop .sh-wall{fill:#f4f4f4;stroke:#0c141c;stroke-width:2}.bnode.n-shop .sh-door{fill:#e5483c;stroke:#0c141c;stroke-width:2}.bnode.n-shop .sh-win{fill:#8fd0ff;stroke:#0c141c;stroke-width:1.5}
+.bnode.n-shop.open{--c:#ffc94a;box-shadow:0 0 0 2px #ffc94a88,0 3px 0 #06182a;animation:shop-bob 2.4s ease-in-out infinite}
+.bnode.n-shop.closed{--c:#6d7d89;--bg:#c9d3da;filter:grayscale(.85) brightness(.85)}
+.bshop-lock{position:absolute;right:-6px;bottom:-8px;min-width:26px;padding:1px 4px;border-radius:9px;background:#10263a;color:#ffd27c;border:1px solid #ffd27c;font:700 9px/14px var(--pixel);text-align:center}
+.reduce-motion .bnode.n-shop.open{animation:none}
+.map-note{display:block;margin-top:3px;color:#ffd27c;font-weight:700}
+.map-note[hidden]{display:none}
+.large-map .board{min-width:0}
+@media(max-width:700px){.board{--nh:46px;gap:20px}.map-panel-head strong{font-size:14px}}
+@media(max-height:620px) and (min-width:701px){.game .map-panel{width:min(300px,38vw)}.board{--nh:40px;gap:16px}.bnode b{font-size:9px}}
+/* Fenêtre d'arène */
+.arena{display:flex;flex-direction:column;gap:12px;max-width:720px;margin:0 auto}
+.arena-hero{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,#6a0c1e,#2a1030);border:2px solid #ff7a7a}
+.arena-trainer{width:104px;height:104px;object-fit:contain;image-rendering:pixelated}
+.arena-type{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#ffb3bd}
+.arena-who h3{margin:2px 0 4px;font:700 20px var(--pixel);color:#fff}.arena-quote{margin:0;font-style:italic;color:#ffd9de;font-size:13px}
+.arena-badge{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;border-radius:12px;background:#0006;border:1px dashed #ffffff55;color:#cdb}
+.arena-badge img{width:48px;height:48px;object-fit:contain;image-rendering:pixelated;filter:grayscale(1) brightness(.6)}.arena-badge.won img{filter:drop-shadow(0 0 6px #ffd27c)}.arena-badge b{font-size:12px;color:#fff}.arena-badge small{font-size:11px}.arena-badge.won{border-style:solid;border-color:#ffd27c}
+.arena-team{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.arena-mon{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;border-radius:12px;background:#0d2a42;border:1px solid #2b5578}
+.arena-mon img{width:72px;height:72px;object-fit:contain;image-rendering:pixelated}.arena-mon b{font-size:13px}.arena-mon small{opacity:.8}
+.arena-rules,.arena-reward{margin:0;font-size:13px;opacity:.9}.arena-reward b{color:#ffd27c}
+.arena-go{min-height:48px;padding:0 20px;font:700 17px var(--pixel);color:#2a1c00;background:linear-gradient(#ffd770,#ffb11f);border:2px solid #fff0b0;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #8e5a10}
+.arena-go:disabled{opacity:.55;cursor:not-allowed;box-shadow:none;font-size:14px;color:#fff;background:#3a4a58;border-color:#6d7d89}
+@media(max-width:560px){.arena-hero{grid-template-columns:auto minmax(0,1fr)}.arena-badge{grid-column:1/-1;flex-direction:row;justify-content:center}.arena-trainer{width:72px;height:72px}}
+body[data-theme=light] .arena-mon{background:#d5e8f8;color:#203e5a;border-color:#a5c4de}
+.v-badge{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:#ffd27c}.v-badge img{width:36px;height:36px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 0 5px #ffd27c)}.v-tm{color:#9fe6dd;font-weight:700}
+/* Pas de fuite contre un champion */
+body.boss-fight .scene>.flee{display:none!important}
+/* Équipe : panneau étroit à côté de la carte → 2 colonnes × 3 rangées, cartes compactes */
+@media(min-width:701px) and (min-height:621px){
+  .game .team-panel{container-type:size;container-name:team}
+}
+@container team (max-width:640px){
+  .game .team-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important}
+  .game .tc-stats,.game .tc-moves{display:none!important}
+  .game .team-grid .team-card:not(.empty){grid-template-columns:minmax(0,34%) minmax(0,1fr);padding:4px 8px}
+  .game .tc-top strong{font-size:14px}.game .tc-top .team-level{font-size:12px}
+}
+@container team (max-width:640px){
+  .game .team-power{display:none!important}
+  .game .tc-bar{margin-top:1px}.game .tc-info{gap:2px}
+  .game .tc-tags{transform:scale(.85);transform-origin:left bottom}
+}
