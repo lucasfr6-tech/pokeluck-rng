@@ -6,6 +6,8 @@ import {DEFAULT_BASE} from './battle.js';
 
 const API = 'https://pokeapi.co/api/v2/';
 const GROUPS = ['red-blue', 'yellow'];
+// Générations suivantes : complètent les attaques que les jeux Rouge/Bleu/Jaune ne donnaient pas par niveau (ex. Lance-Flammes).
+const LATER = ['firered-leafgreen', 'emerald', 'ruby-sapphire', 'heartgold-soulsilver', 'platinum', 'diamond-pearl', 'black-white', 'black-2-white-2', 'x-y', 'sun-moon', 'sword-shield'];
 const STAT = {hp:'hp', attack:'atk', defense:'def', 'special-attack':'spa', 'special-defense':'spd', speed:'spe'};
 const STAT2 = {...STAT, accuracy:'acc', evasion:'eva'};
 const spCache = new Map(), mvCache = new Map();
@@ -33,6 +35,12 @@ export function parseSpecies(json) {
     for (const m of json.moves || []) for (const d of m.version_group_details || [])
       if (d.version_group.name === group && d.move_learn_method.name === 'level-up') list.push([m.move.name, d.level_learned_at || 1]);
     if (list.length) { learnset = list; break; }
+  }
+  const have = new Set(learnset.map(([n]) => n));
+  for (const group of LATER) for (const m of json.moves || []) {
+    if (have.has(m.move.name)) continue;
+    const d = (m.version_group_details || []).find(x => x.version_group.name === group && x.move_learn_method.name === 'level-up' && x.level_learned_at > 1);
+    if (d) { learnset.push([m.move.name, d.level_learned_at]); have.add(m.move.name); }
   }
   learnset.sort((a, b) => a[1] - b[1]);
   // CT compatibles (jeux Rouge/Bleu et Jaune).
