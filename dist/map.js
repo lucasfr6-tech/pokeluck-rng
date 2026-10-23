@@ -1,5 +1,5 @@
 import {zones} from './world.js';
-import {ARENAS,arenaById,buildPath} from './arena.js';
+import {ARENAS,ELITE,arenaById,eliteById,buildPath} from './arena.js';
 
 // Carte du voyage : l'illustration de Kanto avec un parcours en serpentin de 24 petits ronds (16 zones + 8 arènes),
 // 8 par rangée, reliés par un trait fléché. Les arènes sont d'une autre couleur (rouge), le champion est plus grand.
@@ -8,9 +8,9 @@ const SHOP_ICON='<svg viewBox="0 0 40 40" aria-hidden="true"><path class="sh-roo
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 export const ROW_SIZE=8;
 export const ASPECT=1.6; // largeur / hauteur de la carte
-const ROWS_Y=[17,50,83];
+const ROWS_Y=[13,37,61,85];
 export function spotPosition(i){
-  const row=Math.min(2,Math.floor(i/ROW_SIZE)),k=i%ROW_SIZE,col=row%2?ROW_SIZE-1-k:k;
+  const row=Math.min(3,Math.floor(i/ROW_SIZE)),k=i%ROW_SIZE,col=row%2?ROW_SIZE-1-k:k;
   return {x:+(8+col*(84/(ROW_SIZE-1))).toFixed(1),y:+(ROWS_Y[row]+(k%2?3.5:-3.5)).toFixed(1)};
 }
 function trailSvg(pos,cur){
@@ -33,6 +33,9 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
       const z=zones.find(z=>z.id===n.id),acc=info.zones?.[n.id]||{ok:true},cur=n.id===selected;
       const need=acc.ok?`niveau ${z.min}+`:acc.reason==='badge'?`badge n°${acc.arena.n} requis (${acc.arena.leader})`:`niveau ${acc.need} requis`;
       html+=`<button class="map-spot${cur?' current':''}${acc.ok?'':' locked'}${side(p)}" data-zone="${n.id}" aria-label="${esc(z.name)} (${need})" aria-pressed="${cur}" ${busy?'disabled':''} style="${style}"><span class="map-spot-dot" aria-hidden="true"></span><span class="map-tooltip">${i+1} · ${esc(z.name)}<small>${acc.ok?'Niv. '+z.min+'+':'🔒 '+esc(need)}</small></span></button>`;
+    }else if(n.kind==='elite'){
+      const m=eliteById(n.id),ac=info.elite||{},done=!!ac.members?.[m.id];
+      html+=`<button class="map-spot spot-elite${done?' won':''}${ac.ok||ac.done?'':' locked'}${side(p)}" data-elite="${m.id}" aria-label="Conseil des 4 : ${esc(m.leader)}${done?' (battu)':''}" style="${style}"><span class="map-spot-dot" aria-hidden="true"></span><span class="map-tooltip">Conseil des 4 · ${esc(m.leader)}<small>${done?'Vaincu ✓':'Niv. '+m.ace+(ac.ok?'':' · 🔒')}</small></span></button>`;
     }else{
       const a=arenaById(n.id),st=info.arenas?.[n.id]||{},won=!!st.won,champ=a.n===ARENAS.length;
       html+=`<button class="map-spot spot-arena${won?' won':''}${st.ok||won?'':' locked'}${champ?' champion':''}${side(p)}" data-arena="${a.id}" aria-label="${champ?'Champion':'Arène'} de ${esc(a.city)} : ${esc(a.leader)}${won?' (battu)':''}" style="${style}"><span class="map-spot-dot" aria-hidden="true"></span><span class="map-tooltip">${champ?'Champion':'Arène'} · ${esc(a.leader)}<small>${won?'Badge obtenu ✓':'Niv. '+a.ace+(st.ok?'':' · 🔒')}</small></span></button>`;
@@ -41,7 +44,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
   path.forEach((n,i)=>{ // boutiques : posées juste sous l'étape qu'elles suivent
     if(n.kind!=='shop')return;
     const prev=main.findIndex(m=>m.kind==='zone'&&m.id===shops.find(s=>s.id===n.id)?.after),a=pos[prev]||{x:50,y:50},b=pos[prev+1]||a;
-    const x=(a.x+b.x)/2,y=(a.y+b.y)/2+(a.y<66?9:-9);
+    const x=(a.x+b.x)/2,y=(a.y+b.y)/2+(a.y<70?9:-9);
     const s=shops.find(s=>s.id===n.id);
     html+=`<button class="map-shop${s.open?' open':' closed'}${y<30?' below':''}" data-shop="${s.id}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%" aria-label="${esc(s.name)}${s.open?'':' (fermée : '+s.kills+' / '+s.need+' Pokémon vaincus)'}"><span class="map-shop-art">${SHOP_ICON}</span>${s.open?'':`<span class="map-shop-lock" aria-hidden="true">${s.kills}/${s.need}</span>`}<span class="map-tooltip">${esc(s.name)}${s.open?'':' · '+s.kills+' / '+s.need}</span></button>`;
   });

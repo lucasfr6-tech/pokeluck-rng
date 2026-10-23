@@ -150,3 +150,14 @@ body[data-theme=light] .badge-card{background:#dbeaf7;color:#35536b;border-color
 .reduce-motion .ach-toast{animation:none}
 @media(max-width:620px){.ach-grid{grid-template-columns:1fr}}
 body[data-theme=light] .ach-card{background:#dbeaf7;color:#35536b;border-color:#a5c4de}body[data-theme=light] .ach-card b{color:#203e5a}
+
+/* Conseil des 4 */
+.map-spot.spot-elite .map-spot-dot{background:#7c3aed;border-color:#ede9fe;box-shadow:0 0 0 2px #4c1d95,0 0 8px #a78bfa}
+.map-spot.spot-elite.won .map-spot-dot{background:#f5c542;border-color:#fff7d1;box-shadow:0 0 0 2px #8a6a00,0 0 8px #f5c542}
+.map-spot.spot-elite.locked .map-spot-dot{filter:grayscale(.6) brightness(.75)}
+.elite-lineup{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.elite-mem{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;background:rgba(124,58,237,.14);border:1px solid rgba(167,139,250,.5);text-align:center}
+.elite-mem img{width:56px;height:56px;object-fit:contain;image-rendering:pixelated}
+.elite-mem small{opacity:.75;font-size:.7rem}.elite-mem em{color:#f5c542;font-style:normal;font-size:.72rem}
+.elite-mem.won{background:rgba(245,197,66,.16);border-color:#f5c542}
+.elite-reqs{list-style:none;margin:8px 0;padding:0;display:grid;gap:4px}.elite-reqs li{opacity:.8}.elite-reqs li.ok{color:#7ee787;opacity:1}

@@ -1,6 +1,6 @@
 // Arènes de Kanto : 8 champions, 2 zones avant chacun. Équipes réelles des jeux (Rouge Feu / Vert Feuille), niveaux mis à l'échelle
 // pour que le dernier champion soit niveau 100. Pure donnée + règles d'accès, sans DOM.
-import {zones} from './world.js';
+import {zones, tierOf} from './world.js';
 
 // Ordre du parcours (serpentin) : deux zones, puis l'arène.
 export const ZONE_ORDER = ['route', 'route2', 'forest', 'route3', 'cave', 'route4', 'bridge', 'rocktunnel', 'tower', 'safari', 'power', 'seafoam', 'mansion', 'ceruleancave', 'victory', 'league'];
@@ -51,5 +51,25 @@ export function buildPath(shops = []) {
     for (const s of shops) if (s.after === id) path.push({kind:'shop', id:s.id});
     if (i % 2 === 1) path.push({kind:'arena', id:ARENAS[(i - 1) / 2].id});
   });
+  for (const m of ELITE) path.push({kind:'elite', id:m.id, n:24 + m.n});
   return path;
+}
+
+// Conseil des 4 (Plateau Indigo) : quatre combats d'affilée après Giovanni. Condition : les 8 badges et un Pokémon légendaire dans la collection.
+const eliteDef = (n, o) => ({n, ...o, elite:true, city:'Plateau Indigo', team:scale(o.real, o.ace), sprite:SPRITE_URL(o.trainer), badgeSprite:null, badgeName:'Victoire sur ' + o.leader});
+export const ELITE = [
+  eliteDef(1, {id:'olga', leader:'Olga', title:'Olga, du Conseil des 4', type:'glace', trainer:'lorelei', ace:97, real:[[87, 54], [91, 53], [80, 54], [124, 56], [131, 56]], quote:'Rien n’échappe au froid de ma glace !'}),
+  eliteDef(2, {id:'aldo', leader:'Aldo', title:'Aldo, du Conseil des 4', type:'combat', trainer:'bruno', ace:98, real:[[95, 53], [107, 55], [106, 55], [95, 56], [68, 58]], quote:'Ma force et ma volonté sont sans limites !'}),
+  eliteDef(3, {id:'agatha', leader:'Agatha', title:'Agatha, du Conseil des 4', type:'spectre', trainer:'agatha', ace:99, real:[[94, 56], [42, 56], [93, 55], [24, 58], [94, 60]], quote:'Les jeunes d’aujourd’hui ne savent plus se battre !'}),
+  eliteDef(4, {id:'peter', leader:'Peter', title:'Peter, du Conseil des 4', type:'dragon', trainer:'lance', ace:100, real:[[130, 58], [148, 56], [148, 56], [142, 60], [149, 62]], quote:'Je suis le maître des dragons. Montre-moi ta valeur !'})
+];
+export const eliteById = id => ELITE.find(m => m.id === id);
+export const elitePrize = (m, first) => Math.round(5000 * (8 + m.n) * (first ? 1 : .1));
+export const sanitizeElite = raw => { const out = {}; if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const m of ELITE) if (raw[m.id] === true) out[m.id] = true; return out; };
+export const eliteCleared = done => ELITE.every(m => done?.[m.id]);
+export const hasLegendary = ids => (ids || []).some(id => tierOf(+id) === 5);
+export function eliteAccess(badges, ownedIds) {
+  if (badgeCount(badges) < ARENAS.length) return {ok:false, reason:'allbadges'};
+  if (!hasLegendary(ownedIds)) return {ok:false, reason:'legend'};
+  return {ok:true};
 }
