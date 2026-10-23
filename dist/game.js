@@ -1,5 +1,5 @@
 import {rollShiny,formCount,selectedShiny,migrateShinies,recordForm,shinyBadge,SHINY_DENOMINATOR,getShinyDenominator,setShinyDenominator} from './shiny.js';
-import {mountShop,mountItems,SHOPS,shopById,shopOpen,shopKills,defaultInv,sanitizeInv,sanitizeKills,rarityBonus,xpMultiplier,ITEMS,slotsFor,isStack,stockOf,heldList,freeCopies,equipHeld,unequipHeld,useTm,statMultipliers,powerMultiplier,consumeHeld,hasHeld,moneyMultiplier,shinyDenominator,KILLS_TO_UNLOCK} from './shop.js';
+import {mountShop,mountItems,SHOPS,shopById,shopOpen,shopKills,defaultInv,sanitizeInv,sanitizeKills,rarityBonus,xpMultiplier,xpMultiplierFor,ITEMS,slotsFor,isStack,stockOf,heldList,freeCopies,equipHeld,unequipHeld,useTm,statMultipliers,powerMultiplier,consumeHeld,hasHeld,moneyMultiplier,shinyDenominator,KILLS_TO_UNLOCK} from './shop.js';
 import {createTraining,migrateTraining,gainEVs,trainingSignature,mergeBestIVs,STAT_NAMES,STAT_KEYS} from './training.js';
 import {mountTrainingPanel} from './training-ui.js';
 import {initializeSpriteCentering} from './sprite-centering.js';
@@ -89,7 +89,7 @@ const total=()=>Object.values(state.counts).reduce((a,b)=>a+b,0);
 function gainMoney(n){if(!(n>0))return;state.money=sanitizeMoney(state.money+n);save();$('#money-amount').textContent=fmtMoney(state.money);const box=$('#money-pop');if(!box)return;const s=document.createElement('span');s.textContent='+'+fmtMoney(n);box.append(s);setTimeout(()=>s.remove(),state.reducedMotion?1400:1900);}
 const fight=createFight({training:id=>state.training[id],moves:id=>knownNames(id),boost:id=>multsOf(id),sash:id=>hasHeld(state.inv,id,'band'),consumeHeld(id,item){if(consumeHeld(state,id,item)){save();render();}},team:()=>state.team,level:id=>lv(id).level,name:id=>pool[id-1].name+(selectedShiny(state,id)?' ✦':''),types:id=>types[id],wildLevel:id=>wildLevel(state.zone,id),info:id=>{const l=lv(id);return{level:l.level,pct:l.capped?100:Math.round(l.xp/l.need*100),text:l.capped?(l.evolvesAt?'Niveau max du stade':'Niveau max'):`XP ${l.xp} / ${l.need}`};},sprite:ownedSprite,backSprite:id=>sprite(id,selectedShiny(state,id),true),reduced:()=>state.reducedMotion||prefersReduced(),
  addMoney(tierId,level){const n=victoryMoney(tierOf(tierId),level)*moneyMultiplier(state.inv);state.kills[state.zone]=(state.kills[state.zone]||0)+1;gainMoney(n);renderShops();return n;},
- xpMult:()=>xpMultiplier(state.inv),
+ xpMult:id=>xpMultiplierFor(state.inv,id),
  addXp(id,n){const before=lv(id).level;state.xp[id]=(state.xp[id]||0)+n;const after=lv(id).level;save();return{before,after};},
  addEVs(id,yieldStats){const result=gainEVs(state.training[id],yieldStats);state.training[id]=result.record;save();return result.gained;},
  onEnd(){render();},onContinue(){resetEncounter();learnAll();},onFlee(){resetEncounter();}});

@@ -64,7 +64,7 @@ export function createFight(ctx) {
         if(bt!==resolvedBattle)return;
         const earned=resolvedBattle.team.find(f=>f.id===id)?.hp>0?ctx.addEVs?.(id,effortYield(resolvedBattle.wild.id)):null;
         const evText=earned?STAT_KEYS.filter(key=>earned[key]).map(key=>'+'+earned[key]+' '+STAT_NAMES[key]).join(' · '):'';
-        const gain = Math.max(1, Math.round(xpReward(wildLevel, ctx.level(id)) * (ctx.xpMult?.() || 1))), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
+        const gain = Math.max(1, Math.round(xpReward(wildLevel, ctx.level(id)) * (ctx.xpMult?.(id) || 1))), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
         const fresh = (learnsets[id] || []).filter(([, at]) => at > r.before && at <= r.after), defs = await Promise.all(fresh.map(([mv]) => getMove(mv)));
         const moves = fresh.map(([, at], k) => `<span class="new-move">Nouvelle attaque disponible : ${esc(defs[k].fr)} (niv. ${at})</span>`).join('');
         rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${evText?`<span class="ev-reward">EV : ${esc(evText)}</span>`:earned?'<span class="ev-reward">EV au plafond pour ces statistiques</span>':''}${moves}</li>`);

@@ -250,7 +250,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,auto,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma,ct-thunder,band') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma,ct-thunder,band') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -304,5 +304,11 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (bt.chooseAiMove(me, mk(['grass'], []), () => 0).name !== 'ember') throw new Error('doit choisir le feu contre une Plante');
   if (bt.chooseAiMove(me, mk(['water'], []), () => 0).name === 'ember') throw new Error('ne doit pas choisir le feu contre l’Eau');
   if (bt.chooseAiMove(mk(['fire'], [growl, tackle]), mk(['normal'], []), () => 0).name !== 'tackle') throw new Error('jamais une attaque de statut');
+}
+{
+  const shop = await import('../dist/shop.js');
+  const s = {money:1e6, inv:shop.defaultInv()}; shop.buyItem(s, 'egg'); shop.equipHeld(s, 25, 'egg');
+  if (shop.xpMultiplierFor(s.inv, 25) !== 1.5 || shop.xpMultiplierFor(s.inv, 4) !== 1) throw new Error('Œuf Chance : XP du porteur seulement');
+  shop.buyItem(s, 'xp'); if (shop.xpMultiplierFor(s.inv, 25) !== 2.25 || shop.xpMultiplierFor(s.inv, 4) !== 1.5) throw new Error('Œuf Chance et Multi-XP cumulés');
 }
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');
