@@ -262,7 +262,8 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (!shop.useTm(s, 'ct-swift') || shop.stockOf(s.inv, 'ct-swift') !== 1 || shop.useTm(s, 'ct-thunder')) throw new Error('consommation de CT');
   // objets tenus : 1 emplacement, 2 pour les espèces à méga-évolution
   shop.buyItem(s, 'band'); shop.buyItem(s, 'band');
-  if (shop.slotsFor(133) !== 1 || shop.slotsFor(6) !== 2) throw new Error('emplacements');
+  if (shop.slotsFor(133) !== 1 || shop.slotsFor(6) !== 1) throw new Error('un seul objet tenu classique, même pour les Pokémon Méga');
+  if (shop.hasReservedSlot(133) || !shop.hasReservedSlot(6)) throw new Error('emplacement réservé Méga/Dynamax');
   if (!shop.equipHeld(s, 133, 'band') || shop.equipHeld(s, 133, 'band') || shop.heldList(s.inv, 133).length !== 1) throw new Error('Évoli : un seul objet');
   if (!shop.equipHeld(s, 6, 'band') || shop.freeCopies(s.inv, 'band') !== 0 || shop.equipHeld(s, 25, 'band')) throw new Error('exemplaires libres');
   if (!shop.unequipHeld(s, 133, 'band') || shop.freeCopies(s.inv, 'band') !== 1) throw new Error('retirer un objet');
