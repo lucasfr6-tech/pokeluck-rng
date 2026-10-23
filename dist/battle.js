@@ -1,4 +1,5 @@
 import {STAT_KEYS,normalizeEVs} from './training.js';
+import {weatherMult, hailHits} from './weather.js';
 import {NATURES, ABILITIES} from './traits.js';
 // Moteur de combat (fonctions pures, sans réseau ni DOM). Règles PROVISOIRES, inspirées des jeux :
 // - stats = formule avec IV/EV modernes, nature neutre, à partir des stats de base de PokéAPI ;
@@ -97,7 +98,7 @@ function movePower(attacker, defender, move) {
   if (defender.ability === 'thick-fat' && (move.type === 'fire' || move.type === 'ice')) p *= .5;
   return p;
 }
-export function damage(attacker, defender, move, rand = Math.random) {
+export function damage(attacker, defender, move, rand = Math.random, weather = null) {
   if (move.acc != null) {
     const th = move.acc * accMult(Math.max(-6, Math.min(6, stageOf(attacker, 'acc') - stageOf(defender, 'eva')))) * (attacker.ability === 'compound-eyes' ? 1.3 : 1);
     if (rand() * 100 >= th) return {hit:false, dmg:0, eff:1, stab:false};
@@ -110,7 +111,7 @@ export function damage(attacker, defender, move, rand = Math.random) {
   const a = effStat(attacker, ak, {ignoreNeg:crit}), d = effStat(defender, dk, {ignorePos:crit});
   const base = Math.floor(Math.floor(Math.floor(2 * attacker.level / 5 + 2) * movePower(attacker, defender, move) * a / d) / 50) + 2;
   const stab = attacker.types.includes(move.type);
-  let dmg = Math.floor(base * (crit ? 1.5 : 1) * (stab ? 1.5 : 1) * eff * (0.85 + rand() * 0.15));
+  let dmg = Math.floor(base * (crit ? 1.5 : 1) * (stab ? 1.5 : 1) * eff * weatherMult(weather, move.type) * (0.85 + rand() * 0.15));
   if (eff > 0) dmg = Math.max(1, dmg);
   return {hit:true, dmg, eff, stab, crit};
 }
@@ -296,11 +297,11 @@ function engine(b, events) {
         const th = 30 + a.level - d.level;
         r = a.level < d.level || rand() * 100 >= th ? {hit:false, dmg:0, eff:1, stab:false} : {hit:true, dmg:d.hp, eff:1, stab:false};
       } else {
-        r = damage(a, d, move, rand);
+        r = damage(a, d, move, rand, b.weather);
         if (r.hit && move.maxHits > 1 && r.dmg > 0) {
           const n = move.minHits === move.maxHits ? move.maxHits : (() => { const x = rand(); return x < .375 ? 2 : x < .75 ? 3 : x < .875 ? 4 : 5; })();
           const rest = {...move, acc:null};
-          for (hits = 1; hits < n && r.dmg < d.hp; hits++) r.dmg += damage(a, d, rest, rand).dmg;
+          for (hits = 1; hits < n && r.dmg < d.hp; hits++) r.dmg += damage(a, d, rest, rand, b.weather).dmg;
         }
       }
       // Ceinture Force / Fermeté : à PV pleins, un coup fatal laisse 1 PV
@@ -364,6 +365,7 @@ function engine(b, events) {
         if (b.over) return;
         const f = A(side);
         if (f.leftovers && f.hp > 0 && f.hp < f.maxHp) { f.hp = Math.min(f.maxHp, f.hp + Math.max(1, Math.floor(f.maxHp / 16))); msg(`${f.name} récupère des PV grâce aux Restes !`, f, side); }
+        if (b.weather === 'hail' && f.hp > 0 && hailHits(f)) { f.hp = Math.max(0, f.hp - Math.max(1, Math.floor(f.maxHp / 16))); msg(`La grêle frappe ${f.name} !`, f, side); checkFaint(side); }
         if (f.hp <= 0 || !f.status) continue;
         const t = f.status.type;
         if (f.ability === 'shed-skin' && rand() < .3) { f.status = null; msg(`Mue : ${f.name} est guéri !`, f, side); continue; }

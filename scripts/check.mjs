@@ -434,11 +434,11 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(A.ARENAS.at(-1).ace, 100);
   const path = A.buildPath([{id:'s1', after:'forest'}]);
   const main = path.filter(n => n.kind !== 'shop');
-  assert.equal(main.length, 28);
+  assert.equal(main.length, 29);
   main.slice(0, 24).forEach((n, i) => assert.equal(n.kind === 'arena', i % 3 === 2));
-  assert.deepEqual(main.slice(24).map(n => n.kind), ['elite', 'elite', 'elite', 'elite']);
-  assert.equal(A.ELITE.length, 4);
-  A.ELITE.forEach((m, i) => { assert.equal(m.n, i + 1); assert.equal(m.team.length, 5); assert.ok(m.team.every(t => t[1] === m.ace)); });
+  assert.deepEqual(main.slice(24).map(n => n.kind), ['elite', 'elite', 'elite', 'elite', 'elite']);
+  assert.equal(A.ELITE.length, 5);
+  A.ELITE.forEach((m, i) => { assert.equal(m.n, i + 1); assert.equal(m.team.length, m.champion ? 6 : 5); assert.ok(m.team.every(t => t[1] === m.ace)); });
   const full = Object.fromEntries(A.ARENAS.map(x => [x.id, true]));
   assert.equal(A.eliteAccess({}, [150]).reason, 'allbadges');
   assert.equal(A.eliteAccess(full, [25]).reason, 'legend');
@@ -507,3 +507,21 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 { for (const z of zones) for (const r of [0, .5, .999]) { const l = wildLevelZone(z.id, () => r); assert.ok(l >= z.min && l <= z.min + 2, 'niveau sauvage de zone ' + z.id); }
   assert.equal(wildLevelZone('route2', () => 0), 8); assert.equal(wildLevelZone('route3', () => 0), 22); assert.ok(wildLevelZone('route2', () => .999) <= 10);
   console.log('OK : niveaux sauvages liés à la zone (Route 2 → 8, Route 3 → 22), plafonnés avant la zone suivante.'); }
+
+{
+  const W = await import('../dist/weather.js'), E = await import('../dist/events.js'), T = await import('../dist/teams.js'), B = await import('../dist/battle.js');
+  assert.equal(W.weatherOf('route2').id, 'sun'); assert.equal(W.weatherOf('forest').id, 'rain'); assert.equal(W.weatherOf('cave').id, 'hail'); assert.equal(W.weatherOf('zzz').id, 'clear');
+  assert.equal(W.weatherMult('sun', 'fire'), 1.5); assert.equal(W.weatherMult('sun', 'water'), .5); assert.equal(W.weatherMult('rain', 'water'), 1.5); assert.equal(W.weatherMult('rain', 'fire'), .5); assert.equal(W.weatherMult('hail', 'ice'), 1); assert.equal(W.weatherMult(null, 'fire'), 1);
+  const base = {id:1, name:'A', level:50, types:['fire'], base:{hp:80, atk:80, def:80, spa:80, spd:80, spe:80}, moves:[]}, tgt = {...base, name:'B', types:['normal']};
+  const mv = {name:'Test', type:'fire', cls:'special', power:60, acc:100, crit:0}, a = B.makeFighter(base), d = B.makeFighter(tgt), r = () => .5;
+  const n = B.damage(a, d, mv, r).dmg, s = B.damage(a, d, mv, r, 'sun').dmg, rn = B.damage(a, d, mv, r, 'rain').dmg;
+  assert.ok(s > n && rn < n, 'soleil renforce le Feu, la pluie l’affaiblit');
+  for (let t = 0; t < 2000; t += 37) { const now = Date.UTC(2026, 9, 23, 12) + t * 3600000, l = E.luckEvent(now); assert.ok(l.endsAt - l.startsAt === 3600000 && now >= l.startsAt && now < l.endsAt); assert.deepEqual(E.luckEvent(now), l); const d1 = E.dailyShiny(now); assert.ok(d1.id >= 1 && d1.id <= 151 && d1.endsAt > now); assert.deepEqual(E.dailyShiny(now), d1); }
+  assert.equal(E.luckBonus(0, E.luckEvent(1e12).zone, 1e12), 1); assert.equal(E.luckBonus(0.5, 'zzz', 1e12), 0.5); assert.equal(E.shinyMult(E.dailyShiny(1e12).id, 1e12), 25);
+  assert.equal(E.fmtCountdown(65000), '01:05'); assert.equal(E.fmtCountdown(3725000), '1:02:05');
+  assert.deepEqual(T.sanitizeTeams(null), [null, null, null]); assert.deepEqual(T.sanitizeTeams([{ids:[4, 4, 7, 999, 'x']}, {ids:[]}, 3])[0].ids, [4, 7]); assert.equal(T.sanitizeTeams([{ids:[4]}, {ids:[]}, 3])[1], null);
+  assert.deepEqual(T.loadableTeam({ids:[4, 7, 25]}, {4:1, 25:2}), [4, 25]); assert.ok(T.sameTeam([1, 2], [1, 2]) && !T.sameTeam([1, 2], [2, 1]));
+  const A = await import('../dist/arena.js'); assert.equal(A.ELITE.at(-1).id, 'blue'); assert.equal(A.ELITE.at(-1).champion, true); assert.equal(A.elitePrize(A.ELITE.at(-1), true), 130000);
+  assert.equal(A.eliteCleared({olga:true, aldo:true, agatha:true, peter:true}), false); assert.equal(A.eliteCleared({olga:true, aldo:true, agatha:true, peter:true, blue:true}), true);
+  console.log('OK : météo (soleil, pluie, grêle), événements déterministes, équipes sauvegardées, champion Blue.');
+}
