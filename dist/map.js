@@ -2,14 +2,15 @@ import {zones} from './world.js';
 
 // Coordonnées en pourcentage de l'illustration 480×480 (centre du rond, x et y).
 // Carte artistique de voyage, pas une carte géographique officielle de Kanto.
+// Les ronds forment une boucle dans le sens des aiguilles d'une montre, de la Route 1 (bas gauche) à la Centrale (bas droite).
 export const mapSpots=[
-  {id:'cave',x:13,y:14},
-  {id:'route3',x:51,y:9},
-  {id:'route4',x:89,y:33},
-  {id:'route2',x:12,y:56},
   {id:'route',x:36,y:73},
-  {id:'forest',x:76,y:88},
-  {id:'power',x:77,y:65}
+  {id:'route2',x:12,y:56},
+  {id:'forest',x:13,y:14},
+  {id:'route3',x:51,y:9},
+  {id:'cave',x:89,y:33},
+  {id:'route4',x:77,y:65},
+  {id:'power',x:76,y:88}
 ];
 
 // Ordre du parcours : les zones classées par niveau (de la Route 1 à la Centrale).
