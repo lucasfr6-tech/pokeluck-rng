@@ -1,7 +1,7 @@
 // Tirage indépendant de l'espèce. Les futures améliorations passeront par ce taux.
 export const SHINY_DENOMINATOR = 4096;
 export const SHINY_CHANCE = 1 / SHINY_DENOMINATOR;
-// Le Charme Chroma change le dénominateur (1 sur 2 048) ; sans lui, 1 sur 4 096.
+// Le Charme Chroma change le dénominateur (×4 : 1 sur 1 024) ; sans lui, 1 sur 4 096.
 let denominator = SHINY_DENOMINATOR;
 export const setShinyDenominator = n => {denominator = Number.isInteger(n) && n >= 1 ? n : SHINY_DENOMINATOR;};
 export const getShinyDenominator = () => denominator;

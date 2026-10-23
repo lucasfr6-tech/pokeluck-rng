@@ -231,7 +231,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (!shop.equipBall(s, 'super') || s.inv.ball !== 'super' || shop.equipBall(st(), 'hyper')) throw new Error('équipement des balls');
   // effets passifs actifs dès l'achat
   s = st(); s.money = 5e6; ['xp', 'rune', 'chroma'].forEach(id => shop.buyItem(s, id));
-  if (shop.xpMultiplier(s.inv) !== 1.5 || shop.moneyMultiplier(s.inv) !== 2 || shop.shinyDenominator(s.inv) !== 2048) throw new Error('effets passifs');
+  if (shop.xpMultiplier(s.inv) !== 1.5 || shop.moneyMultiplier(s.inv) !== 2 || shop.shinyDenominator(s.inv) !== 1024) throw new Error('effets passifs');
   if (shop.xpMultiplier(shop.defaultInv()) !== 1 || shop.shinyDenominator(shop.defaultInv()) !== 4096) throw new Error('effets par défaut');
   // déblocage : 3 victoires dans la zone précédente
   const jade = shop.shopById('jade');
@@ -245,7 +245,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (Math.abs(sum(boosted) - 1) > 1e-9 || !(tierSum(boosted, 3) > tierSum(base, 3)) || !(tierSum(boosted, 1) < tierSum(base, 1))) throw new Error('bonus de rareté');
   if (Math.abs(tierSum(world.zonePool('route', .6), 1) - 1) > 1e-9) throw new Error('Route 1 inchangée');
   // charme chroma
-  sh.setShinyDenominator(2048); if (!sh.rollShiny(1 / 2048 - 1e-9) || sh.rollShiny(1 / 2048)) throw new Error('charme chroma'); sh.setShinyDenominator(4096);
+  sh.setShinyDenominator(1024); if (!sh.rollShiny(1 / 1024 - 1e-9) || sh.rollShiny(1 / 1024)) throw new Error('charme chroma'); sh.setShinyDenominator(4096);
   if (sh.rollShiny(1 / 4096)) throw new Error('retour au 1/4096');
 }
 {
