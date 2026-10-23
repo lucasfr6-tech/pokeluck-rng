@@ -16,8 +16,8 @@ Les sources du jeu se trouvent uniquement dans `dist/` :
 - `index.html` : disposition et structure des menus.
 - `game.css` : thème sombre et responsive.
 - `game.js` : interactions, collection, équipe, sauvegarde, appels PokéAPI.
-- `pokemon.js` : les 31 espèces du prototype et les probabilités de base.
-- `world.js` : zones, parcours de Kanto, types, poids de rencontre et puissances provisoires.
+- `pokemon.js` : les 151 espèces de Kanto (noms français, poids de base, table d'évolutions `evolvesFrom`).
+- `world.js` : zones, parcours de Kanto, types, poids de rencontre, puissances provisoires et règles d'équipe (une évolution remplace sa forme précédente).
 - `wander.js` : petits Pokémon qui se promènent dans la scène.
 - `update.js` : rechargement automatique après une nouvelle publication.
 - `map.js` : ronds lumineux cliquables de la carte illustrée (positions en pourcentage) et noms au survol.
@@ -44,6 +44,8 @@ Quatre cadres, selon le croquis du créateur :
 3. **Menu** (à gauche) : un seul cadre qui ouvre le menu coulissant.
 4. **Carte** (en bas à gauche) : carte illustrée avec des ronds lumineux cliquables (`map.js`). L'**équipe de six** (grandes cartes avec nom et puissance) est à droite de la carte.
 
+Le bouton **Index**, à côté du nom de la zone, ouvre la liste des Pokémon de cette zone avec leurs chances (les espèces pas encore rencontrées restent en ombre). Une évolution capturée prend la place de sa forme précédente dans l'équipe ; une forme plus ancienne ne remplace pas une évolution déjà équipée.
+
 La barre de vie est provisoire : `maxHp(power)` dans `world.js` (10 × puissance), à décider avec le créateur ; il n'y a pas encore de mécanique de combat. La page se recharge automatiquement quand une nouvelle version est publiée (`update.js`, `version.json` écrit par le build).
 
 ## Historique : interface 0.3
@@ -52,7 +54,7 @@ Direction retenue par le créateur : Aventure rétro. La scène occupe 100 % de 
 
 ## Limites actuelles
 
-Seulement les 31 premières espèces et Kanto sont jouables. Les autres régions sont annoncées dans le sélecteur. Le bonus de zone applique un poids ×3 aux espèces ayant au moins un type favorisé, puis normalise toutes les probabilités. La rareté extrême (légendaires à 1/500 millions), les améliorations et les renaissances ne sont pas encore implémentées. Il n'y a ni compte joueur ni synchronisation serveur des collections.
+Seulement les 151 premières espèces et Kanto sont jouables. Les autres régions sont annoncées dans le sélecteur. Le bonus de zone applique un poids ×3 aux espèces ayant au moins un type favorisé, puis normalise toutes les probabilités. La rareté extrême (légendaires à 1/500 millions), les améliorations et les renaissances ne sont pas encore implémentées. Il n'y a ni compte joueur ni synchronisation serveur des collections.
 
 PokéAPI : https://pokeapi.co/docs/v2
 

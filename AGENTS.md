@@ -10,3 +10,4 @@
 - Exécuter npm test et npm run build après un changement du tirage ou du déploiement ; vérifier les interactions touchées dans le navigateur quand disponible.
 - Avant de travailler, récupérer les changements distants sans écraser de modifications locales. Publier sur Pages exige un push dans main ou la fusion d'une branche dans main. Ne pas forcer un push.
 - Ne pas inclure de secrets, sauvegardes de joueur ou identifiants d'accès dans le dépôt.
+- Équipe : une seule forme par lignée d'évolution ; une évolution capturée remplace sa forme précédente (`teamAfterCapture` dans world.js, testé dans scripts/check.mjs). Les 151 espèces de Kanto sont présentes ; poids et puissances des espèces 32 à 151 sont provisoires.

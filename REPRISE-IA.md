@@ -1,3 +1,9 @@
+# Mise à jour 0.6 — 151 Pokémon, évolutions, Index
+
+Demandes du créateur réalisées : les 151 premiers Pokémon sont dans le jeu (noms français, types de première génération, poids de rareté et puissances PROVISOIRES pour les espèces 32 à 151 : puissance ≈ 12 × (total des stats / 300)^5 ; les 31 premières espèces gardent leurs valeurs) ; une évolution capturée prend la place de sa forme précédente dans l'équipe (équipement manuel : remplacement sur place dans la même lignée ; anciennes sauvegardes dédoublonnées au chargement) ; bouton **Index** à côté du nom de la zone, qui liste les Pokémon de la zone avec leurs chances. Nidoran♀ (50 %) et Salamèche (1/6) conservent leurs chances fixes du prototype. Toutes les espèces peuvent apparaître dans toutes les zones (bonus de type ×3) : des listes d'espèces propres à chaque route restent à décider avec le créateur.
+
+---
+
 # Mise à jour 0.5 — Quatre cadres, fonds par zone, vie en fond, équipe
 
 Le créateur a demandé de refaire l'ergonomie (croquis : 1 scène, 2 bannière, 3 menu, 4 carte). Fait : fonds du pack dungeons associés aux zones (Route 1 beauplains, Route 2 wildplains, Route 3 skyblueplains, Route 4 ravagedfield, Forêt de Jade overgrownforest, Mont Sélénite echocave, Centrale powerplant) ; ronds lumineux cliquables sur la carte (la Centrale a un rond près du pont, position choisie par l'assistant) ; bannière avec les six Pokémon d'équipe ; cadre Menu seul ; équipe de six en grandes cartes à droite de la carte ; petits Pokémon qui se promènent en fond (face, dos, côtés en miroir, diagonales) à la place des GIF animés ; barre de vie sous le Pokémon rencontré ; rechargement automatique de la page après publication.
