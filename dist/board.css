@@ -226,13 +226,13 @@ body.reduce-motion .wx-fx,body.reduce-motion .wx-pill{animation:none!important}
 .ball[data-ball=master] .ball-top:before{content:"M";position:absolute;left:50%;top:6%;transform:translateX(-50%);color:#ff7fc8;font:700 calc(var(--ball,132px)*.2)/1 var(--pixel,sans-serif)}
 
 /* Rival sur la carte : petit personnage pixel posé sur la carte, cliquable */
-.map-rival{position:absolute;transform:translate(-50%,-88%);width:auto;height:clamp(26px,9%,40px);aspect-ratio:auto;padding:0;border:0;border-radius:0;background:none;box-shadow:none;cursor:pointer;z-index:4;animation:none}
+.map-rival{position:absolute;transform:translate(-50%,-88%);width:auto;height:clamp(46px,16%,68px);aspect-ratio:auto;padding:0;border:0;border-radius:0;background:none;box-shadow:none;cursor:pointer;z-index:3;animation:none;pointer-events:none}
 .map-rival:after{content:"";position:absolute;left:50%;bottom:-2px;width:70%;height:6px;border-radius:50%;background:#0006;transform:translateX(-50%);z-index:-1}
-.map-rival img{height:100%;width:auto;display:block;image-rendering:pixelated;filter:drop-shadow(0 0 0 #fff) drop-shadow(0 1px 0 #0008);pointer-events:none}
+.map-rival img{height:100%;width:auto;display:block;image-rendering:pixelated;filter:drop-shadow(0 0 0 #fff) drop-shadow(0 1px 0 #0008);pointer-events:auto}
 .map-rival:hover img,.map-rival:focus-visible img{filter:drop-shadow(0 0 3px #ffd27c) drop-shadow(0 0 1px #ffd27c)}
 .map-rival .map-tooltip{display:none}
 .map-rival:hover .map-tooltip,.map-rival:focus-visible .map-tooltip{display:block}
-.large-map .map-rival{height:56px}
+.large-map .map-rival{height:92px}
 /* Aura du rival : halo doux pulsant autour du personnage, zone de clic élargie */
 .map-rival{padding:6px 8px;margin:-6px -8px}
 .map-rival:before{content:"";position:absolute;left:50%;top:50%;width:190%;height:150%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,#fff3c8ee,#ff7a86cc 45%,#ff5a6e00);z-index:-1;animation:rival-aura 1.6s ease-in-out infinite;pointer-events:none}

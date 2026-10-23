@@ -43,8 +43,8 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
   });
   main.forEach((n,i)=>{ // rival : petit sprite posé à côté de l'arène dont il vient d'être battu
     if(n.kind!=='arena')return;const a=arenaById(n.id);if(!info.rival?.[a.n])return;
-    const p=pos[i],dx=p.x>60?-5.5:5.5;
-    html+=`<button class="map-rival" data-rival="${a.n}" style="left:${(p.x+dx).toFixed(1)}%;top:${(p.y+2).toFixed(1)}%" aria-label="Rival : revanche après ${esc(a.city)}"><img src="assets/trainers/rival-map.png" alt="" draggable="false"><span class="map-tooltip">Rival<small>Clique pour le défier</small></span></button>`;
+    const p=pos[i],dx=p.x>60?-9:9;
+    html+=`<button class="map-rival" data-rival="${a.n}" style="left:${(p.x+dx).toFixed(1)}%;top:${(p.y+4).toFixed(1)}%" aria-label="Rival : revanche après ${esc(a.city)}"><img src="assets/trainers/rival-map.png" alt="" draggable="false"><span class="map-tooltip">Rival<small>Clique pour le défier</small></span></button>`;
   });
   const placed=[];
   path.forEach((n,i)=>{ // boutiques : posées juste sous l'étape qu'elles suivent
