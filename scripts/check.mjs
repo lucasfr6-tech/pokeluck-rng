@@ -579,3 +579,18 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(D.shinyMilestoneState(D.sanitizeDex(), 6).filter(m => m.ready).length, 1);
   console.log('OK : Pokédex chromatique (paliers +5/+15/+25/+50 %, comptage des formes brillantes).');
 }
+{
+  const P = await import('../dist/pension.js'), dc = P.blankDaycare();
+  assert.equal(P.deposit(dc, 25, 10), true); assert.equal(dc.egg, null); assert.equal(P.deposit(dc, 25, 10), false);
+  assert.equal(P.deposit(dc, 4, 10), true); assert.deepEqual(dc.egg, {start: 10, need: P.EGG_NEED}); assert.equal(P.deposit(dc, 7, 10), false);
+  assert.equal(P.eggProgress(dc, 10 + P.EGG_NEED - 1), P.EGG_NEED - 1); assert.equal(P.eggReady(dc, 10 + P.EGG_NEED - 1), false); assert.equal(P.eggReady(dc, 10 + P.EGG_NEED), true);
+  assert.equal(P.hatchSpecies(dc, () => .1), 25); assert.equal(P.hatchSpecies(dc, () => .9), 4); assert.equal(P.baseForm(6), 4);
+  const ta = {ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}}, tb = {ivs: {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0}};
+  const t = P.inheritIVs(ta, tb, () => .3); assert.ok(Object.values(t.ivs).every(v => v === 31)); // .3 < .5 : parent A, pas de mutation (.3 > .2)
+  assert.ok(Object.values(P.inheritIVs(ta, tb, () => .7).ivs).every(v => v === 0));
+  assert.ok(Object.values(P.inheritIVs(ta, tb, () => .1).ivs).every(v => v >= 0 && v <= 31));
+  assert.equal(P.shinyMultiplier({a: 1, b: 2}, {}), 8); assert.equal(P.shinyMultiplier({a: 1, b: 2}, {1: 1}), 16); assert.equal(P.shinyMultiplier({a: 1, b: 2}, {1: 1, 2: 3}), 32);
+  assert.equal(P.withdraw(dc, 25), true); assert.equal(dc.egg, null);
+  assert.deepEqual(P.sanitizeDaycare({a: 4, b: 4, egg: {start: 1, need: 5}}), {a: 4, b: null, egg: null}); assert.equal(P.sanitizeDaycare({a: 4, b: 5, egg: {start: 1, need: 5}}).egg.need, 5);
+  console.log('OK : Pension (dépôt, œuf, progression, éclosion, IV hérités, chance de chromatique).');
+}

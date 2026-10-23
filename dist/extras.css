@@ -62,3 +62,19 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .dex-tabs button[aria-selected=true]{border-color:#ffd27c;background:#ffd27c;color:#3a2800}
 .shiny-dex .dex-tile.unknown img{filter:brightness(0) opacity(.45)}
 .shiny-dex .dex-tile.shiny{border-color:#ffd24a;box-shadow:0 0 10px #ffd24a66}
+
+/* Pension Pokémon */
+.dc{display:grid;gap:12px}
+.dc-top{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;align-items:stretch}
+.dc-slot{display:grid;justify-items:center;align-content:center;gap:4px;padding:10px;border-radius:14px;border:2px solid #ffffff33;background:#0c1c2acc;min-height:150px;text-align:center}
+.dc-slot img{width:84px;height:84px;object-fit:contain;image-rendering:pixelated}
+.dc-slot.empty{border-style:dashed;color:#b6cede}
+.dc-slot button,.dc-hatch{padding:7px 12px;border-radius:10px;border:2px solid #ffd27c;background:#ffd27c22;color:#ffe9b8;font:inherit;font-weight:700;cursor:pointer}
+.dc-egg{display:grid;justify-items:center;align-content:center;gap:6px;padding:10px;border-radius:14px;border:2px solid #ffe08a88;background:linear-gradient(#ffe08a22,#0c1c2acc);text-align:center}
+.dc-egg-art{font-size:46px;line-height:1}
+.dc-egg.ready .dc-egg-art{animation:rival-bob .8s ease-in-out infinite}
+.dc-bar{width:100%;height:12px;border-radius:8px;background:#0008;overflow:hidden}.dc-bar i{display:block;height:100%;background:linear-gradient(90deg,#ffd27c,#ff9b4a)}
+.dc-hatch{background:#ffd27c;color:#3a2800;font-size:1.05rem;padding:10px 16px}
+.dc-note{opacity:.8;font-size:.9rem;margin:0}.dc-msg{margin:0;padding:10px;border-radius:10px;background:#ffd27c22;border:1px solid #ffd27c88}
+.dc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+@media(max-width:560px){.dc-top{grid-template-columns:1fr 1fr}.dc-egg{grid-column:1/-1;order:3}}
