@@ -91,3 +91,9 @@ body.boss-fight .scene>.flee{display:none!important}
   .boss-trainer{right:0}
 }
 @media(min-width:701px) and (max-width:1150px){.banner-right{grid-column:1/-1}.game .banner{grid-template-columns:52px auto minmax(0,1fr)}}
+/* Repère « tu es ici » : flèche qui rebondit au-dessus du rond de la zone actuelle */
+.map-spot.current{z-index:5}
+.map-spot.current::before{content:'';position:absolute;left:50%;bottom:calc(100% + 1px);width:0;height:0;margin-left:-9px;border:9px solid transparent;border-top:14px solid #ffe27a;border-bottom:0;filter:drop-shadow(0 0 2px #000) drop-shadow(0 0 4px #ffb84a);animation:here-bob .9s ease-in-out infinite;pointer-events:none}
+@keyframes here-bob{0%,100%{transform:translateY(-3px)}50%{transform:translateY(2px)}}
+.reduce-motion .map-spot.current::before{animation:none}
+.large-map .map-spot.current::before{margin-left:-9px;border-width:9px;border-top-width:14px;border-bottom:0}
