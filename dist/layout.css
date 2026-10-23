@@ -405,3 +405,6 @@ body.team-dragging,body.team-dragging .team-card{cursor:grabbing!important}
 .game .rail>.menu-frame,.game .rail>.rail-btn{flex:0 0 76px}
 @media(max-width:700px) and (orientation:portrait){.game .rail>.menu-frame,.game .rail>.rail-btn{flex:1 1 0}}
 @media(max-height:600px) and (min-width:701px){.game .rail>.menu-frame,.game .rail>.rail-btn{flex:0 0 44px}.rail-btn>img{width:24px;height:24px}}
+
+/* Menu : grand rectangle en haut du rail, Réglages conservé en bas. */
+@media(min-width:701px) and (min-height:601px){.game .rail>.menu-frame{flex:0 1 clamp(140px,calc((var(--rail-w) - 20px)*2.4),220px);min-height:100px;font-size:16px;gap:10px}.game .rail>.menu-frame svg{width:42px;height:42px}}
