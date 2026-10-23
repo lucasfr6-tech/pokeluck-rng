@@ -55,15 +55,15 @@ export function createFight(ctx) {
     const lost = bt.winner !== 'player';
     let html;
     if (!lost) {
-      const gain = xpReward(wildLevel), rows = [];
+      const rows = [];
       for (const id of bt.participants) {
-        const r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
+        const gain = xpReward(wildLevel, ctx.level(id)), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
         const fresh = (learnsets[id] || []).filter(([, at]) => at > r.before && at <= r.after), defs = await Promise.all(fresh.map(([mv]) => getMove(mv)));
         const moves = fresh.map(([, at], k) => `<span class="new-move">Nouvelle attaque disponible : ${esc(defs[k].fr)} (niv. ${at})</span>`).join('');
         rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${moves}</li>`);
       }
       setCard(activeFighter(bt), activeFighter(bt).hp);
-      html = `<div class="v-card" role="dialog" aria-label="Victoire"><h2>Victoire !</h2><p>${esc(bt.wild.name)} sauvage est K.O. · +${gain} XP par Pokémon engagé</p><ul class="v-list">${rows.join('')}</ul><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
+      html = `<div class="v-card" role="dialog" aria-label="Victoire"><h2>Victoire !</h2><p>${esc(bt.wild.name)} sauvage est K.O. · l’XP dépend de son niveau (${wildLevel})</p><ul class="v-list">${rows.join('')}</ul><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     } else html = `<div class="v-card lost" role="dialog" aria-label="Défaite"><h2>Défaite…</h2><p>Toute ton équipe est K.O. Aucune pénalité : relance un tirage pour retenter ta chance.</p><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     await delay(500);
     if (!bt) return;
