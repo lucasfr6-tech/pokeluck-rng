@@ -342,3 +342,30 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .pr-card small{font:700 12px system-ui;opacity:.9}
 @media(max-width:800px){.pr-stairs{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.pr-card{height:auto!important}}
 body.reduce-motion .pr-card,body.reduce-motion .pr-badge,body.reduce-motion .pr-name,body.reduce-motion .pr-power b,body.reduce-motion .pr-bar u{animation:none!important}
+
+/* Mes Pokémon : cartes de type colorées et animées */
+.catalog-mode{--cat-bg:#120d22;--cat-soft:#1a1233;--cat-line:#5b3fa0;--cat-gold:#fde047}
+.modal.catalog-mode{background:radial-gradient(circle at 50% -10%,#2a1f4a,#120d22 55%,#0a0814)!important}
+.catalog-mode>.modal-head{background:linear-gradient(110deg,#3b1d7a,#5b21b6 60%,#9d174d)!important}
+.catalog-mode>.modal-head h2{background:linear-gradient(90deg,#fde047,#fff,#f9a8d4,#fde047);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:pr-flow 3s linear infinite;font-size:30px}
+.roster-area,.collection-library{background:transparent!important;border:0!important}
+.catalog-section-head h3{background:linear-gradient(90deg,#fde047,#fff,#fde047);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:pr-flow 3s linear infinite}
+.ct-ring{position:relative;width:150px;height:150px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,#3b2a70,#1b1236);border:5px solid #fde047;box-shadow:0 0 30px #fde04766,0 5px 0 #854d0e;animation:pr-glow 2.6s ease-in-out infinite;--c:#fde047;--d:#854d0e}
+.ct-ring:before{content:"";position:absolute;inset:-12px;border-radius:50%;border:3px dashed #fde04788;animation:ct-spin 14s linear infinite}
+.ct-ring small{font:800 10px system-ui;letter-spacing:.12em;color:#fde68a}.ct-ring strong{margin:0!important;font:900 32px system-ui!important;color:#fff!important}
+@keyframes ct-spin{to{transform:rotate(360deg)}}
+.roster-card,.library-card{--pk:var(--pokemon-color,#7193ac);position:relative;border:3px solid var(--pk)!important;border-radius:20px!important;background:repeating-linear-gradient(115deg,#ffffff12 0 14px,transparent 14px 28px),linear-gradient(165deg,color-mix(in srgb,var(--pk) 42%,#120d22),#140f26 95%)!important;box-shadow:0 5px 0 color-mix(in srgb,var(--pk) 45%,#000)}
+.roster-card:first-child{animation:pr-glow 2.4s ease-in-out infinite;--c:var(--pk);--d:color-mix(in srgb,var(--pk) 45%,#000)}
+.roster-card:first-child:after{content:"";position:absolute;top:0;bottom:0;left:0;width:28%;background:linear-gradient(90deg,transparent,#fff3,transparent);animation:pr-shine 3.6s ease-in-out infinite;pointer-events:none}
+.catalog-sprite{width:124px!important;height:124px!important;margin:0!important;filter:drop-shadow(0 6px 4px #0009)!important;animation:pr-bob 2.6s ease-in-out infinite}
+.library-pick .catalog-sprite{width:132px!important;height:132px!important}
+.roster-card:nth-child(2) .catalog-sprite{animation-delay:.3s}.roster-card:nth-child(3) .catalog-sprite{animation-delay:.6s}.roster-card:nth-child(4) .catalog-sprite{animation-delay:.9s}.roster-card:nth-child(5) .catalog-sprite{animation-delay:1.2s}.roster-card:nth-child(6) .catalog-sprite{animation-delay:1.5s}
+.catalog-name{font:900 22px system-ui!important}
+.catalog-type{border:2px solid #0004!important;border-left:2px solid #0004!important;border-radius:999px!important;background:var(--type-color)!important;color:#1a0f00!important;font-weight:900!important;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px!important}
+.catalog-card-top>span:last-child{border-radius:999px!important;font-weight:900!important;background:#0007!important;padding:3px 10px!important}
+.catalog-xp{height:12px!important;border-radius:7px!important;background:#0008!important}.catalog-xp i{background:repeating-linear-gradient(115deg,#fff3 0 12px,transparent 12px 24px) 0 0/56px 100%,linear-gradient(90deg,var(--pk),#fff)!important;animation:pr-stripe 1.2s linear infinite}
+.catalog-card-actions button{border:0!important;border-radius:12px!important;font-weight:900!important;background:#2a2050!important;color:#fff!important;box-shadow:0 3px 0 #120d22}
+.catalog-card-actions button:first-child,.library-card .catalog-card-actions button[data-add]{background:linear-gradient(#fde047,#f59e0b)!important;color:#3a2400!important;box-shadow:0 3px 0 #a15c07}
+.catalog-filters input,.catalog-filters select,.catalog-selection{border:3px solid #7c3aed!important;border-radius:14px!important;background:#0007!important}
+.roster{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))!important}
+body.reduce-motion .catalog-sprite,body.reduce-motion .roster-card:first-child,body.reduce-motion .ct-ring,body.reduce-motion .catalog-xp i{animation:none!important}
