@@ -205,8 +205,8 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
  const m=training.mergeBestIVs(cur,got);assert.deepEqual(m.record.ivs,{hp:9,atk:20,def:3,spa:31,spd:12,spe:15});assert.deepEqual(m.record.evs,cur.evs);
  assert.deepEqual(m.improved.map(x=>x.key+':'+x.from+'>'+x.to),['hp:7>9','spd:0>12']);assert.equal(training.mergeBestIVs(cur,{ivs:{hp:1}}).improved.length,0);assert.equal(cur.ivs.hp,7);}
 {
-  const {boostStats, SHINY_BOOST, computeStats: cs} = await import('../dist/battle.js');
-  const b = cs({hp:45,attack:49,defense:49,speed:45,special:65}, 20, {});
+  const {boostStats, SHINY_BOOST, computeStats: cs, DEFAULT_BASE} = await import('../dist/battle.js');
+  const b = cs(DEFAULT_BASE, 20, {});
   const x = boostStats(b, SHINY_BOOST);
   for (const k of Object.keys(b)) if (x[k] !== Math.floor(b[k] * 1.5)) throw new Error('boost chromatique ' + k);
   if (boostStats(b, 1) !== b) throw new Error('boost 1 doit rester neutre');
