@@ -47,3 +47,4 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .q-side{display:grid;gap:4px;justify-items:end;min-width:104px}.q-reward{font-weight:700;color:#ffd24a}.q-side em{font-style:normal;color:#7ee787;font-size:12.5px}
 .q-note{opacity:.7;margin:0;font-size:12.5px}
 @media(max-width:520px){.quest{grid-template-columns:1fr}.q-side{grid-auto-flow:column;justify-content:space-between;align-items:center;justify-items:start}}
+.compass-menu .compass-nav button[data-view=dex]>.dex-icon{width:56px;height:56px}.dex-icon svg{image-rendering:pixelated}

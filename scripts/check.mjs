@@ -77,7 +77,7 @@ assert.equal(levelInfo(6,1).level,36);
 assert.equal(powerAt(4,5),powers[3]);assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,15)>powerAt(4,10));
 assert.ok(powers[0]>=250&&powers[0]<=1500,'Bulbizarre démarre vers 500');
 assert.ok(powerAt(5,35)<powerAt(6,36),'Une évolution est plus puissante que la forme précédente à son plafond');
-const legend=[144,145,146,150,151,149].reduce((n,id)=>n+powerAt(id,100),0);assert.ok(legend>=1e9&&legend<1e11,'Équipe de légendaires niv. 100 en milliards : '+legend);
+const legend=[144,145,146,150,151,149].reduce((n,id)=>n+powerAt(id,100),0);assert.ok(legend>=4e7&&legend<=5e7,'Équipe de légendaires niv. 100 : 40 à 50 M au maximum : '+legend);assert.ok(powerAt(134,53)<2e6,'Aquali niv. 53 reste sous 2 M');
 for(let id=1;id<=151;id++)assert.ok(powerAt(id,100)>=powerAt(id,50));
 // Combat : types, attaques apprises, dégâts, déroulement et expérience.
 assert.equal(effectiveness('fire',['grass']),2);assert.equal(effectiveness('electric',['ground']),0);assert.equal(effectiveness('water',['fire','rock']),4);
@@ -114,10 +114,10 @@ console.log(`OK : 151 espèces, puissances, ${zones.length} zones normalisées, 
 // Les limites de paliers et les préférences héritées ne doivent pas produire de progression invalide.
 const {powerProgress,normalizePreferences}=await import('../dist/preferences.js');
 assert.equal(powerProgress(99999).index,0);assert.equal(powerProgress(100000).index,1);
-assert.equal(powerProgress(100000000).index,2);assert.equal(powerProgress(1000000000).index,3);
-assert.equal(powerProgress(100000).percent,0);assert.equal(powerProgress(1000000000).next,null);
+assert.equal(powerProgress(1000000).index,2);assert.equal(powerProgress(6e6).index,3);assert.equal(powerProgress(2e7).index,4);assert.equal(powerProgress(4e7).index,5);
+assert.equal(powerProgress(100000).percent,0);assert.equal(powerProgress(4e7).next,null);
 assert.equal(powerProgress(50000).remaining,50000);assert.equal(powerProgress(50000).percent,50);
-for(const n of [-100,0,1,99999,100000,1e8,1e9,1e14,NaN]){const p=powerProgress(n);assert.ok(p.percent>=0&&p.percent<=100&&Number.isFinite(p.percent));}
+for(const n of [-100,0,1,99999,100000,1e6,1e8,1e9,1e14,NaN]){const p=powerProgress(n);assert.ok(p.percent>=0&&p.percent<=100&&Number.isFinite(p.percent));}
 assert.equal(normalizePreferences({theme:'light',quality:'eco',volume:0,sound:false}).volume,0);
 assert.equal(normalizePreferences({sound:false}).sound,false);
 assert.equal(normalizePreferences({volume:999,quality:'invalid'}).volume,100);
@@ -501,7 +501,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual(M.newlyDone({'draw-1':true}, m1).map(a => a.id).sort(), ['dex-10', 'draw-100']);
   assert.deepEqual(M.progressOf(M.achievementById('draw-1000'), {draws:250}), {cur:250, target:1000, done:false});
   assert.deepEqual(M.sanitizeAch({'draw-1':true, bad:true, 'draw-100':1}), {'draw-1':true}); assert.deepEqual(M.sanitizeStats({purchases:3, tmUsed:-1, x:5, heals:1.5}), {purchases:3});
-  assert.deepEqual([0, 9e4, 1e5, 1e8, 1e9].map(M.powerRankOf), [0, 0, 1, 2, 3]);
+  assert.deepEqual([0, 9e4, 1e5, 1e6, 6e6, 2e7, 4e7, 1e9].map(M.powerRankOf), [0, 0, 1, 2, 3, 4, 5, 5]);
   console.log('OK : 50 succès (4 rangs), progression, déblocage unique, sanitation.');
 }
 { for (const z of zones) for (const r of [0, .5, .999]) { const l = wildLevelZone(z.id, () => r); assert.ok(l >= z.min && l <= z.min + 2, 'niveau sauvage de zone ' + z.id); }

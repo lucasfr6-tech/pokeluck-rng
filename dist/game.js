@@ -9,6 +9,7 @@ import {pool,sprite,odds,sameLine,evolvesFrom} from './pokemon.js';
 import {types,zones,powers,zonePool,TIER_NAMES,tierOf,draw,backgroundFor,maxHp,dedupeLines,teamAfterCapture,teamAfterEquip} from './world.js';
 import {createWanderers} from './wander.js';
 import {getPreferences,powerProgress,POWER_THRESHOLDS} from './preferences.js';
+import {powerRank} from './power.js';
 import {mountSettings} from './settings.js';
 import {updateAudio} from './audio.js';
 import {levelInfo,powerAt,wildLevel,wildLevelNear,wildLevelZone} from './levels.js';
@@ -84,10 +85,10 @@ const fmt=n=>n.toLocaleString('fr-FR');
 // Puissances compactes : 12,3 k · 45 M · 3,2 Md (milliards) · 1,5 Bn (billions), avec une médaille par palier.
 const splitP=n=>{const f=v=>(v>=100?Math.round(v):Math.round(v*10)/10).toLocaleString('fr-FR');return n>=1e12?[f(n/1e12),'Bn']:n>=1e9?[f(n/1e9),'Md']:n>=1e6?[f(n/1e6),'M']:n>=1e4?[f(n/1e3),'k']:[n.toLocaleString('fr-FR'),''];};
 const fmtP=n=>splitP(n).join(' ').trim();
-const TIERS=[['#c98a52','#7a4a22','Bronze'],['#d7e2ea','#7d8f9c','Argent'],['#ffd25a','#b0771a','Or'],['#6fe3ff','#1d7fa8','Diamant']];
-const tierP=n=>n<1e5?0:n<1e8?1:n<1e9?2:3;let medalId=0;
+const TIERS=[['#c98a52','#7a4a22','Bronze'],['#d7e2ea','#7d8f9c','Argent'],['#ffd25a','#b0771a','Or'],['#9ee8d6','#2f8f7c','Platine'],['#6fe3ff','#1d7fa8','Diamant'],['#ff8ae6','#a02f8c','Maître']];
+const tierP=n=>powerRank(n);let medalId=0;
 // Rangs de puissance = badges d'arène de Kanto, dans l'ordre (Roche, Cascade, Foudre, Prisme…) : la suite prolongera la série.
-const BADGES=[['Roche',1],['Cascade',2],['Foudre',3],['Prisme',4]];
+const BADGES=[['Roche',1],['Cascade',2],['Foudre',3],['Prisme',4],['Âme',5],['Marais',6]];
 const badgeUrl=i=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${BADGES[i][1]}.png`;
 const medal=(n,size)=>{const i=tierP(n);return `<img class="medal badge-img" src="${badgeUrl(i)}" width="${size}" height="${size}" alt="" aria-hidden="true">`;};
 const powerBadge=(n,mini)=>{const [v,u]=splitP(n),t=tierP(n);return `<span class="pw${mini?' pw-mini':''}" style="--pc:${TIERS[t][0]}" title="Puissance ${fmt(n)} · ${TIERS[t][2]} · Badge ${BADGES[t][0]}">${medal(n,mini?26:52)}<span class="pw-txt"><small>Puissance</small><b>${v}</b><i>${u}</i></span></span>`;};

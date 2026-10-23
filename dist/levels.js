@@ -35,9 +35,9 @@ export function levelInfo(id, count = 1, bonus = 0, ceiling = MAX_LEVEL) {
   return {level, cap, min, capped, limited: capped && cap < stageCap, xp: capped ? 0 : xp, need: capped ? 0 : xpToNext(level), evolvesAt: nextLevels[id] ?? null};
 }
 
-// Puissance : valeur de référence de l'espèce (niveau 5) multipliée par (niveau / 5)^3,7.
-// Dracaufeu niv. 36 ≈ 10 millions, niv. 100 ≈ 440 millions ; Mewtwo niv. 100 ≈ 1,5 milliard (provisoire).
-export const LEVEL_POWER_EXP = 3.7;
+// Puissance : valeur de référence de l'espèce (niveau 5) multipliée par (niveau / 5)^2,15.
+// Une équipe de six Pokémon niv. 100 (légendaires compris) ≈ 50 M au maximum ; Mewtwo niv. 100 ≈ 14 M (provisoire).
+export const LEVEL_POWER_EXP = 2.15;
 export function powerAt(id, level) {
   return Math.round(powers[id - 1] * (Math.max(1, level) / START_LEVEL) ** LEVEL_POWER_EXP);
 }

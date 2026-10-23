@@ -1,3 +1,4 @@
+import {powerRank} from './power.js';
 // Succès : 50 objectifs répartis en quatre rangs (Bronze, Argent, Or, Platine). Chaque succès compare une statistique du joueur
 // (calculée dans game.js) à un seuil. Une fois obtenu, un succès reste acquis (state.ach).
 export const TIERS = [null, {name:'Bronze', color:'#d08a4e'}, {name:'Argent', color:'#c4cfdb'}, {name:'Or', color:'#ffd27c'}, {name:'Platine', color:'#8ad4ff'}];
@@ -48,7 +49,7 @@ export const ACHIEVEMENTS = [
   A('team-6', 1, 'Équipe au complet', 'Remplis les 6 emplacements de ton équipe.', 'teamSize', 6),
   A('power-silver', 2, 'Rang Argent', 'Atteins le rang de puissance Argent.', 'powerRank', 1),
   A('power-gold', 3, 'Rang Or', 'Atteins le rang de puissance Or.', 'powerRank', 2),
-  A('power-diamond', 4, 'Rang Diamant', 'Atteins le rang de puissance Diamant.', 'powerRank', 3),
+  A('power-diamond', 4, 'Rang Diamant', 'Atteins le rang de puissance Diamant.', 'powerRank', 4),
   // Argent
   A('money-50k', 1, 'Petit porte-monnaie', 'Gagne 50 000 ₽ au total.', 'moneyEarned', 50000),
   A('money-1m', 2, 'Millionnaire', 'Gagne 1 000 000 ₽ au total.', 'moneyEarned', 1000000),
@@ -74,4 +75,4 @@ const STAT_KEYS = ['moneyEarned', 'purchases', 'tmUsed', 'heals', 'evolutions', 
 export const sanitizeStats = raw => { const out = {}; if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const k of STAT_KEYS) if (Number.isSafeInteger(raw[k]) && raw[k] > 0) out[k] = raw[k]; return out; };
 // Succès nouvellement remplis (non encore acquis) pour des statistiques données.
 export const newlyDone = (ach, m) => ACHIEVEMENTS.filter(a => !ach[a.id] && progressOf(a, m).done);
-export const powerRankOf = n => n >= 1e9 ? 3 : n >= 1e8 ? 2 : n >= 1e5 ? 1 : 0;
+export const powerRankOf = n => powerRank(n);

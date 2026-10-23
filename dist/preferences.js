@@ -9,5 +9,6 @@ try {const saved=localStorage.getItem(PREFERENCE_KEY);if(saved)preferences=norma
 export const getPreferences=()=>({...preferences});
 export function setPreferences(change){preferences=normalizePreferences({...preferences,...change});let persisted=true;try{localStorage.setItem(PREFERENCE_KEY,JSON.stringify(preferences));}catch{persisted=false;}return {preferences:getPreferences(),persisted};}
 
-export const POWER_THRESHOLDS=[0,100_000,100_000_000,1_000_000_000];
-export function powerProgress(value){const power=Number.isFinite(value)?Math.max(0,value):0;const index=power<1e5?0:power<1e8?1:power<1e9?2:3;const floor=POWER_THRESHOLDS[index],next=POWER_THRESHOLDS[index+1]??null;return {index,floor,next,remaining:next===null?0:Math.max(0,next-power),percent:next===null?100:Math.max(0,Math.min(100,(power-floor)/(next-floor)*100))};}
+import {POWER_THRESHOLDS,powerRank} from './power.js';
+export {POWER_THRESHOLDS};
+export function powerProgress(value){const power=Number.isFinite(value)?Math.max(0,value):0;const index=powerRank(power);const floor=POWER_THRESHOLDS[index],next=POWER_THRESHOLDS[index+1]??null;return {index,floor,next,remaining:next===null?0:Math.max(0,next-power),percent:next===null?100:Math.max(0,Math.min(100,(power-floor)/(next-floor)*100))};}
