@@ -1,5 +1,5 @@
 // Interface de combat dans la scène : barre de PV du Pokémon sauvage, carte du combattant, attaques et journal.
-import {createBattle, takeTurn, activeFighter, playerChoices, isUsable, makeFighter, knownMoves, xpReward, TYPE_FR, DEFAULT_BASE} from './battle.js';
+import {effectiveness, createBattle, takeTurn, activeFighter, playerChoices, isUsable, makeFighter, knownMoves, xpReward, TYPE_FR, DEFAULT_BASE} from './battle.js';
 import {getSpecies, getMoves, getMove} from './battle-data.js';
 
 const $ = s => document.querySelector(s);
@@ -19,7 +19,7 @@ export async function buildFighter(spec, level, types, id, name) {
 export function createFight(ctx) {
   let token = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false;
   const el = {battle: $('#battle'), log: $('#battle-log'), moves: $('#moves'), card: $('#fighter'), cardImg: $('#ally'), cardXp: $('#fighter-xp'), cardXpText: $('#fighter-xptext'), cardName: $('#fighter-name'), cardFill: $('#fighter-fill'), cardText: $('#fighter-text'),
-    victory: $('#victory'), flee: $('#flee'), hp: $('#hp'), hpName: $('#hp-name'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
+    victory: $('#victory'), swBtn: $('#switch'), swPanel: $('#switch-panel'), flee: $('#flee'), hp: $('#hp'), hpName: $('#hp-name'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
   if (window.ResizeObserver) new ResizeObserver(() => { const h = el.battle.offsetHeight; if (h) document.querySelector('.scene').style.setProperty('--strip', h + 'px'); }).observe(el.battle);
   const delay = ms => wait(ctx.reduced() ? Math.min(ms, 120) : ms);
   const bar = (fill, hp, max) => { const r = max ? hp / max : 0; fill.style.width = Math.max(0, r * 100) + '%'; fill.dataset.level = r > .5 ? 'high' : r > .2 ? 'mid' : 'low'; };
@@ -27,6 +27,7 @@ export function createFight(ctx) {
   const setWild = hp => { el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(bt.wild.maxHp)}`; bar(el.hpFill, hp, bt.wild.maxHp); };
   const setCard = (f, hp = f.hp) => { const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
   function renderMoves(enabled = true) {
+    el.swBtn.disabled = !enabled || !bt || bt.team.filter(t => t.hp > 0).length < 2;
     const f = activeFighter(bt);
     el.moves.innerHTML = playerChoices(f).map((m, i) => {
       const usable = isUsable(m);
@@ -72,16 +73,45 @@ export function createFight(ctx) {
     ctx.onEnd?.(lost ? 'loss' : 'win');
   }
 
-  el.moves.addEventListener('click', async e => {
-    const b = e.target.closest('.move'); if (!b || playing || !bt || bt.over) return;
-    const my = token, move = playerChoices(activeFighter(bt))[+b.dataset.i]; if (!move) return;
+  async function turn(move, sw = null) {
+    const my = token;
     playing = true; renderMoves(false);
-    const events = takeTurn(bt, move);
+    const events = takeTurn(bt, move, sw);
     await play(events);
     if (my !== token) return;
     playing = false;
     if (bt.over) await finish(); else { say(`Que doit faire ${activeFighter(bt).name} ?`); renderMoves(true); }
+  }
+  el.moves.addEventListener('click', e => {
+    const b = e.target.closest('.move'); if (!b || playing || !bt || bt.over) return;
+    const move = playerChoices(activeFighter(bt))[+b.dataset.i]; if (move) turn(move);
   });
+  const hint = (f) => {
+    const mine = f.moves.filter(isUsable).map(m => effectiveness(m.type, bt.wild.types)), theirs = bt.wild.moves.filter(isUsable).map(m => effectiveness(m.type, f.types));
+    const out = [];
+    if (mine.length && Math.max(...mine) > 1) out.push('<em class="hint good">Avantage</em>');
+    else if (mine.length && Math.max(...mine) < 1) out.push('<em class="hint bad">Peu efficace</em>');
+    if (theirs.length && Math.max(...theirs) > 1) out.push('<em class="hint bad">Menacé</em>');
+    return out.join('');
+  };
+  function openSwitch() {
+    if (!bt || bt.over || playing) return;
+    const wt = bt.wild.types.map(t => TYPE_FR[t] || t).join(' / ');
+    el.swPanel.innerHTML = `<div class="v-card sw-card" role="dialog" aria-label="Changer de Pokémon"><h2>Changer de Pokémon</h2><p>Adversaire : ${esc(bt.wild.name)} · ${esc(wt)} — changer te fait perdre ton tour.</p><div class="sw-list">${bt.team.map((f, i) => {
+      const cur = i === bt.active, dead = f.hp <= 0, r = Math.round(f.hp / f.maxHp * 100);
+      return `<button class="sw-item${cur ? ' current' : ''}" data-i="${i}" ${cur || dead ? 'disabled' : ''} style="--tc:${typeColor(f.types[0])}"><img src="${ctx.sprite(f.id)}" alt=""><span class="sw-name"><b>${esc(f.name)}</b><small>Niv. ${f.level} · ${f.types.map(t => esc(TYPE_FR[t] || t)).join(' / ')}</small></span><span class="sw-hp"><span class="hp-track"><i data-level="${r > 50 ? 'high' : r > 20 ? 'mid' : 'low'}" style="width:${r}%"></i></span><small>${dead ? 'K.O.' : cur ? 'au combat' : `PV ${f.hp} / ${f.maxHp}`}</small></span>${dead || cur ? '' : hint(f)}</button>`;
+    }).join('')}</div><button class="v-continue sw-close" id="sw-close">Retour au combat</button></div>`;
+    el.swPanel.hidden = false;
+    el.swPanel.querySelector('.sw-item:not([disabled])')?.focus({preventScroll: true});
+  }
+  const closeSwitch = () => { el.swPanel.hidden = true; el.swPanel.innerHTML = ''; };
+  el.swBtn.onclick = openSwitch;
+  el.swPanel.addEventListener('click', e => {
+    if (e.target === el.swPanel || e.target.closest('#sw-close')) { closeSwitch(); return; }
+    const it = e.target.closest('.sw-item'); if (!it || it.disabled || !bt || playing) return;
+    const i = +it.dataset.i; closeSwitch(); turn(null, i);
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !el.swPanel.hidden) { e.preventDefault(); closeSwitch(); } });
 
   el.flee.onclick = () => ctx.onFlee();
   document.addEventListener('keydown', e => {
@@ -91,7 +121,7 @@ export function createFight(ctx) {
 
   return {
     active: () => !!bt && !bt.over,
-    cancel() { token++; bt = null; playing = false; el.battle.hidden = true; el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
+    cancel() { token++; bt = null; playing = false; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
     async start(p, types) {
       this.cancel(); const my = token; wildLevel = ctx.wildLevel(p.id);
       el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');

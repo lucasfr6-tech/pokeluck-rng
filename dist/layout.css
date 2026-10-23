@@ -91,10 +91,31 @@
 .move b{font-size:clamp(15px,1.5vw,22px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.move small{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .move:hover:not(:disabled),.move:focus-visible{filter:brightness(1.12);outline:none;transform:translateY(-1px)}
 .move:disabled{opacity:.8;cursor:not-allowed;text-shadow:none;color:#cfdbe2;background:#223747;border:3px dashed #5d7789;box-shadow:none}
+.dock-side{display:flex;gap:8px;align-self:stretch}
+.switch{align-self:stretch;min-width:96px;padding:0 14px;color:#fff;background:linear-gradient(#2f7fd0,#1d56a0);border:2px solid #9cc8f5;border-radius:12px;font-weight:700;font-size:15px;line-height:1.2;cursor:pointer}
+.switch small{display:block;font-weight:500;font-size:12px}.switch:hover:not(:disabled){background:linear-gradient(#3b8fe6,#2563b3)}.switch:disabled{opacity:.5;cursor:not-allowed}
 .flee{align-self:stretch;min-width:96px;padding:0 14px;color:#fff;background:#8b2f2f;border:2px solid #f0a0a0;border-radius:12px;font-weight:700;font-size:15px;line-height:1.2;cursor:pointer}
 .flee small{display:block;font-weight:500;font-size:12px}
 .flee:hover{background:#a63a3a}
 
+/* Glisser-déposer des cartes d'équipe */
+.game .team-card:not(.empty){touch-action:none;user-select:none;-webkit-user-select:none}
+.game .team-card.dragging{opacity:.35}
+.game .team-card.drop{outline:3px dashed #fff;outline-offset:-6px;filter:brightness(1.25)}
+.drag-ghost{position:fixed!important;left:0;top:0;z-index:50;pointer-events:none;opacity:.92;box-shadow:0 14px 30px #000a;transform-origin:center;margin:0}
+.drag-ghost.team-card{display:flex}
+body.team-dragging,body.team-dragging *{cursor:grabbing!important}
+/* Changement de Pokémon */
+.sw-card{padding:12px 18px 14px}.sw-card h2{font-size:clamp(22px,2.6vw,30px)}.sw-card>p{margin:4px 0 8px}.sw-card .v-continue{min-height:40px;font-size:17px}
+.sw-list{display:grid;gap:6px;margin-bottom:10px}
+.sw-item{--tc:#7f9fb2;display:grid;grid-template-columns:40px minmax(0,1fr) minmax(90px,150px) auto;align-items:center;gap:4px 12px;padding:3px 12px;text-align:left;font:inherit;color:#fff;cursor:pointer;text-shadow:0 1px 2px #000b;background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 60%,#0b1a2a),color-mix(in srgb,var(--tc) 25%,#0b1a2a));border:2px solid color-mix(in srgb,var(--tc) 60%,#fff);border-radius:12px}
+.sw-item img{width:40px;height:40px;object-fit:contain;image-rendering:pixelated}
+.sw-name{display:grid;min-width:0}.sw-name b{font-family:var(--pixel);font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sw-name small,.sw-hp small{color:#e1ecf1;font-size:12px}
+.sw-hp .hp-track{margin:0 0 2px;height:10px}
+.sw-item:hover:not(:disabled),.sw-item:focus-visible{filter:brightness(1.15);outline:none}
+.sw-item:disabled{cursor:not-allowed;opacity:.55}.sw-item.current{opacity:.85;border-style:dashed}
+.hint{font-style:normal;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}.hint.good{background:#2fc257;color:#06210e;text-shadow:none}.hint.bad{background:#f0a81f;color:#2a1700;text-shadow:none}
+.sw-item .hint+.hint{margin-left:4px}
 /* Écran de victoire / défaite, séparé du journal */
 .victory{position:absolute;inset:0;z-index:7;display:grid;place-items:center;padding:12px;background:#06121fb8}
 .v-card{width:min(600px,94%);max-height:96%;overflow:auto;padding:18px 24px 20px;background:#0b2036f7;border:3px solid var(--gold);border-radius:18px;box-shadow:0 0 30px #ffd76a66,0 6px 0 #050d16}
@@ -227,7 +248,8 @@
   .battle{grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;padding:8px}
   .battle-log{grid-column:1/-1;font-size:13px;min-height:0}
   .moves{grid-column:1;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.move{min-height:44px;padding:4px 8px;border-width:2px}.move b{font-size:14px}.move small{font-size:10px}
-  .flee{grid-column:2;min-width:64px;padding:0 8px;font-size:13px}
+  .dock-side{grid-column:2;flex-direction:column;gap:4px}.flee,.switch{min-width:64px;padding:0 8px;font-size:12px;min-height:0;flex:1}.flee small,.switch small{display:none}
+  .sw-item{grid-template-columns:40px minmax(0,1fr) 90px;padding:4px 8px}.sw-item img{width:40px;height:40px}.sw-item .hint{grid-column:2/4;justify-self:start}
   .v-card{padding:12px 14px 14px}.v-list li{padding:6px 10px}
 }
 
@@ -263,6 +285,6 @@
   .fighter{width:clamp(170px,34cqw,260px);padding:4px 8px 5px}.fighter b{font-size:14px}
   .battle{grid-template-columns:minmax(0,1fr) auto;padding:6px 10px;gap:4px 8px}.battle-log{grid-column:1/-1;font-size:12px}
   .moves{gap:6px}.move{min-height:36px;padding:3px 8px}.move b{font-size:13px}.move small{display:none}
-  .flee{min-width:60px;padding:0 8px;font-size:12px}
+  .dock-side{gap:4px}.flee,.switch{min-width:56px;padding:0 8px;font-size:12px}.flee small,.switch small{display:none}
 }
 @media(prefers-reduced-motion:reduce){.map-water,.map-spot,.map-glint{animation:none!important}}

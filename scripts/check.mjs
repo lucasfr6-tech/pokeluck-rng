@@ -84,6 +84,11 @@ const squirtle=makeFighter({id:7,name:'Carapuce',level:10,types:['water'],base:{
 assert.equal(chooseAiMove(pika,squirtle,()=>0).name,'thunder-shock');
 const diglett=makeFighter({id:50,name:'Taupiqueur',level:10,types:['ground'],base:{hp:10,atk:55,def:25,spa:35,spd:45,spe:95},moves:[]});
 assert.equal(chooseAiMove(pika,diglett,()=>0).name,'quick-attack');
+// Changement de Pokémon : l'adversaire attaque le nouveau venu, sans perdre de tour pour lui.
+{const a=makeFighter({id:4,name:'A',level:10,types:['fire'],base:DEFAULT_BASE,moves:[mv]}),c=makeFighter({id:7,name:'C',level:10,types:['water'],base:DEFAULT_BASE,moves:[mv]}),w=makeFighter({id:25,name:'W',level:10,types:['electric'],base:DEFAULT_BASE,moves:[{name:'t',fr:'T',power:40,acc:100,type:'electric',cls:'special'}]});
+const b=createBattle([a,c],w,()=>0.5);const ev=takeTurn(b,null,1);
+assert.equal(b.active,1);assert.equal(ev[0].type,'switch');assert.equal(ev[1].target,'player');assert.equal(ev[1].targetName,'C');assert.equal(a.hp,a.maxHp);assert.ok(c.hp<c.maxHp);
+assert.deepEqual(takeTurn(b,null,1),[]);}
 const sp=parseSpecies({stats:[{base_stat:39,stat:{name:'hp'}},{base_stat:65,stat:{name:'speed'}}],moves:[{move:{name:'ember'},version_group_details:[{level_learned_at:7,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}}]},{move:{name:'scratch'},version_group_details:[{level_learned_at:1,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}},{level_learned_at:0,move_learn_method:{name:'machine'},version_group:{name:'red-blue'}}]}]});
 assert.deepEqual(sp.learnset,[['scratch',1],['ember',7]]);assert.equal(sp.stats.spe,65);
 assert.deepEqual(parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]}),{name:'ember',fr:'Flammèche',power:40,acc:100,type:'fire',cls:'special'});
