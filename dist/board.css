@@ -73,3 +73,22 @@ body.boss-fight .scene>.flee{display:none!important}
 /* L'infobulle n'apparaît qu'au survol ou au focus (plus en permanence sur la zone actuelle) */
 .map-spot.current .map-tooltip{display:none}
 .map-spot.current:hover .map-tooltip,.map-spot.current:focus-visible .map-tooltip{display:block}
+/* Bannière compacte (ordinateur) : une seule ligne basse, tout reste visible */
+@media(min-width:701px){
+  .game .banner{display:grid;grid-template-columns:52px auto auto minmax(0,1fr);grid-template-rows:auto;align-items:center;gap:4px 14px;padding:6px 14px 6px 10px;min-height:0;box-shadow:0 3px 0 #04101e}
+  .banner .avatar{width:52px;height:52px;border-radius:12px;border-width:2px}.banner .avatar img{width:62px;height:62px}
+  .banner-info{display:grid;grid-template-columns:auto auto auto;grid-template-areas:"o p m" "n p m";align-items:center;column-gap:12px;row-gap:0}
+  .banner-info .overline{grid-area:o;font-size:9px}.banner-info>strong{grid-area:n;font-size:20px;max-width:160px}
+  .banner-info .power-panel,.banner-info .power{grid-area:p}.banner-info .money{grid-area:m;padding:2px 12px 2px 4px}
+  .banner .power-panel{min-width:210px;padding:4px 8px;gap:8px}.power-panel>.medal{width:30px;height:30px}
+  .banner .money strong{font-size:15px}.money-coin{width:20px;height:20px;font-size:12px}
+  .banner .zone-chip{margin-left:0;padding:3px 4px 3px 12px;gap:10px}.banner .zone-chip strong{font-size:16px}
+  .banner-right{justify-self:end;flex-direction:row;align-items:center;gap:10px}
+  .banner-team{justify-self:auto}
+  .banner .team-mini{width:46px;height:46px;border-width:2px}
+  .items-button{min-height:34px}
+  /* Combat : ta carte de PV au centre, pour ne pas cacher le dresseur adverse à droite */
+  .fighter{right:auto;left:51%;width:clamp(210px,25cqw,360px)}
+  .boss-trainer{right:0}
+}
+@media(min-width:701px) and (max-width:1150px){.banner-right{grid-column:1/-1}.game .banner{grid-template-columns:52px auto minmax(0,1fr)}}
