@@ -11,10 +11,10 @@ export const typeColor = t => COLORS[t] || COLORS.normal;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = n => n.toLocaleString('fr-FR');
 
-export async function buildFighter(spec, level, types, id, name, training, knownNames, boost = 1) {
+export async function buildFighter(spec, level, types, id, name, training, knownNames, boost = 1, sash = false) {
   const sp = await getSpecies(id);
   const moves = await getMoves(knownNames || knownMoves(sp.learnset, level));
-  return {fighter: makeFighter({id, name, level, types, base: sp.stats || DEFAULT_BASE, moves,training,boost}), learnset: sp.learnset};
+  return {fighter: makeFighter({id, name, level, types, base: sp.stats || DEFAULT_BASE, moves,training,boost,sash}), learnset: sp.learnset};
 }
 
 // ctx : {team(), level(id), name(id), types(id), backSprite(id), reduced(), addXp(id, amount) → {before, after}}
@@ -47,6 +47,7 @@ export function createFight(ctx) {
         if (e.target === 'wild') setWild(e.hp); else setCard(bt.team.find(t => t.name === e.targetName), e.hp);
         if (e.hit && e.dmg) flash(e.target === 'wild' ? $('#result img') : el.cardImg);
         const t = effectText(e); if (t) { say(`${e.user} utilise ${e.move} ! ${t}`); await delay(700); }
+        if (e.sashSaved && e.target === 'player') { say(`${e.targetName} s’accroche grâce à sa Ceinture Force !`); ctx.consumeHeld?.(e.targetId, 'band'); await delay(1000); }
       } else if (e.type === 'faint') { say(`${e.name} est K.O. !`); const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
       else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, f.hp); say(`${e.name} entre au combat !`); await delay(800); }
     }
@@ -136,7 +137,7 @@ export function createFight(ctx) {
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
-        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1))]);
+        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id)))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), wild.fighter);

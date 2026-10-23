@@ -266,9 +266,23 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (!shop.equipHeld(s, 133, 'band') || shop.equipHeld(s, 133, 'band') || shop.heldList(s.inv, 133).length !== 1) throw new Error('Évoli : un seul objet');
   if (!shop.equipHeld(s, 6, 'band') || shop.freeCopies(s.inv, 'band') !== 0 || shop.equipHeld(s, 25, 'band')) throw new Error('exemplaires libres');
   if (!shop.unequipHeld(s, 133, 'band') || shop.freeCopies(s.inv, 'band') !== 1) throw new Error('retirer un objet');
-  // effets : Ceinture Force = Attaque +20 %, puissance +15 %
-  const m = shop.statMultipliers(s.inv, 6);
-  if (m.atk !== 1.2 || shop.powerMultiplier(s.inv, 6) !== 1.15 || shop.powerMultiplier(s.inv, 25) !== 1) throw new Error('effets de la Ceinture Force');
+  // Ceinture Force : survit à un coup fatal avec 1 PV à PV pleins, une seule fois ; pas sans PV pleins ; consommée ensuite
+  {
+    const mk = sash => bt.makeFighter({id:25, name:'P', level:30, types:['normal'], base:bt.DEFAULT_BASE, moves:[], training:{}, sash});
+    const hit = {name:'x', power:9999, acc:100, type:'normal', cls:'physical'}, foe = mk(false);
+    const sashFighter = mk(true), r = bt.damage(foe, sashFighter, hit, () => 0.5);
+    if (r.dmg < sashFighter.hp) throw new Error('coup de test non fatal');
+    const bt2 = bt.createBattle([sashFighter], {...foe, stats:{...foe.stats, spe:9999}, moves:[hit], hp:foe.hp, maxHp:foe.maxHp}, () => 0.5);
+    const events = bt.takeTurn(bt2, {name:'splash', power:null, acc:100, type:'normal', cls:'status', fr:'Éclaboussure'});
+    const atk = events.find(e => e.type === 'attack' && e.side === 'wild');
+    if (!atk?.sashSaved || sashFighter.hp !== 1 || sashFighter.sash) throw new Error('Ceinture Force : survie à 1 PV');
+    const hurt = mk(true); hurt.hp = hurt.maxHp - 1;
+    const bt3 = bt.createBattle([hurt], {...foe, stats:{...foe.stats, spe:9999}, moves:[hit], hp:foe.hp, maxHp:foe.maxHp}, () => 0.5);
+    bt.takeTurn(bt3, {name:'splash', power:null, acc:100, type:'normal', cls:'status', fr:'Éclaboussure'});
+    if (hurt.hp !== 0) throw new Error('Ceinture Force : inactive sans PV pleins');
+    const used = {money:0, inv:shop.defaultInv()}; used.inv.stock.band = 1; shop.equipHeld(used, 25, 'band');
+    if (!shop.consumeHeld(used, 25, 'band') || shop.stockOf(used.inv, 'band') !== 0 || shop.heldList(used.inv, 25).length) throw new Error('Ceinture Force consommée');
+  }
   const base = bt.computeStats(bt.DEFAULT_BASE, 30, {}), up = bt.boostStats(base, {atk:1.2});
   if (up.atk !== Math.floor(base.atk * 1.2) || up.def !== base.def) throw new Error('boost par statistique');
   // sauvegarde assainie : pas plus d'objets portés que de copies, jamais deux fois le même

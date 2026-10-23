@@ -70,9 +70,9 @@ export const SHINY_BOOST = 1.5;
 // `mult` : un nombre (toutes les stats) ou un objet {stat: multiplicateur} (objets tenus, chromatique).
 export const boostStats = (stats, mult) => mult === 1 ? stats : Object.fromEntries(Object.entries(stats).map(([k, v]) => [k, Math.floor(v * (typeof mult === 'number' ? mult : (mult?.[k] ?? 1)))]));
 
-export function makeFighter({id, name, level, types, base, moves, training, boost = 1}) {
+export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false}) {
   const stats = boostStats(computeStats(base, level, training), boost);
-  return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp};
+  return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp, sash};
 }
 
 // Expérience gagnée par chaque participant en battant un Pokémon sauvage (provisoire).
@@ -118,8 +118,11 @@ export function takeTurn(b, move, switchIndex = null) {
     const chosen = side === 'player' ? move : chooseAiMove(b.wild, activeFighter(b), b.rand);
     if (side === 'player') b.participants.add(attacker.id);
     const r = damage(attacker, defender, chosen, b.rand);
+    // Ceinture Force : à PV pleins, un coup fatal laisse 1 PV (objet consommé).
+    let sashSaved = false;
+    if (defender.sash && defender.hp === defender.maxHp && r.dmg >= defender.hp) {r.dmg = defender.hp - 1; defender.sash = false; sashSaved = true;}
     defender.hp = Math.max(0, defender.hp - r.dmg);
-    events.push({type:'attack', side, user:attacker.name, move:chosen.fr || chosen.name, moveKey:chosen.name, moveType:chosen.type, ...r, target:side === 'player' ? 'wild' : 'player', targetName:defender.name, hp:defender.hp, maxHp:defender.maxHp});
+    events.push({type:'attack', side, sashSaved, targetId:defender.id, user:attacker.name, move:chosen.fr || chosen.name, moveKey:chosen.name, moveType:chosen.type, ...r, target:side === 'player' ? 'wild' : 'player', targetName:defender.name, hp:defender.hp, maxHp:defender.maxHp});
     if (defender.hp > 0) return;
     events.push({type:'faint', side:side === 'player' ? 'wild' : 'player', name:defender.name});
     if (side === 'player') { b.over = true; b.winner = 'player'; return; }

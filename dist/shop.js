@@ -13,7 +13,7 @@ export const ITEMS = {
   'ct-water': {id:'ct-water', kind:'tm', stack:true, move:'water-gun', name:'CT12 · Pistolet à O', price:3000,  sprite:SPRITE('tm-water'),    effect:'Eau · Puissance 40 · Précision 100', desc:'Apprend Pistolet à O à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-swift': {id:'ct-swift', kind:'tm', stack:true, move:'swift',     name:'CT39 · Météores',     price:4500,  sprite:SPRITE('tm-normal'),   effect:'Normal · Puissance 60 · Précision 100', desc:'Apprend Météores à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-thunder': {id:'ct-thunder', kind:'tm', stack:true, move:'thunderbolt', name:'CT24 · Tonnerre', price:60000, sprite:SPRITE('tm-electric'), effect:'Électrik · Puissance 90 · Précision 100', desc:'Apprend Tonnerre à un Pokémon compatible. Consommable : disparaît après usage.'},
-  band:   {id:'band',   kind:'held', stack:true, name:'Ceinture Force', price:250000, sprite:SPRITE('muscle-band'), mult:{atk:1.2}, power:1.15, effect:'Attaque +20 % · Puissance +15 %', desc:'Objet à faire porter à un Pokémon : son Attaque augmente de 20 %. Un exemplaire par Pokémon.'},
+  band:   {id:'band',   kind:'held', stack:true, name:'Ceinture Force', price:20000, sprite:SPRITE('focus-sash'), effect:'Survit à un coup fatal avec 1 PV (si PV pleins) · usage unique', desc:'Comme dans les jeux : si le porteur a tous ses PV et reçoit une attaque qui devrait le mettre K.O., il tient avec 1 PV. La ceinture est alors consommée.'},
   chroma: {id:'chroma', kind:'passive', name:'Charme Chroma', price:3000000, sprite:SPRITE('shiny-charm'), effect:'Chromatiques : 1 sur 2 048', desc:'Actif dès l’achat : la chance de rencontrer un chromatique passe de 1 sur 4 096 à 1 sur 2 048.'}
 };
 export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 2048, KILLS_TO_UNLOCK = 3;
@@ -92,6 +92,12 @@ export function useTm(state, id) {
   if (ITEMS[id]?.kind !== 'tm' || stockOf(state.inv, id) < 1) return false;
   state.inv.stock[id] -= 1; if (state.inv.stock[id] <= 0) delete state.inv.stock[id]; return true;
 }
+// Consomme un objet tenu (ex. Ceinture Force après avoir sauvé son porteur) : il quitte le Pokémon et le sac.
+export function consumeHeld(state, pid, id) {
+  if (!unequipHeld(state, pid, id)) return false;
+  const n = (state.inv.stock[id] || 0) - 1; if (n > 0) state.inv.stock[id] = n; else delete state.inv.stock[id]; return true;
+}
+export const hasHeld = (inv, pid, id) => heldList(inv, pid).includes(id);
 export const statMultipliers = (inv, pid) => heldList(inv, pid).reduce((m, id) => {for (const [k, v] of Object.entries(ITEMS[id]?.mult || {})) m[k] = (m[k] || 1) * v; return m;}, {});
 export const powerMultiplier = (inv, pid) => heldList(inv, pid).reduce((m, id) => m * (ITEMS[id]?.power || 1), 1);
 export const activeItems = inv => Object.values(ITEMS).filter(i => i.kind === 'passive' && inv.owned[i.id]);
