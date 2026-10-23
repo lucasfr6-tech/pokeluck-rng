@@ -128,3 +128,5 @@ Reprendre la discussion d'équilibrage avec le créateur : clarifier la chance d
 ## Version 0.8 : combat
 
 Voir README (« Combat »). Fichiers : `dist/battle.js`, `battle-data.js`, `fight.js`, profil dans `game.js` (`openProfile`). Règles provisoires à valider avec le créateur : riposte automatique, XP = niveau adverse / 2, attaques de statut inutilisables, PV pleins à chaque combat, niveau sauvage = niveau de départ.
+
+Mise en page 0.9 : maquette « Océan & or » (voir AGENTS.md). CSS dans dist/layout.css ; la bannière contient la zone et le bouton Index ; le menu est un rail ; les cartes d'équipe prennent la couleur du premier type (`typeColor` de fight.js).
