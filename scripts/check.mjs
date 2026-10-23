@@ -430,7 +430,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual(A.ZONE_ORDER, zones.map(z => z.id));
   for (let i = 1; i < zones.length; i++) assert.ok(zones[i].min > zones[i - 1].min, 'niveaux minimaux croissants');
   assert.equal(zones[0].min <= 1, true); assert.equal(zones.at(-1).min, 94);
-  A.ARENAS.forEach((a, i) => { assert.equal(a.n, i + 1); assert.equal(Math.max(...a.team.map(t => t[1])), a.ace); assert.ok(a.need < a.ace); if (i) assert.ok(a.ace > A.ARENAS[i - 1].ace); });
+  A.ARENAS.forEach((a, i) => { assert.equal(a.n, i + 1); assert.ok(a.team.every(t => t[1] === a.ace), 'tous au niveau affiché'); assert.equal(Math.max(...a.team.map(t => t[1])), a.ace); assert.ok(a.need < a.ace); if (i) assert.ok(a.ace > A.ARENAS[i - 1].ace); });
   assert.equal(A.ARENAS.at(-1).ace, 100);
   const path = A.buildPath([{id:'s1', after:'forest'}]);
   const main = path.filter(n => n.kind !== 'shop');
@@ -438,7 +438,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   main.slice(0, 24).forEach((n, i) => assert.equal(n.kind === 'arena', i % 3 === 2));
   assert.deepEqual(main.slice(24).map(n => n.kind), ['elite', 'elite', 'elite', 'elite']);
   assert.equal(A.ELITE.length, 4);
-  A.ELITE.forEach((m, i) => { assert.equal(m.n, i + 1); assert.equal(m.team.length, 5); assert.equal(Math.max(...m.team.map(t => t[1])), m.ace); });
+  A.ELITE.forEach((m, i) => { assert.equal(m.n, i + 1); assert.equal(m.team.length, 5); assert.ok(m.team.every(t => t[1] === m.ace)); });
   const full = Object.fromEntries(A.ARENAS.map(x => [x.id, true]));
   assert.equal(A.eliteAccess({}, [150]).reason, 'allbadges');
   assert.equal(A.eliteAccess(full, [25]).reason, 'legend');

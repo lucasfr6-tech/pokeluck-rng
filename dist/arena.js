@@ -4,7 +4,8 @@ import {zones, tierOf} from './world.js';
 
 // Ordre du parcours (serpentin) : deux zones, puis l'arène.
 export const ZONE_ORDER = ['route', 'route2', 'forest', 'route3', 'cave', 'route4', 'bridge', 'rocktunnel', 'tower', 'safari', 'power', 'seafoam', 'mansion', 'ceruleancave', 'victory', 'league'];
-const scale = (real, ace) => { const top = Math.max(...real.map(([, l]) => l)); return real.map(([id, l]) => [id, Math.max(2, Math.round(l * ace / top))]); };
+// Tous les Pokémon d'un dresseur ont le niveau affiché sur la carte (le niveau « ace »).
+const scale = (real, ace) => real.map(([id]) => [id, ace]);
 const SPRITE_URL = n => `https://play.pokemonshowdown.com/sprites/trainers/${n}.png`;
 const def = (n, o) => ({n, ...o, team: scale(o.real, o.ace), sprite: SPRITE_URL(o.trainer), badgeSprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${n}.png`});
 export const ARENAS = [
