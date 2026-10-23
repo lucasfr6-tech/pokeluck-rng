@@ -20,13 +20,16 @@ for(const zone of zones){
   assert.ok(entries.every(p=>p.probability>0));
   let start=0;
   for(const p of entries){assert.equal(draw(entries,start+p.probability/2).id,p.id);start+=p.probability;}
+  assert.ok(Math.abs(zone.shares.reduce((x,y)=>x+y,0)-1)<1e-12,'Paliers de '+zone.id+' ≠ 100 %');
   const ratio=p=>p.probability/pool[p.id-1].probability;
-  const baseline=entries.find(p=>!types[p.id].some(t=>zone.bonus.includes(t)));
-  for(const p of entries){assert.ok(Math.abs(ratio(p)/ratio(baseline)-(types[p.id].some(t=>zone.bonus.includes(t))?3:1))<1e-10);}
+  zone.shares.forEach((share,i)=>{const grp=entries.filter(p=>tierOf(p.id)===i+1);
+    assert.ok(Math.abs(grp.reduce((x,p)=>x+p.probability,0)-share)<1e-12,'Part du palier '+(i+1)+' de '+zone.id);
+    const base=grp.find(p=>!types[p.id].some(t=>zone.bonus.includes(t)));
+    if(base)for(const p of grp)assert.ok(Math.abs(ratio(p)/ratio(base)-(types[p.id].some(t=>zone.bonus.includes(t))?3:1))<1e-10);});
 }
 // Paliers de rareté : chaque zone n'offre que les espèces de son palier ou des paliers inférieurs.
 for(const z of zones)for(const p of zonePool(z.id))assert.ok(tierOf(p.id)<=z.tier,'Palier dépassé '+z.id+' #'+p.id);
-assert.ok(zonePool('route').length<zonePool('route2').length&&zonePool('cave').length<zonePool('power').length);
+assert.ok(zonePool('route').length<zonePool('route2').length&&zonePool('cave').length<zonePool('power').length);assert.ok(zonePool('route').every(p=>tierOf(p.id)===1));const sh=id=>zones.find(z=>z.id===id).shares;assert.ok(sh('route2')[0]<sh('route')[0]&&sh('forest')[0]<sh('route2')[0]&&sh('cave')[3]>0&&sh('route4')[4]===undefined);
 assert.ok(!zonePool('route').some(p=>[150,151,144,6,101].includes(p.id)),'Pas de rare ni de légendaire sur la Route 1');
 assert.ok([150,151,144,145,146].every(id=>zonePool('power').some(p=>p.id===id)&&!zonePool('route4').some(p=>p.id===id)),'Légendaires uniquement à la Centrale');
 assert.equal(zones.find(z=>z.id==='power').tier,5);assert.equal(Math.max(...zones.map(z=>z.tier)),5);
