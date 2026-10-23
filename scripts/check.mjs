@@ -250,7 +250,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma,ct-thunder,band') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,auto,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma,ct-thunder,band') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -291,5 +291,18 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   // CT compatibles lues depuis PokéAPI
   const sp = bd.parseSpecies({id:25, stats:[], moves:[{move:{name:'thunderbolt'}, version_group_details:[{version_group:{name:'red-blue'}, move_learn_method:{name:'machine'}, level_learned_at:0}]}, {move:{name:'growl'}, version_group_details:[{version_group:{name:'red-blue'}, move_learn_method:{name:'level-up'}, level_learned_at:1}]}]});
   if (sp.machines.join() !== 'thunderbolt') throw new Error('CT compatibles');
+}
+{
+  const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js');
+  // Mode Auto : achat unique à 30 000 ₽ dans la boutique de la Forêt
+  const s = {money:30000, inv:shop.defaultInv()};
+  if (!shop.shopById('jade').stock.includes('auto') || shop.ITEMS.auto.price !== 30000 || !shop.buyItem(s, 'auto').ok || !s.inv.owned.auto || shop.buyItem(s, 'auto').reason !== 'owned') throw new Error('achat du mode auto');
+  // choix intelligent : Flammèche contre une Plante, jamais une attaque de statut
+  const mk = (types, moves, level = 20) => bt.makeFighter({id:5, name:'x', level, types, base:bt.DEFAULT_BASE, moves, training:{}});
+  const ember = {name:'ember', fr:'Flammèche', power:40, acc:100, type:'fire', cls:'special'}, tackle = {name:'tackle', fr:'Charge', power:40, acc:100, type:'normal', cls:'physical'}, growl = {name:'growl', fr:'Rugissement', power:null, acc:100, type:'normal', cls:'status'};
+  const me = mk(['fire'], [growl, tackle, ember]);
+  if (bt.chooseAiMove(me, mk(['grass'], []), () => 0).name !== 'ember') throw new Error('doit choisir le feu contre une Plante');
+  if (bt.chooseAiMove(me, mk(['water'], []), () => 0).name === 'ember') throw new Error('ne doit pas choisir le feu contre l’Eau');
+  if (bt.chooseAiMove(mk(['fire'], [growl, tackle]), mk(['normal'], []), () => 0).name !== 'tackle') throw new Error('jamais une attaque de statut');
 }
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');

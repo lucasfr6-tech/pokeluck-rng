@@ -1,6 +1,6 @@
 import {createTraining,effortYield,STAT_KEYS,STAT_NAMES} from './training.js';
 // Interface de combat dans la scène : barre de PV du Pokémon sauvage, carte du combattant, attaques et journal.
-import {effectiveness, createBattle, takeTurn, activeFighter, playerChoices, isUsable, makeFighter, knownMoves, xpReward, TYPE_FR, DEFAULT_BASE} from './battle.js';
+import {effectiveness, chooseAiMove, createBattle, takeTurn, activeFighter, playerChoices, isUsable, makeFighter, knownMoves, xpReward, TYPE_FR, DEFAULT_BASE} from './battle.js';
 import {getSpecies, getMoves, getMove} from './battle-data.js';
 import {playAttackEffect} from './effects.js';
 
@@ -19,7 +19,7 @@ export async function buildFighter(spec, level, types, id, name, training, known
 
 // ctx : {team(), level(id), name(id), types(id), backSprite(id), reduced(), addXp(id, amount) → {before, after}}
 export function createFight(ctx) {
-  let token = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false;
+  let token = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false, starting = false, vWait = 0;
   const el = {battle: $('#battle'), log: $('#battle-log'), moves: $('#moves'), card: $('#fighter'), cardImg: $('#ally'), cardXp: $('#fighter-xp'), cardXpText: $('#fighter-xptext'), cardName: $('#fighter-name'), cardFill: $('#fighter-fill'), cardText: $('#fighter-text'),
     victory: $('#victory'), swBtn: $('#switch'), swPanel: $('#switch-panel'), flee: $('#flee'), hp: $('#hp'), hpName: $('#hp-name'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
   if (window.ResizeObserver) new ResizeObserver(() => { const h = el.battle.offsetHeight; if (h) document.querySelector('.scene').style.setProperty('--strip', h + 'px'); }).observe(el.battle);
@@ -130,9 +130,16 @@ export function createFight(ctx) {
 
   return {
     active: () => !!bt && !bt.over,
-    cancel() { token++; bt = null; playing = false; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
+    cancel() { token++; bt = null; playing = false; starting = false; vWait = 0; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
+    // Mode Auto : joue le tour (meilleure attaque selon l'efficacité, le STAB et la précision) ou passe l'écran de fin.
+    autoStep(wait = 2) {
+      if (starting || playing) return 'wait';
+      if (bt && !bt.over && el.swPanel.hidden) { turn(chooseAiMove(activeFighter(bt), bt.wild)); return 'turn'; }
+      if (!el.victory.hidden && $('#v-continue')) { if (++vWait >= wait) { vWait = 0; $('#v-continue').click(); return 'continue'; } return 'wait'; }
+      return bt ? 'wait' : 'idle';
+    },
     async start(p, types, encounterTraining=createTraining()) {
-      this.cancel(); const my = token; wildLevel = ctx.wildLevel(p.id);
+      this.cancel(); const my = token; starting = true; wildLevel = ctx.wildLevel(p.id);
       el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
       try {
         const ids = ctx.team();
@@ -146,6 +153,7 @@ export function createFight(ctx) {
         setCard(activeFighter(bt)); renderMoves(true);
         say(`Un ${p.name}${p.shiny?' chromatique':''} sauvage apparaît ! Que doit faire ${activeFighter(bt).name} ?`);
       } catch { if (my === token) say('Combat indisponible pour le moment.'); }
+      finally { if (my === token) starting = false; }
     }
   };
 }

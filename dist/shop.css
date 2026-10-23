@@ -81,3 +81,16 @@ dialog.pick .learn-move em{font-style:normal;font-size:12px;color:#ffc94a}
 dialog.pick .learn-move:disabled{opacity:.55;cursor:not-allowed}
 .shop-qty{display:block;font:600 12px var(--pixel)!important;color:#5a3a14!important}
 .bag-item.stack em.qty{background:#2c5f86}
+
+/* Bouton Mode Auto sous la zone. */
+.zone-col{display:flex;flex:none;flex-direction:column;align-items:flex-start;gap:8px}
+.zone-col .zone-chip{flex:none}
+.auto-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:5px 14px;border-radius:14px;border:2px solid #6ec1ff66;background:#0b2238;color:#eaf6ff;font:700 14px var(--pixel);cursor:pointer}
+.auto-toggle[hidden]{display:none}
+.auto-icon{width:26px;height:26px;margin:-3px 0;image-rendering:pixelated}
+.auto-toggle b{padding:1px 9px;border-radius:9px;background:#1b3a55;color:#9fb8c8;font-size:12px}
+.auto-toggle.on{border-color:#3fae5c;background:#103a2a;box-shadow:0 0 0 2px #3fae5c44}
+.auto-toggle.on b{background:#3fae5c;color:#fff;animation:auto-pulse 1.4s ease-in-out infinite}
+@keyframes auto-pulse{50%{opacity:.65}}
+.reduce-motion .auto-toggle.on b{animation:none}
+@media(max-width:700px){.zone-col{flex:1 1 100%}}
