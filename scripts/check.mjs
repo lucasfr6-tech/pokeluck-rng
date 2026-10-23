@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {pool,evolvesFrom,ancestors,sameLine,names} from '../dist/pokemon.js';
 import {zones,zonePool,draw,types,powers,itinerary,backgroundFor,backgrounds,dedupeLines,teamAfterCapture,teamAfterEquip,maxHp} from '../dist/world.js';
+import {effectiveness,computeStats,knownMoves,nextMove,damage,makeFighter,createBattle,takeTurn,xpReward,LUTTE,isUsable,DEFAULT_BASE} from '../dist/battle.js';
+import {parseSpecies,parseMove} from '../dist/battle-data.js';
 import {existsSync} from 'node:fs';
 import {minLevel,maxLevel,levelInfo,powerAt,xpToNext,START_LEVEL} from '../dist/levels.js';
 assert.equal(pool.length,151);
@@ -63,4 +65,20 @@ assert.equal(levelInfo(4,100000).level,15);assert.ok(levelInfo(4,100000).capped)
 assert.equal(levelInfo(6,1).level,36);
 assert.equal(powerAt(4,5),powers[3]);assert.equal(powerAt(4,15),powers[3]*2);assert.equal(powerAt(6,36),powers[5]);
 assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,10)<powerAt(4,15));
+// Combat : types, attaques apprises, dégâts, déroulement et expérience.
+assert.equal(effectiveness('fire',['grass']),2);assert.equal(effectiveness('electric',['ground']),0);assert.equal(effectiveness('water',['fire','rock']),4);
+const ls=[['scratch',1],['growl',1],['ember',7],['smokescreen',13],['rage',19],['slash',25]];
+assert.deepEqual(knownMoves(ls,5),['scratch','growl']);assert.deepEqual(knownMoves(ls,19),['growl','ember','smokescreen','rage']);assert.deepEqual(nextMove(ls,5),{name:'ember',level:7});assert.equal(nextMove(ls,25),null);
+assert.equal(computeStats(DEFAULT_BASE,100).hp,2*45+110);
+const mv={name:'ember',fr:'Flammèche',power:40,acc:100,type:'fire',cls:'special'};
+const A=makeFighter({id:4,name:'Salamèche',level:10,types:['fire'],base:{hp:39,atk:52,def:43,spa:60,spd:50,spe:65},moves:[mv]});
+const B=makeFighter({id:1,name:'Bulbizarre',level:10,types:['grass','poison'],base:{hp:45,atk:49,def:49,spa:65,spd:65,spe:45},moves:[{name:'tackle',fr:'Charge',power:40,acc:100,type:'normal',cls:'physical'}]});
+const d=damage(A,B,mv,()=>0.5);assert.ok(d.hit&&d.stab&&d.eff===2&&d.dmg>0);
+assert.equal(damage(A,B,{...mv,acc:50},()=>0.9).hit,false);
+assert.equal(isUsable({power:null,cls:'status'}),false);
+const bt=createBattle([A],B,()=>0.1);let guard=0;while(!bt.over&&guard++<50)takeTurn(bt,mv);
+assert.equal(bt.winner,'player');assert.equal(B.hp,0);assert.ok(xpReward(10)===5&&xpReward(1)===1);
+const sp=parseSpecies({stats:[{base_stat:39,stat:{name:'hp'}},{base_stat:65,stat:{name:'speed'}}],moves:[{move:{name:'ember'},version_group_details:[{level_learned_at:7,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}}]},{move:{name:'scratch'},version_group_details:[{level_learned_at:1,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}},{level_learned_at:0,move_learn_method:{name:'machine'},version_group:{name:'red-blue'}}]}]});
+assert.deepEqual(sp.learnset,[['scratch',1],['ember',7]]);assert.equal(sp.stats.spe,65);
+assert.deepEqual(parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]}),{name:'ember',fr:'Flammèche',power:40,acc:100,type:'fire',cls:'special'});
 console.log(`OK : 151 espèces, puissances, ${zones.length} zones normalisées, bonus de type, intervalles de tirage et parcours Kanto.`);

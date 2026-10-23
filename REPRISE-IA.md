@@ -124,3 +124,7 @@ L'API `pokemon-species/{id}/` permet de récupérer notamment les indicateurs `i
 
 Reprendre la discussion d'équilibrage avec le créateur : clarifier la chance du groupe versus celle d'une espèce, proposer des groupes exhaustifs et une formule de chance qui reste valide à forte progression. Puis seulement implémenter la refonte demandée. Conserver ou migrer explicitement les anciennes sauvegardes si la structure change.
 
+
+## Version 0.8 : combat
+
+Voir README (« Combat »). Fichiers : `dist/battle.js`, `battle-data.js`, `fight.js`, profil dans `game.js` (`openProfile`). Règles provisoires à valider avec le créateur : riposte automatique, XP = niveau adverse / 2, attaques de statut inutilisables, PV pleins à chaque combat, niveau sauvage = niveau de départ.

@@ -25,9 +25,9 @@ export const maxLevel = id => nextLevels[id] ? nextLevels[id] - 1 : MAX_LEVEL;
 export const xpToNext = level => level;
 
 // Niveau, expérience et progression d'une espèce possédée en `count` exemplaires.
-export function levelInfo(id, count = 1) {
+export function levelInfo(id, count = 1, bonus = 0) {
   const min = minLevel(id), cap = maxLevel(id);
-  let xp = Math.max(0, Math.floor(count) - 1), level = min;
+  let xp = Math.max(0, Math.floor(count) - 1) + Math.max(0, Math.floor(bonus)), level = min;
   while (level < cap && xp >= xpToNext(level)) { xp -= xpToNext(level); level++; }
   const capped = level >= cap;
   return {level, cap, min, capped, xp: capped ? 0 : xp, need: capped ? 0 : xpToNext(level), evolvesAt: nextLevels[id] ?? null};
