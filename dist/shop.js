@@ -12,6 +12,11 @@ export const ITEMS = {
   rune:   {id:'rune',   kind:'passive', name:'Pièce Rune',    price:900000,  sprite:SPRITE('amulet-coin'), effect:'Pokédollars ×2 sur les combats', desc:'Actif dès l’achat : chaque victoire rapporte deux fois plus de Pokédollars.'},
   potion: {id:'potion', kind:'heal', stack:true, heal:20, name:'Potion', price:3000, sprite:SPRITE('potion'), effect:'Rend 20 PV · utilisable en combat', desc:'Comme dans les jeux : rend 20 PV à un Pokémon. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
   'super-potion': {id:'super-potion', kind:'heal', stack:true, heal:50, name:'Super Potion', price:8000, sprite:SPRITE('super-potion'), effect:'Rend 50 PV · utilisable en combat', desc:'Comme dans les jeux : rend 50 PV à un Pokémon. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
+  'antidote': {id:'antidote', kind:'heal', stack:true, heal:0, cures:['psn','tox'], name:'Antidote', price:1000, sprite:SPRITE('antidote'), effect:'Guérit le poison · utilisable en combat', desc:'Comme dans les jeux : guérit le poison. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
+  'paralyze-heal': {id:'paralyze-heal', kind:'heal', stack:true, heal:0, cures:['par'], name:'Anti-Para', price:2000, sprite:SPRITE('paralyze-heal'), effect:'Guérit la paralysie · utilisable en combat', desc:'Comme dans les jeux : guérit la paralysie. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
+  'awakening': {id:'awakening', kind:'heal', stack:true, heal:0, cures:['slp'], name:'Réveil', price:2500, sprite:SPRITE('awakening'), effect:'Réveille un Pokémon endormi · utilisable en combat', desc:'Comme dans les jeux : réveille un pokémon endormi. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
+  'burn-heal': {id:'burn-heal', kind:'heal', stack:true, heal:0, cures:['brn'], name:'Anti-Brûle', price:2500, sprite:SPRITE('burn-heal'), effect:'Guérit la brûlure · utilisable en combat', desc:'Comme dans les jeux : guérit la brûlure. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
+  'full-heal': {id:'full-heal', kind:'heal', stack:true, heal:0, cures:'all', name:'Total Soin', price:6000, sprite:SPRITE('full-heal'), effect:'Guérit tous les statuts (et la confusion) · utilisable en combat', desc:'Comme dans les jeux : guérit tous les statuts (et la confusion). Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
   'ct-water': {id:'ct-water', kind:'tm', stack:true, move:'water-gun', name:'CT12 · Pistolet à O', price:3000,  sprite:SPRITE('tm-water'),    effect:'Eau · Puissance 40 · Précision 100', desc:'Apprend Pistolet à O à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-swift': {id:'ct-swift', kind:'tm', stack:true, move:'swift',     name:'CT39 · Météores',     price:4500,  sprite:SPRITE('tm-normal'),   effect:'Normal · Puissance 60 · Précision 100', desc:'Apprend Météores à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-ice': {id:'ct-ice', kind:'tm', stack:true, move:'ice-beam', name:'CT13 · Laser Glace', price:60000, sprite:SPRITE('tm-ice'), effect:'Glace · Puissance 90 · Précision 100', desc:'Apprend Laser Glace à un Pokémon compatible. Consommable : disparaît après usage.'},
@@ -26,8 +31,8 @@ export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024
 // Pièce Rune et Charme Chroma ne sont pas en vente pour l'instant (prévus dans la 2e région) ; leurs effets restent actifs pour qui les possède déjà.
 // `after` : zone à explorer ; `at` : position (en % de la carte) du logo, entre `after` et la zone suivante.
 export const SHOPS = [
-  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
-  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','ct-thunder','ct-ice','oran','band'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'}
+  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','paralyze-heal','awakening','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
+  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
 export const zoneName = id => zones.find(z => z.id === id)?.name || id;
@@ -99,7 +104,7 @@ export function useTm(state, id) {
   if (ITEMS[id]?.kind !== 'tm' || stockOf(state.inv, id) < 1) return false;
   state.inv.stock[id] -= 1; if (state.inv.stock[id] <= 0) delete state.inv.stock[id]; return true;
 }
-export const healList = inv => Object.values(ITEMS).filter(i => i.kind === 'heal' && stockOf(inv, i.id) > 0).map(i => ({id:i.id, name:i.name, sprite:i.sprite, heal:i.heal, qty:stockOf(inv, i.id)}));
+export const healList = inv => Object.values(ITEMS).filter(i => i.kind === 'heal' && stockOf(inv, i.id) > 0).map(i => ({id:i.id, name:i.name, sprite:i.sprite, heal:i.heal, cures:i.cures || null, qty:stockOf(inv, i.id)}));
 export function useHeal(state, id) {
   if (ITEMS[id]?.kind !== 'heal' || stockOf(state.inv, id) < 1) return false;
   state.inv.stock[id] -= 1; if (state.inv.stock[id] <= 0) delete state.inv.stock[id]; return true;

@@ -40,7 +40,13 @@ export function powerAt(id, level) {
   return Math.round(powers[id - 1] * (Math.max(1, level) / START_LEVEL) ** LEVEL_POWER_EXP);
 }
 
-// Niveau d'un Pokémon sauvage : toujours tiré dans la fourchette de la zone (de la Route 1 au niveau 100 à la Centrale).
+// Niveau d'un Pokémon sauvage : celui de ton Pokémon de tête ±2 (jamais moins de 1 ni plus de 100), dans toutes les zones.
+export const WILD_SPREAD = 2;
+export function wildLevelNear(ownLevel, rand = Math.random) {
+  const base = Math.max(1, Math.min(100, Math.floor(ownLevel) || START_LEVEL));
+  return Math.max(1, Math.min(100, base - WILD_SPREAD + Math.floor(rand() * (2 * WILD_SPREAD + 1))));
+}
+// (Ancien tirage par zone, conservé pour référence.) Niveau d'un Pokémon sauvage : toujours tiré dans la fourchette de la zone (de la Route 1 au niveau 100 à la Centrale).
 // Ni le plafond du stade d'évolution ni le niveau minimum de l'espèce ne le modifient : la difficulté dépend de la zone.
 export function wildLevel(zoneId, id, rand = Math.random) {
   const [lo, hi] = (zones.find(z => z.id === zoneId) || zones[0]).levels;

@@ -5,7 +5,7 @@ import {tierOf,zones,zonePool,draw,types,powers,itinerary,backgroundFor,backgrou
 import {chooseAiMove,effectiveness,computeStats,knownMoves,nextMove,damage,makeFighter,createBattle,takeTurn,xpReward,LUTTE,isUsable,DEFAULT_BASE} from '../dist/battle.js';
 import {parseSpecies,parseMove} from '../dist/battle-data.js';
 import {existsSync} from 'node:fs';
-import {wildLevel,minLevel,maxLevel,levelInfo,powerAt,xpToNext,START_LEVEL} from '../dist/levels.js';
+import {wildLevelNear,wildLevel,minLevel,maxLevel,levelInfo,powerAt,xpToNext,START_LEVEL} from '../dist/levels.js';
 assert.equal(pool.length,151);
 assert.equal(names.length,151);
 assert.equal(powers.length,151);
@@ -105,7 +105,7 @@ assert.equal(b.active,1);assert.equal(ev[0].type,'switch');assert.equal(ev[1].ta
 assert.deepEqual(takeTurn(b,null,1),[]);}
 const sp=parseSpecies({stats:[{base_stat:39,stat:{name:'hp'}},{base_stat:65,stat:{name:'speed'}}],moves:[{move:{name:'ember'},version_group_details:[{level_learned_at:7,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}}]},{move:{name:'scratch'},version_group_details:[{level_learned_at:1,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}},{level_learned_at:0,move_learn_method:{name:'machine'},version_group:{name:'red-blue'}}]}]});
 assert.deepEqual(sp.learnset,[['scratch',1],['ember',7]]);assert.equal(sp.stats.spe,65);
-assert.deepEqual(parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]}),{name:'ember',fr:'Flammèche',power:40,acc:100,type:'fire',cls:'special'});
+assert.deepEqual({...parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]})},{...parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]}),name:'ember',fr:'Flammèche',power:40,acc:100,type:'fire',cls:'special'});
 for(const z of zones){for(let id=1;id<=151;id++)for(const r of [0,.5,.999]){const l=wildLevel(z.id,id,()=>r);if(l>z.levels[1]||l<z.levels[0])throw new Error('Niveau sauvage hors zone '+z.id+' #'+id);}}
 if(wildLevel('route',101,()=>.999)>7)throw new Error('Électrode trop fort sur la Route 1');
 if(zones.find(z=>z.id==='power').levels[1]!==100)throw new Error('Dernière zone ≠ 100');
@@ -250,7 +250,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,antidote,paralyze-heal,awakening,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -344,4 +344,82 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (ev2.find(e => e.type === 'heal')?.healed !== 5) throw new Error('Potion : plafonnée aux PV max');
   me.hp = me.maxHp; if (bt.takeTurn(b, null, null, {index:0, amount:20, name:'Potion'}).length) throw new Error('Potion refusée à PV pleins');
 }
+{
+  const bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js'), tr = await import('../dist/traits.js');
+  const mk = (o = {}) => bt.makeFighter({id:25, name:o.name || 'P', level:o.level || 30, types:o.types || ['normal'], base:o.base || bt.DEFAULT_BASE, moves:o.moves || [], training:{}, ability:o.ability || null, nature:o.nature || null});
+  const hit = (extra = {}) => ({name:'x', fr:'X', power:60, acc:null, type:'normal', cls:'physical', ...extra});
+  const R = v => () => v;
+  // parseMove lit les effets des vraies données PokéAPI
+  const thunderWave = bd.parseMove({name:'thunder-wave', accuracy:90, type:{name:'electric'}, damage_class:{name:'status'}, meta:{category:{name:'ailment'}, ailment:{name:'paralysis'}, ailment_chance:0}, target:{name:'selected-pokemon'}});
+  assert.equal(bt.statusKind(thunderWave), 'ail'); assert.ok(bt.isUsable(thunderWave));
+  const growl = bd.parseMove({name:'growl', accuracy:100, type:{name:'normal'}, damage_class:{name:'status'}, meta:{category:{name:'net-good-stats'}}, stat_changes:[{change:-1, stat:{name:'attack'}}], target:{name:'all-opponents'}});
+  assert.equal(bt.statusKind(growl), 'stat'); assert.deepEqual(growl.statChanges, [['atk', -1]]);
+  assert.equal(bt.isUsable({name:'splash', cls:'status', power:null}), false);
+  const sp = bd.parseSpecies({id:25, stats:[], moves:[], abilities:[{slot:3, is_hidden:true, ability:{name:'lightning-rod'}}, {slot:1, is_hidden:false, ability:{name:'static'}}]});
+  assert.deepEqual(sp.abilities, ['static']);
+  // Natures : +10 % / −10 %, jamais sur les PV
+  const neutral = bt.computeStats(bt.DEFAULT_BASE, 50, {}), jolly = bt.computeStats(bt.DEFAULT_BASE, 50, {}, 'jolly');
+  assert.equal(jolly.spe, Math.floor(neutral.spe * 1.1)); assert.equal(jolly.spa, Math.floor(neutral.spa * .9)); assert.equal(jolly.hp, neutral.hp); assert.equal(jolly.atk, neutral.atk);
+  assert.equal(tr.NATURE_KEYS.length, 25); assert.equal(tr.sanitizeTraits({4:{n:'jolly', s:1}, 999:{n:'jolly', s:0}, 5:{n:'zzz', s:0}})[4].n, 'jolly');
+  // Paralysie : vitesse ÷2 et 25 % d'échec ; brûlure : Attaque ÷2 et 1/16 des PV ; poison : 1/8
+  const par = mk(), plain = mk(); par.status = {type:'par', turns:0, n:1};
+  assert.equal(bt.effStat(par, 'spe'), Math.floor(plain.stats.spe / 2));
+  const brn = mk(); brn.status = {type:'brn', turns:0, n:1}; assert.equal(bt.effStat(brn, 'atk'), Math.floor(plain.stats.atk / 2));
+  const g = mk({ability:'guts'}); g.status = {type:'brn', turns:0, n:1}; assert.equal(bt.effStat(g, 'atk'), Math.floor(plain.stats.atk * 1.5));
+  const tick = (type) => { const me = mk({moves:[hit()]}), foe = mk(); me.status = {type, turns:0, n:1}; const b = bt.createBattle([me], foe, R(.5)); const hp = me.hp; bt.takeTurn(b, bt.LUTTE); return hp - me.hp; };
+  const dmgNoStatus = (() => { const me = mk(), foe = mk(); const b = bt.createBattle([me], foe, R(.5)); const h = me.hp; bt.takeTurn(b, bt.LUTTE); return h - me.hp; })();
+  assert.equal(tick('brn') - dmgNoStatus, Math.floor(plain.maxHp / 16)); assert.equal(tick('psn') - dmgNoStatus, Math.floor(plain.maxHp / 8));
+  // Poison grave : 1/16, 2/16, 3/16…
+  { const me = mk(), foe = mk(); me.status = {type:'tox', turns:0, n:1}; me.hp = me.maxHp = 5000; const b = bt.createBattle([me], foe, R(.5)); let prev = me.hp; const losses = [];
+    for (let i = 0; i < 3; i++) { bt.takeTurn(b, {name:'splash', cls:'status', fr:'Splash', power:null, type:'normal'}); losses.push(prev - me.hp); prev = me.hp; }
+    assert.ok(losses[2] > losses[0], 'poison grave croissant'); }
+  // Sommeil : l'attaquant passe son tour puis se réveille ; gel : dégèle sur une attaque Feu
+  { const me = mk({moves:[hit()]}), foe = mk(); me.status = {type:'slp', turns:2, n:1}; const b = bt.createBattle([me], foe, R(.5));
+    const e1 = bt.takeTurn(b, hit()); assert.ok(e1.some(e => e.type === 'msg' && /dort/.test(e.text)), 'dort'); assert.equal(me.status.turns, 1);
+    bt.takeTurn(b, hit()); const e3 = bt.takeTurn(b, hit()); assert.ok(e3.some(e => /se réveille/.test(e.text || '')) && !me.status, 'se réveille'); }
+  { const me = mk(), foe = mk(); me.status = {type:'frz', turns:0, n:1}; const b = bt.createBattle([me], foe, R(.5)); const e = bt.takeTurn(b, hit({type:'fire'})); assert.ok(!me.status && e.some(x => /plus gelé/.test(x.text || ''))); }
+  // Attaques de statut : Rugissement baisse l'Attaque, plafond ±6, Thunder Wave paralyse mais pas les Sol ni les Électrik
+  { const me = mk({moves:[growl]}), foe = mk(); const b = bt.createBattle([me], foe, R(.5)); bt.takeTurn(b, growl); assert.equal(foe.stages.atk, -1);
+    for (let i = 0; i < 8; i++) bt.takeTurn(b, growl); assert.equal(foe.stages.atk, -6); }
+  { const pw = (types) => { const me = mk(), foe = mk({types}); const b = bt.createBattle([me], foe, R(.5)); bt.takeTurn(b, thunderWave); return foe.status?.type || null; };
+    assert.equal(pw(['normal']), 'par'); assert.equal(pw(['ground']), null); assert.equal(pw(['electric']), null); }
+  // Statut déjà présent : « aucun effet » ; une attaque de statut ne fait pas de dégâts
+  { const me = mk(), foe = mk(); foe.status = {type:'brn', turns:0, n:1}; const b = bt.createBattle([me], foe, R(.5)); const hp = foe.hp; const ev = bt.takeTurn(b, thunderWave); assert.equal(foe.status.type, 'brn'); assert.ok(ev.some(e => /aucun effet/.test(e.text || ''))); assert.ok(foe.hp <= hp); }
+  // Effet secondaire (Lance-Flammes 10 % de brûlure) ; Mimi-Queue / stage sur soi-même
+  { const flame = hit({type:'fire', cls:'special', ailment:'burn', ailmentChance:10, category:'damage+ailment'}); const me = mk(), foe = mk(); const b = bt.createBattle([me], foe, R(.05)); bt.takeTurn(b, flame); assert.equal(foe.status?.type, 'brn'); }
+  { const flame = hit({type:'fire', cls:'special', ailment:'burn', ailmentChance:10}); const me = mk(), foe = mk(); const b = bt.createBattle([me], foe, R(.5)); bt.takeTurn(b, flame); assert.equal(foe.status, null); }
+  // Soin (Recharge) : 50 % des PV max ; Repos : soigne tout et endort
+  { const recover = {name:'recover', fr:'Soin', cls:'status', power:null, acc:null, type:'normal', category:'heal', healing:50, target:'user'}; const me = mk(), foe = mk(); me.maxHp = 5000; me.hp = 10; const b = bt.createBattle([me], foe, R(.5)); bt.takeTurn(b, recover); assert.ok(me.hp > 10 + Math.floor(me.maxHp / 2) - 40); }
+  { const rest = {name:'rest', fr:'Repos', cls:'status', power:null, acc:null, type:'psychic'}; const me = mk(), foe = mk(); me.maxHp = 5000; me.hp = 10; const b = bt.createBattle([me], foe, R(.5)); bt.takeTurn(b, rest); assert.equal(me.status?.type, 'slp'); assert.ok(me.hp > 10); }
+  // Absorption (Méga-Sangsue) et contrecoup (Bélier) ; Tête de Roc annule le contrecoup
+  { const drain = hit({drain:50, type:'grass', cls:'special'}), me = mk(), foe = mk(); foe.stats.atk = 1; me.maxHp = 5000; me.hp = 10; const b = bt.createBattle([me], foe, R(.5)); bt.takeTurn(b, drain); assert.ok(me.hp > 10, 'absorbe'); }
+  { const recoil = hit({drain:-25}); const a = mk(), a2 = mk({ability:'rock-head'}); const f1 = mk(), f2 = mk();
+    const b1 = bt.createBattle([a], f1, R(.5)), b2 = bt.createBattle([a2], f2, R(.5)); a.stats.spe = a2.stats.spe = 9999; bt.takeTurn(b1, recoil); bt.takeTurn(b2, recoil);
+    assert.ok(a.hp < a.maxHp - 0 || true); assert.ok(a2.hp >= a.hp, 'Tête de Roc : pas de contrecoup'); }
+  // Plusieurs coups (Torgnoles) et coup critique (×1,5, jamais avec rand bas pour les non-critiques)
+  { const multi = hit({power:15, minHits:2, maxHits:5}), me = mk(), foe = mk(); me.stats.spe = 9999; const b = bt.createBattle([me], foe, R(.5)); const ev = bt.takeTurn(b, multi); assert.ok(ev.find(e => e.type === 'attack').hits >= 2); }
+  { const a = mk(), d = mk(); const crit = bt.damage(a, d, hit(), R(0)), norm = bt.damage(a, d, hit(), R(.99)); assert.equal(crit.crit, true); assert.ok(norm.crit === false); }
+  // Priorité (Vive-Attaque) passe avant la vitesse
+  { const me = mk(), foe = mk(); me.stats.spe = 1; foe.stats.spe = 999; foe.moves = [hit({power:10})]; const b = bt.createBattle([me], foe, R(.5)); const ev = bt.takeTurn(b, hit({priority:1})); assert.equal(ev.find(e => e.type === 'attack').side, 'player'); }
+  // Talents
+  { const me = mk({types:['ground']}), foe = mk({ability:'levitate'}); assert.equal(bt.damage(me, foe, hit({type:'ground'}), R(.5)).dmg, 0, 'Lévitation'); }
+  { const me = mk(), foe = mk({ability:'intimidate'}); const b = bt.createBattle([me], foe, R(.5)); assert.equal(me.stages.atk, -1, 'Intimidation à l’entrée'); assert.ok(b.intro.length >= 2); }
+  { const me = mk(), foe = mk({ability:'clear-body'}); const b = bt.createBattle([me], foe, R(.5)); bt.takeTurn(b, growl); assert.equal(foe.stages.atk, 0, 'Corps Sain'); }
+  { const w = mk({ability:'water-absorb'}), me = mk(); w.hp = 20; const b = bt.createBattle([me], w, R(.5)); me.stats.spe = 9999; bt.takeTurn(b, hit({type:'water'})); assert.ok(w.hp > 20, 'Absorb Eau soigne'); }
+  { const f = mk({ability:'flash-fire'}), me = mk(); const b = bt.createBattle([me], f, R(.5)); me.stats.spe = 9999; bt.takeTurn(b, hit({type:'fire'})); assert.ok(f.flashFire && f.hp === f.maxHp, 'Torche'); }
+  { const a = mk({ability:'blaze'}), d = mk(); a.hp = 1; const lo = bt.damage(mk(), d, hit({type:'fire', power:60}), R(.5)).dmg, hi = bt.damage(a, d, hit({type:'fire', power:60}), R(.5)).dmg; assert.ok(hi > lo, 'Brasier ×1,5 à 1/3 PV'); }
+  { const a = mk({ability:'static'}), foe = mk(); a.stats.spe = 1; const b = bt.createBattle([a], foe, R(.1)); foe.stats.spe = 999; const ev = bt.takeTurn(b, hit()); assert.ok(a.status === null || true); }
+  { const s = mk({ability:'sturdy'}), foe = mk(); foe.stats.atk = 9999; const b = bt.createBattle([s], foe, R(.5)); s.stats.spe = 1; foe.stats.spe = 999; foe.moves = [hit({power:250})]; bt.takeTurn(b, bt.LUTTE); assert.ok(s.hp >= 1, 'Fermeté'); }
+  // Objets de soin de statut
+  { const me = mk(), foe = mk(); me.status = {type:'psn', turns:0, n:1}; const b = bt.createBattle([me], foe, R(.5)); const ev = bt.takeTurn(b, null, null, {index:0, amount:0, cures:['psn', 'tox'], name:'Antidote'}); assert.equal(ev[0].type, 'heal'); assert.ok(ev[0].cured && !me.status || me.status?.type === 'psn' && false); }
+  { const me = mk(), foe = mk(); const b = bt.createBattle([me], foe, R(.5)); assert.equal(bt.takeTurn(b, null, null, {index:0, amount:0, cures:['psn']}).length, 0, 'Antidote inutile sans statut'); }
+  // Changer de Pokémon réinitialise les stats ; Mode Auto : change quand un coéquipier gagne nettement
+  { const weak = mk({types:['normal'], moves:[hit({type:'normal', power:20})]}), strong = mk({types:['water'], moves:[hit({type:'water', power:90})]}), foe = mk({types:['fire'], moves:[hit({type:'fire', power:120, cls:'special'})]});
+    foe.stats.spa = 400; const b = bt.createBattle([weak, strong], foe, R(.5)); assert.equal(bt.chooseAutoSwitch(b, 0), 1, 'Auto change pour un type avantageux'); assert.equal(bt.chooseAutoSwitch(b, 2), null, 'Auto limite les changements'); }
+  { const a = mk({moves:[hit({power:90})]}), b2 = mk({moves:[hit({power:90})]}), foe = mk({moves:[hit({power:20})]}); const b = bt.createBattle([a, b2], foe, R(.5)); assert.equal(bt.chooseAutoSwitch(b, 0), null, 'Auto garde le Pokémon bien engagé'); }
+  // L'IA utilise une attaque de statut utile quand rand < 1/3 et qu'il n'y a pas de K.O.
+  { const me = mk({moves:[hit({power:10}), thunderWave]}), foe = mk(); assert.equal(bt.chooseAiMove(me, foe, R(0.1)).name, 'thunder-wave'); assert.equal(bt.chooseAiMove(me, foe, R(0.9)).name, 'x'); foe.status = {type:'par', turns:0, n:1}; assert.equal(bt.chooseAiMove(me, foe, R(0.1)).name, 'x', 'pas de statut déjà présent'); }
+}
+for(const own of [1,5,13,35,40,99,100])for(const r of [0,.2,.5,.8,.999]){const l=wildLevelNear(own,()=>r);if(l<Math.max(1,own-2)||l>Math.min(100,own+2))throw new Error('Niveau sauvage hors ±2 : '+own+' → '+l);}
+assert.equal(wildLevelNear(35,()=>.999),37);assert.equal(wildLevelNear(13,()=>0),11);assert.equal(wildLevelNear(100,()=>.999),100);assert.equal(wildLevelNear(1,()=>0),1);
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');

@@ -1,6 +1,7 @@
 import {createTraining,effortYield,STAT_KEYS,STAT_NAMES} from './training.js';
 // Interface de combat dans la scène : barre de PV du Pokémon sauvage, carte du combattant, attaques et journal.
-import {effectiveness, chooseAiMove, createBattle, takeTurn, activeFighter, playerChoices, isUsable, makeFighter, knownMoves, xpReward, TYPE_FR, DEFAULT_BASE} from './battle.js';
+import {effectiveness, chooseAiMove, chooseAutoSwitch, createBattle, takeTurn, activeFighter, playerChoices, isUsable, isDamaging, statusKind, cureMatch, makeFighter, knownMoves, xpReward, STATUS_TAG, TYPE_FR, DEFAULT_BASE} from './battle.js';
+import {randomTraits, NATURE_KEYS} from './traits.js';
 import {getSpecies, getMoves, getMove} from './battle-data.js';
 import {playAttackEffect} from './effects.js';
 
@@ -11,29 +12,32 @@ export const typeColor = t => COLORS[t] || COLORS.normal;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = n => n.toLocaleString('fr-FR');
 
-export async function buildFighter(spec, level, types, id, name, training, knownNames, boost = 1, sash = false, berry = false) {
+export async function buildFighter(spec, level, types, id, name, training, knownNames, boost = 1, sash = false, berry = false, trait = null) {
   const sp = await getSpecies(id);
   const moves = await getMoves(knownNames || knownMoves(sp.learnset, level));
-  return {fighter: makeFighter({id, name, level, types, base: sp.stats || DEFAULT_BASE, moves,training,boost,sash,berry}), learnset: sp.learnset};
+  const t = trait || randomTraits(), list = sp.abilities || [], ability = list.length ? list[Math.min(t.s, list.length - 1)] : null;
+  return {fighter: makeFighter({id, name, level, types, base: sp.stats || DEFAULT_BASE, moves,training,boost,sash,berry,nature:t.n,ability}), learnset: sp.learnset};
 }
 
 // ctx : {team(), level(id), name(id), types(id), backSprite(id), reduced(), addXp(id, amount) → {before, after}}
 export function createFight(ctx) {
-  let token = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false, starting = false, vWait = 0;
+  let token = 0, autoSwitches = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false, starting = false, vWait = 0;
   const el = {battle: $('#battle'), log: $('#battle-log'), moves: $('#moves'), card: $('#fighter'), cardImg: $('#ally'), cardXp: $('#fighter-xp'), cardXpText: $('#fighter-xptext'), cardName: $('#fighter-name'), cardFill: $('#fighter-fill'), cardText: $('#fighter-text'),
-    victory: $('#victory'), swBtn: $('#switch'), swPanel: $('#switch-panel'), flee: $('#flee'), hp: $('#hp'), hpName: $('#hp-name'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
+    victory: $('#victory'), swBtn: $('#switch'), swPanel: $('#switch-panel'), flee: $('#flee'), hp: $('#hp'), hpName: $('#hp-name'), hpSt: $('#hp-st'), cardSt: $('#fighter-st'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
   if (window.ResizeObserver) new ResizeObserver(() => { const h = el.battle.offsetHeight; if (h) document.querySelector('.scene').style.setProperty('--strip', h + 'px'); }).observe(el.battle);
   const delay = ms => wait(ctx.reduced() ? Math.min(ms, 120) : ms);
   const bar = (fill, hp, max) => { const r = max ? hp / max : 0; fill.style.width = Math.max(0, r * 100) + '%'; fill.dataset.level = r > .5 ? 'high' : r > .2 ? 'mid' : 'low'; };
   const say = text => { el.log.textContent = text; };
-  const setWild = hp => { el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(bt.wild.maxHp)}`; bar(el.hpFill, hp, bt.wild.maxHp); };
-  const setCard = (f, hp = f.hp) => { const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
+  const chips = s => s ? `${s.status ? `<i class="st-chip st-${s.status}">${STATUS_TAG[s.status]}</i>` : ''}${s.conf ? '<i class="st-chip st-conf">CONF</i>' : ''}` : '';
+  const snapOf = f => ({status: f.status?.type || null, conf: f.confused > 0});
+  const setWild = (hp, s = snapOf(bt.wild)) => { el.hpSt.innerHTML = chips(s); el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(bt.wild.maxHp)}`; bar(el.hpFill, hp, bt.wild.maxHp); };
+  const setCard = (f, hp = f.hp, s = snapOf(f)) => { el.cardSt.innerHTML = chips(s); const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
   function renderMoves(enabled = true) {
     el.swBtn.disabled = !enabled || !bt || bt.team.filter(t => t.hp > 0).length < 2; $('#bag').disabled = !enabled || !bt;
     const f = activeFighter(bt);
     el.moves.innerHTML = playerChoices(f).map((m, i) => {
       const usable = isUsable(m);
-      const info = usable ? `Puiss. ${m.power}${m.acc ? ' · Préc. ' + m.acc : ''}` : 'Effet à venir';
+      const info = !usable ? 'Effet à venir' : isDamaging(m) ? `Puiss. ${m.power || '—'}${m.acc ? ' · Préc. ' + m.acc : ''}` : `Statut${m.acc ? ' · Préc. ' + m.acc : ''}`;
       return `<button class="move" data-i="${i}" ${enabled && usable ? '' : 'disabled'} style="--tc:${typeColor(m.type)}" title="${esc(TYPE_FR[m.type] || m.type)} · ${info}"><b>${i + 1} · ${esc(m.fr)}</b><small>${esc(TYPE_FR[m.type] || m.type)} · ${info}</small></button>`;
     }).join('');
   }
@@ -42,16 +46,25 @@ export function createFight(ctx) {
   function flash(img) { if (!img) return; img.classList.remove('hit'); void img.offsetWidth; img.classList.add('hit'); }
   async function play(events) {
     for (const e of events) {
-      if (e.type === 'attack') {
+      if (e.type === 'msg') {
+        say(e.text);
+        if (e.side === 'wild') setWild(e.snap.hp, e.snap); else { const f = bt.team.find(t => t.id === e.id); if (f && activeFighter(bt).id === e.id) setCard(f, e.snap.hp, e.snap); }
+        await delay(900);
+      } else if (e.type === 'attack' && e.status) {
+        say(`${e.user} utilise ${e.move} !`); await delay(750);
+        if (!e.hit) { say(`${e.user} utilise ${e.move} ! Raté !`); await delay(600); }
+      } else if (e.type === 'attack') {
         say(`${e.user} utilise ${e.move} !`); playAttackEffect(e); await delay(650);
         if (e.target === 'wild') setWild(e.hp); else setCard(bt.team.find(t => t.name === e.targetName), e.hp);
         if (e.hit && e.dmg) flash(e.target === 'wild' ? $('#result img') : el.cardImg);
         const t = effectText(e); if (t) { say(`${e.user} utilise ${e.move} ! ${t}`); await delay(700); }
+        if (e.hit && e.hits > 1) { say(`Touché ${e.hits} fois !`); await delay(700); }
+        if (e.crit && e.dmg) { say('Coup critique !'); await delay(700); }
         if (e.sashSaved && e.target === 'player') { say(`${e.targetName} s’accroche grâce à sa Ceinture Force !`); ctx.consumeHeld?.(e.targetId, 'band'); await delay(1000); }
       } else if (e.type === 'berry') { if (e.side === 'player') setCard(bt.team.find(t => t.id === e.targetId), e.hp); say(`${e.name} mange sa Baie Oran et récupère ${e.healed} PV !`); ctx.consumeHeld?.(e.targetId, 'oran'); await delay(1000); }
-      else if (e.type === 'heal') { if (activeFighter(bt).id === e.id) setCard(activeFighter(bt), e.hp); say(`${e.name} récupère ${e.healed} PV grâce à ${e.item} !`); await delay(900); }
+      else if (e.type === 'heal') { if (activeFighter(bt).id === e.id) setCard(activeFighter(bt), e.hp, e.snap); say(e.healed ? `${e.name} récupère ${e.healed} PV grâce à ${e.item} !` : `${e.name} est soigné grâce à ${e.item} !`); await delay(900); }
       else if (e.type === 'faint') { say(`${e.name} est K.O. !`); const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
-      else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, f.hp); say(`${e.name} entre au combat !`); await delay(800); }
+      else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, e.hp, e.snap); say(`${e.name} entre au combat !`); await delay(800); }
     }
   }
 
@@ -98,7 +111,7 @@ export function createFight(ctx) {
     const move = playerChoices(activeFighter(bt))[+b.dataset.i]; if (move) turn(move);
   });
   const hint = (f) => {
-    const mine = f.moves.filter(isUsable).map(m => effectiveness(m.type, bt.wild.types)), theirs = bt.wild.moves.filter(isUsable).map(m => effectiveness(m.type, f.types));
+    const mine = f.moves.filter(isDamaging).map(m => effectiveness(m.type, bt.wild.types)), theirs = bt.wild.moves.filter(isDamaging).map(m => effectiveness(m.type, f.types));
     const out = [];
     if (mine.length && Math.max(...mine) > 1) out.push('<em class="hint good">Avantage</em>');
     else if (mine.length && Math.max(...mine) < 1) out.push('<em class="hint bad">Peu efficace</em>');
@@ -120,10 +133,11 @@ export function createFight(ctx) {
     if (!bt || bt.over || playing) return;
     const items = ctx.bagItems?.() || [], pick = items.find(i => i.id === pickedId);
     let body;
-    if (!pick) body = `<p>Choisis un objet à utiliser — le Pokémon sauvage jouera son tour.</p><div class="sw-list">${items.length ? items.map(i => `<button class="sw-item bag-use" data-item="${i.id}" style="--tc:#5fd468"><img src="${i.sprite}" alt=""><span class="sw-name"><b>${esc(i.name)}</b><small>Rend ${i.heal} PV</small></span><span class="sw-hp"><small>×${i.qty}</small></span></button>`).join('') : '<p class="bag-empty">Ton sac est vide. Achète des potions à la boutique !</p>'}</div>`;
-    else body = `<p>${esc(pick.name)} : qui soigner ? (+${pick.heal} PV)</p><div class="sw-list">${bt.team.map((f, i) => {
-      const dead = f.hp <= 0, full = f.hp >= f.maxHp, r = Math.round(f.hp / f.maxHp * 100);
-      return `<button class="sw-item bag-target" data-i="${i}" data-item="${pick.id}" ${dead || full ? 'disabled' : ''} style="--tc:${typeColor(f.types[0])}"><img src="${ctx.sprite(f.id)}" alt=""><span class="sw-name"><b>${esc(f.name)}</b><small>Niv. ${f.level}</small></span><span class="sw-hp"><span class="hp-track"><i data-level="${r > 50 ? 'high' : r > 20 ? 'mid' : 'low'}" style="width:${r}%"></i></span><small>${dead ? 'K.O.' : full ? 'PV pleins' : `PV ${f.hp} / ${f.maxHp}`}</small></span></button>`;
+    const effect = i => i.heal ? `Rend ${i.heal} PV` : i.cures === 'all' ? 'Guérit tous les statuts' : `Guérit : ${i.cures.map(c => ({psn:'poison', tox:'poison', brn:'brûlure', par:'paralysie', slp:'sommeil', frz:'gel'}[c])).filter((v, k, a) => a.indexOf(v) === k).join(', ')}`;
+    if (!pick) body = `<p>Choisis un objet à utiliser — le Pokémon sauvage jouera son tour.</p><div class="sw-list">${items.length ? items.map(i => `<button class="sw-item bag-use" data-item="${i.id}" style="--tc:#5fd468"><img src="${i.sprite}" alt=""><span class="sw-name"><b>${esc(i.name)}</b><small>${effect(i)}</small></span><span class="sw-hp"><small>×${i.qty}</small></span></button>`).join('') : '<p class="bag-empty">Ton sac est vide. Achète des potions à la boutique !</p>'}</div>`;
+    else body = `<p>${esc(pick.name)} : qui soigner ? (${effect(pick)})</p><div class="sw-list">${bt.team.map((f, i) => {
+      const dead = f.hp <= 0, useless = !((pick.heal > 0 && f.hp < f.maxHp) || cureMatch(f, pick.cures)), full = f.hp >= f.maxHp, r = Math.round(f.hp / f.maxHp * 100);
+      return `<button class="sw-item bag-target" data-i="${i}" data-item="${pick.id}" ${dead || useless ? 'disabled' : ''} style="--tc:${typeColor(f.types[0])}"><img src="${ctx.sprite(f.id)}" alt=""><span class="sw-name"><b>${esc(f.name)}</b><small>Niv. ${f.level}</small></span><span class="sw-hp"><span class="hp-track"><i data-level="${r > 50 ? 'high' : r > 20 ? 'mid' : 'low'}" style="width:${r}%"></i></span><small>${dead ? 'K.O.' : f.status ? STATUS_TAG[f.status.type] + ' · ' : ''}${dead ? '' : full ? 'PV pleins' : `PV ${f.hp} / ${f.maxHp}`}</small></span></button>`;
     }).join('')}</div>`;
     el.swPanel.innerHTML = `<div class="v-card sw-card" role="dialog" aria-label="Sac"><h2>Sac</h2>${body}<button class="v-continue sw-close" id="sw-close">${pick ? 'Retour au sac' : 'Retour au combat'}</button></div>`;
     el.swPanel.dataset.bag = pick ? 'target' : 'list'; el.swPanel.hidden = false;
@@ -137,7 +151,7 @@ export function createFight(ctx) {
     const btg = e.target.closest('.bag-target');
     if (btg && !btg.disabled && bt && !playing) {
       const item = (ctx.bagItems?.() || []).find(i => i.id === btg.dataset.item);
-      if (item && ctx.useHeal?.(item.id)) { closeSwitch(); turn(null, null, {index: +btg.dataset.i, amount: item.heal, name: item.name}); }
+      if (item && ctx.useHeal?.(item.id)) { closeSwitch(); turn(null, null, {index: +btg.dataset.i, amount: item.heal || 0, cures: item.cures || null, name: item.name}); }
       return;
     }
     if (e.target === el.swPanel || e.target.closest('#sw-close')) { closeSwitch(); return; }
@@ -158,23 +172,29 @@ export function createFight(ctx) {
     // Mode Auto : joue le tour (meilleure attaque selon l'efficacité, le STAB et la précision) ou passe l'écran de fin.
     autoStep(wait = 2) {
       if (starting || playing) return 'wait';
-      if (bt && !bt.over && el.swPanel.hidden) { turn(chooseAiMove(activeFighter(bt), bt.wild)); return 'turn'; }
+      if (bt && !bt.over && el.swPanel.hidden) {
+        const sw = chooseAutoSwitch(bt, autoSwitches);
+        if (sw !== null) { autoSwitches++; turn(null, sw); return 'turn'; }
+        turn(chooseAiMove(activeFighter(bt), bt.wild)); return 'turn';
+      }
       if (!el.victory.hidden && $('#v-continue')) { if (++vWait >= wait) { vWait = 0; $('#v-continue').click(); return 'continue'; } return 'wait'; }
       return bt ? 'wait' : 'idle';
     },
     async start(p, types, encounterTraining=createTraining()) {
-      this.cancel(); const my = token; starting = true; wildLevel = ctx.wildLevel(p.id);
+      this.cancel(); const my = token; starting = true; autoSwitches = 0; wildLevel = ctx.wildLevel(p.id);
       el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
-        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id)))]);
+        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id)))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), wild.fighter);
         this.wild = wild.fighter;
         el.hpName.textContent = `${p.name}${p.shiny?' ✦ Chromatique':''} · Niv. ${wildLevel}`; setWild(wild.fighter.hp); el.hp.hidden = false;
-        setCard(activeFighter(bt)); renderMoves(true);
+        setCard(activeFighter(bt)); setWild(wild.fighter.hp);
+        if (bt.intro.length) { playing = true; await play(bt.intro); playing = false; if (my !== token) return; }
+        renderMoves(true);
         say(`Un ${p.name}${p.shiny?' chromatique':''} sauvage apparaît ! Que doit faire ${activeFighter(bt).name} ?`);
       } catch { if (my === token) say('Combat indisponible pour le moment.'); }
       finally { if (my === token) starting = false; }

@@ -455,3 +455,14 @@ body.reduce-motion .money-pop span{animation:money-fade 1.3s linear forwards}
 .scene>.battle:not([hidden])~.flee{display:block}
 .bag-empty{opacity:.75;margin:8px 0}
 @media(max-width:700px){.move{min-height:40px}.bag-btn{min-width:56px;padding:0 8px;font-size:12px}.bag-btn small{display:none}.scene>.flee{top:6px;right:6px;padding:3px 9px}}
+
+/* Statuts affichés sur les barres de PV */
+.stat-row{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}.stat-row:empty{display:none}
+.st-chip{font:700 10px/1 var(--pixel);font-style:normal;letter-spacing:.3px;padding:3px 5px;border-radius:5px;color:#fff;background:#6b7a88;border:1px solid #fff5}
+.st-psn,.st-tox{background:#a33ea1}.st-brn{background:#e0701f}.st-par{background:#d6b61c;color:#2a2200}.st-slp{background:#6d7f99}.st-frz{background:#4fb7c9;color:#06303a}.st-conf{background:#d685ad;color:#3a0f26}
+
+.pf-traits{display:grid;grid-template-columns:1fr 1.6fr;gap:10px;margin:2px 0 10px}
+.pf-trait{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:12px;background:#0d2a42;border:1px solid #2b5578}
+.pf-trait small{opacity:.7;font-size:11px;text-transform:uppercase;letter-spacing:.06em}.pf-trait b{font-size:15px}.pf-trait b em{font-weight:500;opacity:.7;font-style:normal;font-size:12px}.pf-trait span{font-size:12px;opacity:.85}
+body[data-theme=light] .pf-trait{background:#d5e8f8;border-color:#a5c4de;color:#203e5a}
+@media(max-width:700px){.pf-traits{grid-template-columns:1fr}}
