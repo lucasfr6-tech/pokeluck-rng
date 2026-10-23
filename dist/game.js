@@ -15,7 +15,7 @@ function save(){try{localStorage.setItem(saveKey,JSON.stringify(state));$('#save
 const fmt=n=>n.toLocaleString('fr-FR');
 const lv=id=>levelInfo(id,state.counts[id]||1,state.xp[id]||0),powerOf=id=>powerAt(id,lv(id).level);
 const total=()=>Object.values(state.counts).reduce((a,b)=>a+b,0);
-const fight=createFight({team:()=>state.team,level:id=>lv(id).level,name:id=>pool[id-1].name,types:id=>types[id],wildLevel:minLevel,backSprite:id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${id}.png`,reduced:()=>state.reducedMotion||prefersReduced(),
+const fight=createFight({team:()=>state.team,level:id=>lv(id).level,name:id=>pool[id-1].name,types:id=>types[id],wildLevel:minLevel,info:id=>{const l=lv(id);return{level:l.level,pct:l.capped?100:Math.round(l.xp/l.need*100),text:l.capped?(l.evolvesAt?'Niveau max du stade':'Niveau max'):`XP ${l.xp} / ${l.need}`};},backSprite:id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${id}.png`,reduced:()=>state.reducedMotion||prefersReduced(),
  addXp(id,n){const before=lv(id).level;state.xp[id]=(state.xp[id]||0)+n;const after=lv(id).level;save();return{before,after};},
  onEnd(){render();$('#roll-cta').textContent='Relancer · Espace';$('#stage-caption').textContent='CLIQUE SUR LE POKÉMON POUR RELANCER';}});
 const teamPower=()=>state.team.reduce((n,id)=>n+powerOf(id),0);

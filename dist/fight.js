@@ -18,13 +18,14 @@ export async function buildFighter(spec, level, types, id, name) {
 // ctx : {team(), level(id), name(id), types(id), backSprite(id), reduced(), addXp(id, amount) → {before, after}}
 export function createFight(ctx) {
   let token = 0, bt = null, wildLevel = 0, learnsets = {}, playing = false;
-  const el = {battle: $('#battle'), log: $('#battle-log'), moves: $('#moves'), card: $('#fighter'), cardImg: $('#fighter img'), cardName: $('#fighter-name'), cardFill: $('#fighter-fill'), cardText: $('#fighter-text'),
+  const el = {battle: $('#battle'), log: $('#battle-log'), moves: $('#moves'), card: $('#fighter'), cardImg: $('#ally'), cardXp: $('#fighter-xp'), cardXpText: $('#fighter-xptext'), cardName: $('#fighter-name'), cardFill: $('#fighter-fill'), cardText: $('#fighter-text'),
     hp: $('#hp'), hpName: $('#hp-name'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
+  if (window.ResizeObserver) new ResizeObserver(() => { const h = el.battle.offsetHeight; if (h) document.querySelector('.scene').style.setProperty('--strip', h + 8 + 'px'); }).observe(el.battle);
   const delay = ms => wait(ctx.reduced() ? Math.min(ms, 120) : ms);
   const bar = (fill, hp, max) => { const r = max ? hp / max : 0; fill.style.width = Math.max(0, r * 100) + '%'; fill.dataset.level = r > .5 ? 'high' : r > .2 ? 'mid' : 'low'; };
   const say = text => { el.log.textContent = text; };
   const setWild = hp => { el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(bt.wild.maxHp)}`; bar(el.hpFill, hp, bt.wild.maxHp); };
-  const setCard = (f, hp = f.hp) => { el.cardImg.src = ctx.backSprite(f.id); el.cardName.textContent = `${f.name} · Niv. ${f.level}`; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
+  const setCard = (f, hp = f.hp) => { const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
   function renderMoves(enabled = true) {
     const f = activeFighter(bt);
     el.moves.innerHTML = playerChoices(f).map((m, i) => {
@@ -35,13 +36,15 @@ export function createFight(ctx) {
   }
   const effectText = e => !e.hit ? 'Raté !' : e.eff === 0 ? 'Ça n’affecte pas la cible…' : e.eff > 1 ? 'C’est super efficace !' : e.eff < 1 ? 'Ce n’est pas très efficace…' : '';
 
+  function flash(img) { if (!img) return; img.classList.remove('hit'); void img.offsetWidth; img.classList.add('hit'); }
   async function play(events) {
     for (const e of events) {
       if (e.type === 'attack') {
         say(`${e.user} utilise ${e.move} !`); await delay(650);
         if (e.target === 'wild') setWild(e.hp); else setCard(bt.team.find(t => t.name === e.targetName), e.hp);
+        if (e.hit && e.dmg) flash(e.target === 'wild' ? $('#result img') : el.cardImg);
         const t = effectText(e); if (t) { say(`${e.user} utilise ${e.move} ! ${t}`); await delay(700); }
-      } else if (e.type === 'faint') { say(`${e.name} est K.O. !`); await delay(900); }
+      } else if (e.type === 'faint') { say(`${e.name} est K.O. !`); const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
       else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, f.hp); say(`${e.name} entre au combat !`); await delay(800); }
     }
   }
@@ -56,6 +59,7 @@ export function createFight(ctx) {
         const ls = learnsets[id] || [];
         for (const [mv, at] of ls) if (at > r.before && at <= r.after) lines.push(`${name} peut apprendre ${mv.replace(/-/g, ' ')} (niv. ${at}).`);
       }
+      setCard(activeFighter(bt), activeFighter(bt).hp);
       for (const l of lines) { say(l); await delay(1100); }
       say(`Victoire ! ${bt.participants.size > 1 ? bt.participants.size + ' Pokémon ont' : '1 Pokémon a'} gagné ${gain} XP.`);
       ctxEnd?.('win');
@@ -75,7 +79,7 @@ export function createFight(ctx) {
 
   return {
     active: () => !!bt && !bt.over,
-    cancel() { token++; bt = null; playing = false; el.battle.hidden = true; el.card.hidden = true; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); },
+    cancel() { token++; bt = null; playing = false; el.battle.hidden = true; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); },
     async start(p, types) {
       this.cancel(); const my = token; wildLevel = ctx.wildLevel(p.id);
       el.battle.hidden = false; el.stage.classList.add('fighting'); el.moves.innerHTML = ''; say('Préparation du combat…');

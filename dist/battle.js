@@ -76,6 +76,25 @@ export const activeFighter = b => b.team[b.active];
 const usableMoves = f => { const u = f.moves.filter(isUsable); return u.length ? u : [LUTTE]; };
 export const playerChoices = f => f.moves.length ? [...f.moves, ...(f.moves.some(isUsable) ? [] : [LUTTE])] : [LUTTE];
 
+// IA de l'adversaire : choisit l'attaque qui devrait infliger le plus de dégâts (efficacité, STAB, précision),
+// avec une priorité absolue à celle qui met K.O. la cible. Les ex æquo sont départagés au hasard.
+export function expectedDamage(attacker, defender, move) {
+  if (!isUsable(move)) return 0;
+  const physical = move.cls === 'physical';
+  const a = physical ? attacker.stats.atk : attacker.stats.spa, d = physical ? defender.stats.def : defender.stats.spd;
+  const base = Math.floor(Math.floor(Math.floor(2 * attacker.level / 5 + 2) * move.power * a / d) / 50) + 2;
+  const eff = effectiveness(move.type, defender.types);
+  return Math.floor(base * (attacker.types.includes(move.type) ? 1.5 : 1) * eff * 0.925) * ((move.acc ?? 100) / 100);
+}
+export function chooseAiMove(attacker, defender, rand = Math.random) {
+  const moves = usableMoves(attacker);
+  const scored = moves.map(m => { const e = expectedDamage(attacker, defender, m); return {m, e, ko: e >= defender.hp}; });
+  const kos = scored.filter(x => x.ko), pool = kos.length ? kos : scored;
+  const best = Math.max(...pool.map(x => kos.length ? (x.m.acc ?? 100) : x.e));
+  const top = pool.filter(x => (kos.length ? (x.m.acc ?? 100) : x.e) >= best - 1e-9);
+  return top[Math.floor(rand() * top.length)].m;
+}
+
 // Un tour : le joueur choisit une attaque ; renvoie la liste des événements à afficher.
 export function takeTurn(b, move) {
   if (b.over) return [];
@@ -84,7 +103,7 @@ export function takeTurn(b, move) {
     if (b.over) return;
     const attacker = side === 'player' ? activeFighter(b) : b.wild, defender = side === 'player' ? b.wild : activeFighter(b);
     if (attacker.hp <= 0) return;
-    const chosen = side === 'player' ? move : (m => m[Math.floor(b.rand() * m.length)])(usableMoves(b.wild));
+    const chosen = side === 'player' ? move : chooseAiMove(b.wild, activeFighter(b), b.rand);
     if (side === 'player') b.participants.add(attacker.id);
     const r = damage(attacker, defender, chosen, b.rand);
     defender.hp = Math.max(0, defender.hp - r.dmg);

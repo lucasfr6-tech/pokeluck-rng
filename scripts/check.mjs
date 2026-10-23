@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {pool,evolvesFrom,ancestors,sameLine,names} from '../dist/pokemon.js';
 import {zones,zonePool,draw,types,powers,itinerary,backgroundFor,backgrounds,dedupeLines,teamAfterCapture,teamAfterEquip,maxHp} from '../dist/world.js';
-import {effectiveness,computeStats,knownMoves,nextMove,damage,makeFighter,createBattle,takeTurn,xpReward,LUTTE,isUsable,DEFAULT_BASE} from '../dist/battle.js';
+import {chooseAiMove,effectiveness,computeStats,knownMoves,nextMove,damage,makeFighter,createBattle,takeTurn,xpReward,LUTTE,isUsable,DEFAULT_BASE} from '../dist/battle.js';
 import {parseSpecies,parseMove} from '../dist/battle-data.js';
 import {existsSync} from 'node:fs';
 import {minLevel,maxLevel,levelInfo,powerAt,xpToNext,START_LEVEL} from '../dist/levels.js';
@@ -78,6 +78,12 @@ assert.equal(damage(A,B,{...mv,acc:50},()=>0.9).hit,false);
 assert.equal(isUsable({power:null,cls:'status'}),false);
 const bt=createBattle([A],B,()=>0.1);let guard=0;while(!bt.over&&guard++<50)takeTurn(bt,mv);
 assert.equal(bt.winner,'player');assert.equal(B.hp,0);assert.ok(xpReward(10)===5&&xpReward(1)===1);
+// IA : Pikachu face à Carapuce choisit Éclair plutôt que Vive-Attaque ; il ne gaspille pas un coup sans effet.
+const pika=makeFighter({id:25,name:'Pikachu',level:10,types:['electric'],base:{hp:35,atk:55,def:40,spa:50,spd:50,spe:90},moves:[{name:'quick-attack',fr:'Vive-Attaque',power:40,acc:100,type:'normal',cls:'physical'},{name:'thunder-shock',fr:'Éclair',power:40,acc:100,type:'electric',cls:'special'},{name:'growl',fr:'Rugissement',power:null,acc:100,type:'normal',cls:'status'}]});
+const squirtle=makeFighter({id:7,name:'Carapuce',level:10,types:['water'],base:{hp:44,atk:48,def:65,spa:50,spd:64,spe:43},moves:[]});
+assert.equal(chooseAiMove(pika,squirtle,()=>0).name,'thunder-shock');
+const diglett=makeFighter({id:50,name:'Taupiqueur',level:10,types:['ground'],base:{hp:10,atk:55,def:25,spa:35,spd:45,spe:95},moves:[]});
+assert.equal(chooseAiMove(pika,diglett,()=>0).name,'quick-attack');
 const sp=parseSpecies({stats:[{base_stat:39,stat:{name:'hp'}},{base_stat:65,stat:{name:'speed'}}],moves:[{move:{name:'ember'},version_group_details:[{level_learned_at:7,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}}]},{move:{name:'scratch'},version_group_details:[{level_learned_at:1,move_learn_method:{name:'level-up'},version_group:{name:'red-blue'}},{level_learned_at:0,move_learn_method:{name:'machine'},version_group:{name:'red-blue'}}]}]});
 assert.deepEqual(sp.learnset,[['scratch',1],['ember',7]]);assert.equal(sp.stats.spe,65);
 assert.deepEqual(parseMove({name:'ember',power:40,accuracy:100,type:{name:'fire'},damage_class:{name:'special'},names:[{language:{name:'fr'},name:'Flammèche'}]}),{name:'ember',fr:'Flammèche',power:40,acc:100,type:'fire',cls:'special'});
