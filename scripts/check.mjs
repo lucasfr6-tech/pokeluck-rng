@@ -612,3 +612,8 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   const foe2 = mk(['fire'], []); assert.equal(bt.chooseAiMove(me, foe2, () => 0).name, 'hydro-pump');
   console.log('OK : l’IA évite l’attaque peu efficace quand une attaque normale fait presque autant.');
 }
+{
+  const F = await import('../dist/encounter-fx.js');
+  assert.deepEqual(Object.keys(F.FX_TIERS), ['4', '5']); assert.ok(F.FX_TIERS[5].ms > F.FX_TIERS[4].ms); assert.equal(F.playEncounterFx(3, {}), null);
+  console.log('OK : animations de rencontre (épique normale, légendaire plus longue, aucune en dessous).');
+}
