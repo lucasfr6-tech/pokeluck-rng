@@ -16,9 +16,11 @@ for (const name of fs.readdirSync(source)) {
     let text = data.toString('utf8');
     text = text.replace(/((?:src|href)="[^"\n]+\.(?:js|css))(?:\?[^"\n]*)?"/g, `$1?v=${version}"`);
     text = text.replace(/(from\s+['"]\.[^'"\n]+\.js)(?:\?[^'"\n]*)?(['"])/g, `$1?v=${version}$2`);
+    text = text.replace(/__VERSION__/g, version);
     data = Buffer.from(text);
   }
   fs.writeFileSync(path.join(output,name), data);
 }
+fs.writeFileSync(path.join(output,'version.json'), JSON.stringify({version}));
 fs.writeFileSync(path.join(output,'.nojekyll'), '');
 console.log('Site préparé dans public/ — version '+version);
