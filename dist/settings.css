@@ -54,3 +54,25 @@ body[data-theme=light] .game .team-grid .team-card:not(.empty){background:linear
 body[data-theme=light] .game .tc-top .team-level{color:#3b5b76}
 body[data-theme=light] .world-status{color:#43637d;text-shadow:none}
 body[data-theme=light] .game .team-card.empty span{color:#4e6c83}
+
+/* Rangs ouverts depuis la puissance de la bannière. */
+#power-widget{display:block;width:100%;text-align:left;cursor:pointer;font:inherit;border:0}
+#power-widget:hover .power-panel{filter:brightness(1.16)}
+#power-widget:focus-visible{outline:3px solid #ffd25a;outline-offset:4px;border-radius:9px}
+.rank-intro{color:var(--muted,#b8cedb);line-height:1.6}
+.rank-intro strong{color:var(--text,#f1f7fb)}
+.power-ranks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+.rank-card{display:flex;align-items:center;gap:12px;border:1px solid #426078;background:#102338;border-radius:12px;padding:16px;position:relative}
+.rank-card.current{border-color:var(--rank-color);box-shadow:inset 0 0 0 1px var(--rank-color)}
+.rank-card .medal{flex:none}
+.rank-card h3{margin:0 0 6px;color:var(--rank-color);font-size:19px}
+.rank-card p{margin:0 0 5px;font-size:12px;line-height:1.6}
+.rank-card small{font-size:11px;color:#b8cedb}
+.rank-status{position:absolute;right:10px;top:8px;font-size:9px;color:var(--rank-color)}
+body[data-theme="light"] .rank-card{background:#edf6fc;border-color:#8aa5b9}
+body[data-theme="light"] .rank-card.current{border-color:var(--rank-color)}
+body[data-theme="light"] .rank-card h3{color:#203c54}
+@media(max-width:620px){.power-ranks{grid-template-columns:1fr}.rank-card{padding:16px 12px}}
+
+body[data-theme="light"] .rank-card small,body[data-theme="light"] .rank-status{color:#405e75}
+body[data-theme="light"] .rank-intro strong{color:#203c54}
