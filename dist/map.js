@@ -44,7 +44,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
   main.forEach((n,i)=>{ // rival : petit sprite posé à côté de l'arène dont il vient d'être battu
     if(n.kind!=='arena')return;const a=arenaById(n.id);if(!info.rival?.[a.n])return;
     const p=pos[i],dx=p.x>60?-5.5:5.5;
-    html+=`<button class="map-rival" data-rival="${a.n}" style="left:${(p.x+dx).toFixed(1)}%;top:${(p.y+2).toFixed(1)}%" aria-label="Rival : revanche après ${esc(a.city)}"><img src="https://play.pokemonshowdown.com/sprites/trainers/red-gen1.png" data-alts="https://play.pokemonshowdown.com/sprites/trainers/red-gen1rb.png|https://play.pokemonshowdown.com/sprites/trainers/red-gen3.png|https://play.pokemonshowdown.com/sprites/trainers/red.png" alt="" draggable="false"><span class="map-tooltip">Rival<small>Clique pour le défier</small></span></button>`;
+    html+=`<button class="map-rival" data-rival="${a.n}" style="left:${(p.x+dx).toFixed(1)}%;top:${(p.y+2).toFixed(1)}%" aria-label="Rival : revanche après ${esc(a.city)}"><img src="assets/trainers/rival.png" alt="" draggable="false"><span class="map-tooltip">Rival<small>Clique pour le défier</small></span></button>`;
   });
   const placed=[];
   path.forEach((n,i)=>{ // boutiques : posées juste sous l'étape qu'elles suivent

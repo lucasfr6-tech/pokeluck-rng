@@ -77,7 +77,7 @@ export const WIKI = [
   ]},
   {id: 'trainers', icon: '', title: 'Dresseurs sauvages', cards: [
     {t: 'Rencontres de dresseurs', h: () => `<p>À chaque tirage, environ <b>${pct(TRAINER_CHANCE)}</b> de chances qu’un dresseur te défie à la place d’un Pokémon sauvage (si ton équipe n’est pas vide). Il a <b>2 ou 3 Pokémon</b> tirés dans la zone, de niveau de zone +1. Pas de fuite possible.</p>${li([`<b>${String(TRAINER_MONEY).replace('.', ',')}×</b> l’argent d’un combat sauvage équivalent ;`, `<b>×${String(TRAINER_XP).replace('.', ',')}</b> d’XP.`])}`},
-    {t: 'Les 10 classes', h: () => `<p>${TRAINER_CLASSES.map(c => esc(c.name)).join(' · ')}.</p>`}
+    {t: 'Les 7 classes', h: () => `<p>${TRAINER_CLASSES.map(c => esc(c.name)).join(' · ')}.</p>`}
   ]},
   {id: 'shop', icon: '', title: 'Boutiques & objets', cards: [
     {t: 'Les boutiques', h: () => `<p>Trois boutiques sont posées sur la carte. Chacune ouvre quand tu as vaincu <b>${KILLS_TO_UNLOCK} Pokémon</b> dans la zone qui la précède : ${SHOPS.map(s => esc(s.name)).join(', ')}.</p>`},
