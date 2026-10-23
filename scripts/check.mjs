@@ -548,3 +548,17 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(Q.sanitizeQuests({day:'x', claimed:{'daily:1:0':true, bad:true}, streak:{count:-4, last:1}}).claimed['bad'], undefined);
   console.log('OK : Pokédex (paliers de chance, évolutions, zones), quêtes (tirage stable, récompenses, série de jours).');
 }
+{
+  const T = await import('../dist/trainers.js'), A = await import('../dist/arena.js'), {victoryMoney} = await import('../dist/money.js');
+  assert.equal(T.TRAINER_CLASSES.length, 10);
+  for (const z of zones) for (const r of [0, .3, .99]) {
+    const t = T.wildTrainerFor(z.id, () => r);
+    assert.ok(t.trainer && t.team.length >= 2 && t.team.length <= 3 && t.sprite.startsWith('https://'));
+    for (const [id, lv] of t.team) { assert.ok(id >= 1 && id <= 151); assert.ok(lv >= z.min && lv <= 100); }
+    assert.ok(T.trainerPrize(t.team) > t.team.reduce((s, [id, lv]) => s + victoryMoney(tierOf(id), lv), 0));
+  }
+  for (let n = 1; n <= 8; n++) { const r = T.rivalDef(n), a = A.ARENAS[n - 1]; assert.equal(r.team.length, Math.min(6, 2 + Math.ceil(n / 2))); assert.ok(r.team.every(([, l]) => l === Math.min(100, a.ace + 3))); assert.ok(r.prize > 0); }
+  assert.ok(T.rivalDef(8).team.length > T.rivalDef(1).team.length);
+  assert.deepEqual(T.sanitizeRival({1: true, 9: true, 2: 'x'}), {1: true});
+  console.log('OK : dresseurs sauvages (10 classes, 2–3 Pokémon, niveau de zone, prime), rival (équipe croissante, sanitize).');
+}
