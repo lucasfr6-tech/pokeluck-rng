@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "start": "node serveur.cjs",
+    "build": "node scripts/build.cjs",
+    "test": "node scripts/check.mjs"
+  },
+  "type": "module",
+  "private": true,
+  "version": "0.2.0",
+  "name": "pokeluck-rng"
+}

@@ -1,0 +1,92 @@
+# Mise à jour 0.2 — 23 octobre 2026
+
+Ce dépôt GitHub est désormais la référence commune : https://github.com/lucasfr6-tech/pokeluck-rng
+
+Nouvelles demandes réalisées : thème sombre, disposition selon le croquis (bannière en haut à gauche, Menu coulissant à gauche, tirage central, zones dessous), pseudo modifiable, puissance de six espèces équipées, collection et paramètres. Kanto dispose de Route 1, Forêt de Jade, Mont Sélénite et Centrale. Les bonus de type pondérés sont actifs ; les autres régions sont à venir. Les puissances sont des propositions provisoires (Rattata 3, Roucoups 46). Export/import de sauvegarde disponible pour changer de site. Ancienne sauvegarde reprise automatiquement. Les fichiers actifs sont game.js, game.css, pokemon.js et world.js dans dist/.
+
+Les fichiers app.js et style.css du prototype ont été remplacés. Les probabilités extrêmes, légendaires, améliorations et renaissances restent à concevoir ; seulement les 31 premières espèces sont présentes. Lire README.md et AGENTS.md pour lancer, tester et publier. Chaque push main publie sur GitHub Pages. Ne pas éditer le site Sites initial séparément : les autres IA doivent utiliser ce dépôt et intégrer leurs changements à main pour mettre le lien partagé à jour.
+
+Le texte ci-dessous est le contexte historique de la version 0.1. Sa section décrivant le code courant décrit l'ancien prototype, pas la version 0.2.
+
+---
+# Contexte de reprise — Pokémon RNG
+
+## Intention du créateur
+
+Créer un jeu de navigateur Pokémon RNG en français. L'univers visé comprend les 1 025 espèces du Pokédex national, sans exclusivités particulières pour le moment. Le créateur prévoit de transmettre ses sprites personnalisés ; aucun fichier de sprites personnels n'a encore été reçu.
+
+Le premier prototype servait à valider l'accès aux Pokémon et à PokéAPI. Le créateur a ensuite demandé de repenser le jeu et son équilibrage. Ne pas confondre les chances du prototype avec l'objectif final.
+
+## Demandes explicites confirmées
+
+- Une Pokéball centrale cliquable fait apparaître un Pokémon aléatoire.
+- Utiliser PokéAPI et, plus tard, les sprites du créateur.
+- Concevoir un RNG vraiment difficile.
+- Au début, une chance d'obtenir un légendaire de l'ordre de 1 sur 500 000 000.
+- Améliorer progressivement cette chance via des améliorations de chance, des renaissances ou d'autres mécanismes à définir.
+- Préparer d'abord les groupes de rareté et l'équilibrage avant de refondre le jeu.
+- Dernière demande exécutée : fournir un fichier du jeu pour pouvoir alterner avec une autre IA.
+
+## Propositions de l'assistant, non validées comme règles définitives
+
+Un tirage en deux étapes : sélectionner un groupe de rareté, puis une espèce dans ce groupe. Chaque espèce appartient à un seul groupe ; des poids internes peuvent différencier les Pokémon du même groupe.
+
+Échelle provisoire proposée après la demande de difficulté extrême :
+
+| Groupe | Chance initiale du groupe proposée |
+| --- | --- |
+| Starters de base | 1 / 5 000 |
+| Pokémon rares | 1 / 50 000 |
+| Évolutions finales des starters | 1 / 500 000 |
+| Pseudo-légendaires | 1 / 5 000 000 |
+| Légendaires | 1 / 500 000 000 |
+| Fabuleux | 1 / 5 000 000 000 |
+
+Le reste de la probabilité serait partagé entre communs et intermédiaires. Aucune répartition exhaustive des espèces n'est encore faite.
+
+L'assistant a proposé d'interpréter « 1 sur 500 millions » comme la chance du groupe légendaire entier. Le créateur n'a pas encore confirmé si cette valeur concerne le groupe ou chaque espèce. Ne pas présenter cette interprétation comme une décision du créateur.
+
+Autres propositions non validées : convertir les doublons en ressource ; améliorations de chance et de vitesse ; renaissances réinitialisant certaines améliorations contre un multiplicateur permanent tout en conservant le Pokédex ; potions et bonus temporaires.
+
+Exemples de multiplicateurs proposés pour le groupe légendaire : ×10 → 1/50 millions ; ×100 → 1/5 millions ; ×1 000 → 1/500 000 ; ×10 000 → 1/50 000.
+
+Il reste à définir comment ces multiplicateurs s'appliquent aux autres groupes, leurs limites et la normalisation des probabilités. Multiplier naïvement toutes les chances peut faire dépasser 100 %. Ces exemples ne constituent pas un algorithme complet.
+
+La cadence des tirages, l'automatisation, l'économie, les coûts, les renaissances, les plafonds et une éventuelle garantie restent ouverts. Aucun combat, compte utilisateur, classement ou système multijoueur n'a été demandé.
+
+## Code actuellement livré
+
+Application statique HTML/CSS/JavaScript utilisant des modules ES, sans framework ni dépendances.
+
+Les 31 espèces implémentées sont les numéros nationaux 1 à 31. L'assistant avait interprété les noms ambigus de la liste initiale comme Roucarnage et Nidoran♀, et corrigé certaines orthographes. Cette interprétation a été annoncée, pas confirmée explicitement.
+
+`dist/pokemon.js` :
+- `pool` contient les espèces et leurs probabilités normalisées.
+- Nidoran♀ est actuellement à 50 %, Salamèche à 1/6.
+- Les 29 autres espèces se partagent le tiers restant selon leurs poids.
+- `pick()` effectue un tirage par intervalles cumulés avec Math.random.
+- `rarity()` et `odds()` produisent les libellés de ce prototype ; ces seuils devront évoluer avec la refonte.
+
+`dist/app.js` :
+- Animation d'environ 850 ms, un tirage à la fois.
+- Bouton de relance et raccourci Espace.
+- Collection/doublons enregistrés dans `pokeluck-save-v1` en localStorage.
+- Historique limité aux cinq derniers tirages.
+- Données API récupérées pour le Pokémon rencontré et mises en cache dans `pokeapi-v2-{id}`.
+- L'échec de l'API ne bloque pas le tirage : l'image distante de repli et le nom local restent utilisés.
+- Aucun mécanisme de chance améliorée, de renaissance, de monnaie ou de bonus.
+
+L'API `pokemon-species/{id}/` permet de récupérer notamment les indicateurs `is_legendary`, `is_mythical` et les références de chaînes d'évolution. Elle n'est pas encore intégrée au classement. Les groupes starters, fossiles et pseudo-légendaires demanderont des règles ou listes dédiées. Les formes alternatives ne doivent pas être comptées comme de nouvelles espèces parmi les 1 025.
+
+## Vérifications déjà effectuées
+
+- Les 31 probabilités sont strictement positives et leur somme vaut 1 à l'arrondi numérique près.
+- Les probabilités de Nidoran♀ et Salamèche correspondent aux valeurs du prototype.
+- Chaque intervalle de la fonction de tirage retourne la bonne espèce.
+- Vérification dans le navigateur : tirage, affichage d'un sprite et de son type, comptage des doublons, écran Pokédex et fenêtre des probabilités.
+- La version initiale a été déployée avec succès sur Sites.
+
+## Suite suggérée
+
+Reprendre la discussion d'équilibrage avec le créateur : clarifier la chance du groupe versus celle d'une espèce, proposer des groupes exhaustifs et une formule de chance qui reste valide à forte progression. Puis seulement implémenter la refonte demandée. Conserver ou migrer explicitement les anciennes sauvegardes si la structure change.
+
