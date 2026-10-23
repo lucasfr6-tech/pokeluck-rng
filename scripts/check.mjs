@@ -627,3 +627,10 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   const sp = S.sanitizePlay({time: -3, zones: {route: 5, bad: 9}, streak: 4, best: 2}, ['route']); assert.deepEqual([sp.time, sp.zones, sp.best], [0, {route: 5}, 4]);
   console.log('OK : statistiques (zone préférée, série, temps, historique des chromatiques, sanitize).');
 }
+{
+  const {teamEvolution}=await import('../dist/evolve.js');
+  const t=teamEvolution([4,25],[5,25]);
+  if(!t||t.from!==4||t.to!==5)throw new Error('evolution détectée');
+  if(teamEvolution([4,25],[4,25,7])!==null)throw new Error('pas d’évolution en ajout');
+  console.log('OK evolution');
+}

@@ -211,3 +211,18 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .sl-row small{display:block;color:#b6cede}
 .sl-n{text-align:right}.sl-n b{font-size:1.3rem;color:#ffd27c;display:block}
 @media(max-width:560px){.st-bar{grid-template-columns:100px 1fr 54px}}
+/* Écran d'évolution */
+.evo-screen{position:fixed;inset:0;z-index:200;background:rgba(3,10,18,.88);display:grid;place-items:center}
+.evo-box{width:min(420px,92vw);padding:22px;border:2px solid #ffd27c;border-radius:18px;background:#10283f;text-align:center;display:grid;gap:12px}
+.evo-kick{letter-spacing:.14em;color:#b8e2fb;font-weight:700}
+.evo-art{position:relative;height:200px;display:grid;place-items:center}
+.evo-art img{position:absolute;width:160px;height:160px;object-fit:contain;image-rendering:pixelated}
+.evo-glow{position:absolute;width:190px;height:190px;border-radius:50%;background:radial-gradient(#fff,#ffd27c 40%,transparent 70%);opacity:0}
+.evo-from{animation:evoFrom 2.6s ease-in forwards}
+.evo-to{opacity:0;animation:evoTo 2.6s ease-out forwards}
+.evo-glow{animation:evoGlow 2.6s ease-in-out forwards}
+@keyframes evoFrom{0%,30%{filter:none}60%{filter:brightness(0) invert(1);opacity:1}85%,100%{filter:brightness(0) invert(1);opacity:0;transform:scale(1.3)}}
+@keyframes evoTo{0%,70%{opacity:0;filter:brightness(0) invert(1);transform:scale(.8)}100%{opacity:1;filter:none;transform:scale(1)}}
+@keyframes evoGlow{0%{opacity:0;transform:scale(.4)}60%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1.6)}}
+.evo-ok{justify-self:center;padding:8px 20px;border-radius:10px;border:2px solid #ffd27c;background:transparent;color:#ffe9b8;font:700 14px system-ui;cursor:pointer}
+.evo-screen.calm .evo-from,.evo-screen.calm .evo-glow{animation:none;opacity:0}.evo-screen.calm .evo-to{animation:none;opacity:1}
