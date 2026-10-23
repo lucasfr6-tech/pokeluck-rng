@@ -320,3 +320,4 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .dex-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))!important}
 .dex-miles{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))!important}
 @media(max-width:700px){#content-dialog,#content-dialog.catalog-mode,#content-dialog.settings-mode,#content-dialog.wiki-mode,#content-dialog.daycare-mode{width:calc(100vw - 10px)!important;height:calc(100dvh - 10px);max-height:calc(100dvh - 10px)!important}.settings-cards{grid-template-columns:1fr!important}}
+.cm-egg{width:34px!important;height:44px!important;border-width:3px!important;box-shadow:inset -4px -3px 0 #d9b15f,0 3px 0 #0006!important;animation:none!important}
