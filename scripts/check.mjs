@@ -75,7 +75,7 @@ assert.equal(levelInfo(4,20).level,8);assert.equal(levelInfo(4,20).xp,1);assert.
 assert.equal(levelInfo(4,100000).level,15);assert.ok(levelInfo(4,100000).capped); // bloqué tant qu'on ne tire pas Reptincel
 assert.equal(levelInfo(6,1).level,36);
 assert.equal(powerAt(4,5),powers[3]);assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,15)>powerAt(4,10));
-assert.ok(powers[0]>=500&&powers[0]<=3000,'Bulbizarre démarre vers 1 000');
+assert.ok(powers[0]>=250&&powers[0]<=1500,'Bulbizarre démarre vers 500');
 assert.ok(powerAt(5,35)<powerAt(6,36),'Une évolution est plus puissante que la forme précédente à son plafond');
 const legend=[144,145,146,150,151,149].reduce((n,id)=>n+powerAt(id,100),0);assert.ok(legend>=1e9&&legend<1e11,'Équipe de légendaires niv. 100 en milliards : '+legend);
 for(let id=1;id<=151;id++)assert.ok(powerAt(id,100)>=powerAt(id,50));

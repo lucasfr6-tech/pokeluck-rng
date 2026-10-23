@@ -34,7 +34,7 @@ export function levelInfo(id, count = 1, bonus = 0) {
 }
 
 // Puissance : valeur de référence de l'espèce (niveau 5) multipliée par (niveau / 5)^3,7.
-// Dracaufeu niv. 36 ≈ 20 millions, niv. 100 ≈ 900 millions ; Mewtwo niv. 100 ≈ 3 milliards (provisoire).
+// Dracaufeu niv. 36 ≈ 10 millions, niv. 100 ≈ 440 millions ; Mewtwo niv. 100 ≈ 1,5 milliard (provisoire).
 export const LEVEL_POWER_EXP = 3.7;
 export function powerAt(id, level) {
   return Math.round(powers[id - 1] * (Math.max(1, level) / START_LEVEL) ** LEVEL_POWER_EXP);

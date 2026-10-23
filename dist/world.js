@@ -17,9 +17,9 @@ export const itinerary=[{town:'Bourg Palette'},{zone:'route'},{town:'Jadielle'},
 // Arrière-plans du cadre 1, un par zone (fichiers dans assets/backgrounds/).
 export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant'};
 export const backgroundFor=id=>`assets/backgrounds/${backgrounds[id]||backgrounds.route}.png`;
-// Puissance de référence (au niveau 5) : ≈ 750 × (total des stats de base / 300)^5. Elle grandit ensuite avec le niveau (voir levels.js).
-// Valeurs PROVISOIRES : Bulbizarre démarre vers 1 000, une équipe de légendaires niveau 100 se compte en milliards.
-export const powers=baseTotals.map(total=>Math.max(1,Math.round(750*(total/300)**5)));
+// Puissance de référence (au niveau 5) : ≈ 375 × (total des stats de base / 300)^5. Elle grandit ensuite avec le niveau (voir levels.js).
+// Valeurs PROVISOIRES : Bulbizarre démarre vers 500, une équipe de légendaires niveau 100 se compte en milliards.
+export const powers=baseTotals.map(total=>Math.max(1,Math.round(375*(total/300)**5)));
 if(powers.length!==pool.length)throw new Error('Puissances et espèces désynchronisées');
 // Paliers de rareté (PROVISOIRES), selon les statistiques de base totales : 1 Communs (≤ 320), 2 Peu communs (≤ 420),
 // 3 Rares (≤ 485), 4 Très rares (au-delà), 5 Légendaires (liste fixe).
