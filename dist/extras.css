@@ -307,3 +307,16 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .hx-stage:after{content:"";grid-area:1/1;width:96px;height:156px;pointer-events:none;opacity:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20' shape-rendering='crispEdges'%3E%3Cpath d='M8 3v2H6v2h2v2H7v2h2v2H8v2h1v2' fill='none' stroke='%23fff3b0' stroke-width='.7'/%3E%3Cpath d='M8 3v2H6v2h2v2H7v2h2v2H8v2h1v2' fill='none' stroke='%233a2a1a' stroke-width='.35' transform='translate(-.3 0)'/%3E%3C/svg%3E") center/100% 100% no-repeat}
 .hx[data-step="2"] .hx-stage:after{opacity:1;animation:hxShake .25s linear infinite}
 .foe-balls{display:flex;gap:3px;margin-bottom:5px}.foe-balls img{width:18px;height:18px;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 1px 0 #0008)}.foe-balls img.down{filter:grayscale(1) brightness(.55)}
+
+/* Toutes les fenêtres du jeu utilisent la pleine taille du navigateur */
+#content-dialog,#content-dialog.catalog-mode,#content-dialog.settings-mode,#content-dialog.wiki-mode,#content-dialog.daycare-mode{width:calc(100vw - 24px)!important;max-width:none!important;height:calc(100dvh - 24px);max-height:calc(100dvh - 24px)!important}
+#content-dialog .modal-body{min-height:0}
+.dcgarden{max-width:none!important}
+.roster{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important}
+.library-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))!important}
+.settings-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.st-grid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))!important}
+.sl-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important}
+.dex-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))!important}
+.dex-miles{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))!important}
+@media(max-width:700px){#content-dialog,#content-dialog.catalog-mode,#content-dialog.settings-mode,#content-dialog.wiki-mode,#content-dialog.daycare-mode{width:calc(100vw - 10px)!important;height:calc(100dvh - 10px);max-height:calc(100dvh - 10px)!important}.settings-cards{grid-template-columns:1fr!important}}
