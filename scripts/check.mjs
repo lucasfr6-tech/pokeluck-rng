@@ -130,3 +130,10 @@ const {effectKind}=await import('../dist/effects.js');
 assert.equal(effectKind({moveKey:'scratch',moveType:'normal'}),'scratch');
 assert.equal(effectKind({moveKey:'ember',moveType:'fire'}),'ember');
 console.log('OK : paliers, validation des préférences et synthèse audio des attaques.');
+
+// Le recadrage couvre toujours le cadre et permet d’atteindre les quatre bords.
+const {cropRect}=await import('../dist/avatar.js');
+for(const [w,h] of [[1200,800],[800,1200],[800,800]])for(const zoom of [1,2,4])for(const x of [-1,0,1])for(const y of [-1,0,1]){const r=cropRect(w,h,zoom,x,y);assert.ok(r.side>0&&r.sx>=0&&r.sy>=0);assert.ok(r.sx+r.side<=w+1e-8&&r.sy+r.side<=h+1e-8);}
+assert.deepEqual(cropRect(1200,800,1,-1,0),{sx:0,sy:0,side:800});
+assert.deepEqual(cropRect(1200,800,2,1,1),{sx:800,sy:400,side:400});
+console.log('OK : recadrage des photos en portrait, paysage et carré.');

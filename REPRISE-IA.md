@@ -141,3 +141,6 @@ Mise en page 0.9 : maquette « Océan & or » (voir AGENTS.md). CSS dans dist/la
 
 ## Rangs de puissance
 Cliquer sur la puissance de la bannière ouvre les quatre rangs actuels (Bronze, Argent, Or, Diamant), leurs seuils et la puissance restante. Le rang courant est mis en évidence. Aucun nouveau palier ni changement de puissance.
+
+## Photo de profil
+`avatar.js` ajoute l’import JPG/PNG/WebP (10 Mo), le déplacement souris/tactile, le zoom et deux positions accessibles au clavier. Le carré est confirmé ou annulé avant application. Une miniature JPEG 256×256 est stockée séparément sous `pokeluck-avatar-v1`, sans envoi réseau. Bouton pour revenir à Pikachu. La progression reste inchangée.

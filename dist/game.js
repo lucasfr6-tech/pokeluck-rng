@@ -1,3 +1,4 @@
+import {applyAvatar} from './avatar.js';
 import {pool,sprite,odds,sameLine,evolvesFrom} from './pokemon.js';
 import {types,zones,powers,zonePool,TIER_NAMES,draw,backgroundFor,maxHp,dedupeLines,teamAfterCapture,teamAfterEquip} from './world.js';
 import {createWanderers} from './wander.js';
@@ -32,7 +33,7 @@ function renderPowerRanks(){
  `;
 }
 
-function applyPreferences(){const p=getPreferences();document.body.dataset.theme=p.theme;document.body.dataset.quality=p.quality;document.documentElement.style.colorScheme=p.theme==='light'?'light':'dark';document.body.classList.toggle('reduce-motion',p.reducedMotion);wanderers.setQuality(p.quality);wanderers.setReduced(p.reducedMotion||prefersReduced());updateAudio();}
+function applyPreferences(){applyAvatar();const p=getPreferences();document.body.dataset.theme=p.theme;document.body.dataset.quality=p.quality;document.documentElement.style.colorScheme=p.theme==='light'?'light':'dark';document.body.classList.toggle('reduce-motion',p.reducedMotion);wanderers.setQuality(p.quality);wanderers.setReduced(p.reducedMotion||prefersReduced());updateAudio();}
 const lv=id=>levelInfo(id,state.counts[id]||1,state.xp[id]||0),powerOf=id=>powerAt(id,lv(id).level);
 const total=()=>Object.values(state.counts).reduce((a,b)=>a+b,0);
 const fight=createFight({team:()=>state.team,level:id=>lv(id).level,name:id=>pool[id-1].name,types:id=>types[id],wildLevel:id=>wildLevel(state.zone,id),info:id=>{const l=lv(id);return{level:l.level,pct:l.capped?100:Math.round(l.xp/l.need*100),text:l.capped?(l.evolvesAt?'Niveau max du stade':'Niveau max'):`XP ${l.xp} / ${l.need}`};},sprite,backSprite:id=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${id}.png`,reduced:()=>state.reducedMotion||prefersReduced(),
