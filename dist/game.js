@@ -125,3 +125,8 @@ $('#team-grid').onclick=e=>{if(dragged)return;const c=e.target.closest('[data-pr
 const fullButton=$('#fullscreen');if(!document.documentElement.requestFullscreen)fullButton.hidden=true;else fullButton.onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{fullButton.textContent='⛶';}};document.addEventListener('fullscreenchange',()=>fullButton.setAttribute('aria-label',document.fullscreenElement?'Quitter le plein écran':'Activer le plein écran'));
 
 initializeSpriteCentering();
+
+const compassMenu=$('#menu-drawer');
+function describeCompass(event){const button=event.target.closest('.compass-nav button');if(button)$('#compass-caption').textContent=button.querySelector('strong').textContent+' · '+button.querySelector('small').textContent;}
+compassMenu.addEventListener('focusin',describeCompass);compassMenu.addEventListener('pointerover',describeCompass);
+compassMenu.addEventListener('close',()=>{$('#compass-caption').textContent='Choisis une destination.';});
