@@ -289,3 +289,82 @@ body.team-dragging,body.team-dragging *{cursor:grabbing!important}
   .dock-side{gap:4px}.flee,.switch{min-width:56px;padding:0 8px;font-size:12px}.flee small,.switch small{display:none}
 }
 @media(prefers-reduced-motion:reduce){.map-water,.map-spot,.map-glint{animation:none!important}}
+
+/* ===== Équipe : fiches détaillées 3×2 (maquette « Équipe B ») ===== */
+.game .team-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px}
+.game .team-grid .team-card:not(.empty){position:relative;display:grid;grid-template-columns:minmax(0,36%) minmax(0,1fr);grid-template-rows:minmax(0,1fr);align-items:stretch;justify-content:stretch;gap:0 6px;padding:5px 10px 5px 2px;text-align:left;border-radius:14px;overflow:hidden;background:linear-gradient(100deg,color-mix(in srgb,var(--tc) 78%,#fff),color-mix(in srgb,var(--tc) 38%,#0b1a2a))}
+.game .team-grid .team-card.lead:not(.empty){box-shadow:0 0 0 3px var(--gold),0 0 18px #ffc94a55}
+.tc-art{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;min-width:0}
+.tc-art:before{content:"";position:absolute;inset:6% 0;border-radius:50%;background:radial-gradient(circle,#ffffff66,#ffffff00 68%)}
+.game .team-grid .team-card .tc-art img{position:relative;width:100%;height:100%;max-width:none;flex:none;object-fit:contain;transition:transform .2s}
+.game .team-grid .team-card:hover .tc-art img{transform:scale(1.08)}
+.game .team-grid .team-card:hover{transform:none}
+.tc-info{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;min-height:0;overflow:hidden;padding-right:2px}
+.tc-top{display:flex;align-items:baseline;gap:8px;min-width:0}
+.game .tc-top strong{font-size:clamp(15px,1.3vw,21px);min-width:0;flex:0 1 auto}
+.game .tc-top .team-level{font-family:var(--pixel);font-size:clamp(12px,1vw,16px);color:#ffe27a;white-space:nowrap}
+.tc-types{display:flex;align-items:center;gap:2px;min-width:0}.tc-types .type-badge{margin:0 2px 0 0;font-size:11px;text-shadow:none}
+.tc-types .team-power{margin-left:auto;font-family:var(--pixel);color:#ffe27a;white-space:nowrap}
+.tc-bar{display:grid;grid-template-columns:22px minmax(0,1fr);gap:6px;align-items:center;font-size:10px;font-weight:700}.tc-bar em{font-style:normal}
+.game .tc-bar .xp{width:100%;max-width:none;height:8px;border-radius:5px;border:1px solid #ffffff22;background:#0a1626}
+.game .tc-bar .xp i{background:linear-gradient(#8ad4ff,#3a86d8)}
+.tc-stats{display:flex;gap:10px;font-size:11px;white-space:nowrap;overflow:hidden;min-height:1.2em}.tc-stats b{font-size:12px}
+.tc-moves{display:flex;flex-wrap:nowrap;gap:4px;overflow:hidden;min-height:1.5em}
+.tc-moves .mv{padding:1px 8px;border-radius:8px;font-size:10.5px;font-weight:600;background:#0a162655;border:1px solid color-mix(in srgb,var(--tc) 70%,#fff);text-shadow:none;white-space:nowrap}.tc-moves .mv.off{opacity:.55}
+.tc-tags{position:absolute;inset:0;pointer-events:none}.tc-tags .lead-tag,.tc-tags .slot-no{position:absolute;left:8px;bottom:6px}.tc-tags .grip{position:absolute;left:8px;top:8px}
+.tc-tags .lead-tag{font-style:normal;padding:2px 8px;border-radius:9px;background:var(--gold);color:#2a1c00;font-size:10px;font-weight:800;letter-spacing:.06em;text-shadow:none}
+.tc-tags .slot-no{font-style:normal;font-family:var(--pixel);font-size:14px;opacity:.85}
+.tc-tags .grip{display:grid;grid-template-columns:repeat(2,4px);gap:3px;opacity:.7}.tc-tags .grip b{width:4px;height:4px;border-radius:50%;background:#fff}
+.game .team-card.dragging .tc-art img{transform:scale(1.1)}
+@media(max-width:1100px) and (min-width:701px){.tc-moves,.tc-stats{display:none}}
+@media(min-width:701px) and (min-height:621px){
+  body.in-fight .game .team-card .tc-stats,body.in-fight .game .team-card .tc-moves,body.in-fight .game .team-card .tc-bar,body.in-fight .game .team-card .tc-tags{display:none}
+  body.in-fight .game .team-grid .team-card:not(.empty){padding:3px 8px 3px 2px}
+}
+@media(max-width:700px){
+  .game .team-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:4px}
+  .game .team-grid .team-card:not(.empty){display:grid;grid-template-columns:38px minmax(0,1fr);padding:2px 6px 2px 2px;gap:0 4px}
+  .game .team-grid .team-card .tc-art img{width:100%;height:100%}.tc-art:before{display:none}
+  .tc-stats,.tc-moves,.tc-bar,.tc-tags,.tc-types .type-badge{display:none}.tc-info{gap:0}.tc-types .team-power{margin:0;font-size:11px}
+  .game .tc-top{flex-direction:column;gap:0}.game .tc-top strong{font-size:12px}.game .tc-top .team-level{font-size:10px}
+}
+
+/* ===== Profil : Pokédex immersif (maquette « Profil C ») ===== */
+.modal.profile-mode{max-width:1000px;padding:0;border:2px solid color-mix(in srgb,var(--ptc,#ee8130) 60%,#fff);background:#08131f;overflow:auto}
+.modal.profile-mode .modal-head{display:none}
+.pf{--tc:#ee8130;position:relative;display:flex;flex-direction:column;gap:14px;padding:14px 18px 0;background:radial-gradient(circle at 50% 22%,color-mix(in srgb,var(--tc) 80%,#fff) 0%,color-mix(in srgb,var(--tc) 55%,#1a0b04) 38%,color-mix(in srgb,var(--tc) 18%,#06101a) 80%);color:#f2f8fb}
+.pf p,.pf small{font-size:inherit;line-height:1.3;color:inherit}
+.pf-top{display:flex;align-items:center;gap:10px}.pf-title{flex:1;text-align:center;text-shadow:0 1px 3px #000a}
+.pf-title small{display:block;font-size:12px;letter-spacing:.14em;font-weight:700;opacity:.9}
+.pf-title h2{margin:0;font:700 clamp(28px,5vw,44px) var(--pixel)}.pf-title .type-badge{font-size:12px;padding:2px 12px;border:2px solid #fff6}
+.pf-btn{width:42px;height:42px;border-radius:12px;border:2px solid #ffffff40;background:#0a2036cc;color:#fff;font-size:24px;line-height:1;cursor:pointer}.pf-btn:hover,.pf-btn:focus-visible{background:#163653;outline:none}
+.pf-stage{display:grid;grid-template-columns:200px minmax(0,1fr) 200px;gap:14px;align-items:center}
+.pf-col{display:flex;flex-direction:column;gap:9px}
+.pf-card{padding:9px 14px;border-radius:16px;background:#0a2036d9;border:1px solid #ffffff33}
+.pf-card>div:first-child{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;color:#b9d3e0}.pf-card b{font:700 20px var(--pixel);color:#fff}
+.pf-bar{height:10px;margin-top:5px;border-radius:6px;background:#0a1626;overflow:hidden;border:1px solid #ffffff22}.pf-bar i{display:block;height:100%;border-radius:6px}
+.pf-bar.xp i{background:linear-gradient(#8ad4ff,#3a86d8)}
+.pf-power{text-align:center}.pf-power b{display:block;font-size:30px;color:#ffe27a}.pf-power span{font-size:11px;color:#b9d3e0}
+.pf-hero{position:relative;display:flex;align-items:center;justify-content:center;min-height:280px}
+.pf-hero img{position:relative;width:min(100%,300px);aspect-ratio:1;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 12px 8px #0007);animation:pf-float 3.2s ease-in-out infinite}
+@keyframes pf-float{50%{transform:translateY(-8px)}}.reduce-motion .pf-hero img{animation:none}
+.pf-ring{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}.pf-ring.r1{width:min(100%,330px);aspect-ratio:1;border:2px dashed #ffffff40}.pf-ring.r2{width:min(78%,250px);aspect-ratio:1;border:2px solid #ffffff2a;background:radial-gradient(circle,#ffffff44,#ffffff00 70%)}
+.pf-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#d8f3ee;margin-bottom:6px;text-shadow:0 1px 2px #000a}.pf-label small{letter-spacing:0;text-transform:none;font-weight:500;opacity:.9}.pf-label b{color:#fff}
+.pf-moves{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.pf-move{padding:10px 12px;border-radius:14px;background:#0a2036d9;border:1px solid #ffffff30;border-left:6px solid var(--tc)}.pf-move.off{opacity:.6}
+.pf-move>div{display:flex;justify-content:space-between;align-items:center;gap:6px}.pf-move b{font:700 16px var(--pixel)}.pf-move .type-badge{margin:0;font-size:10px}
+.pf-move small{display:block;margin-top:5px;font-size:11px;color:#b9d3e0}.pf-move small b{font:700 12px 'DM Sans',system-ui,sans-serif;color:#fff}
+.pf-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;padding:12px 14px;border-radius:16px;background:#0a2036b3;border:1px solid #ffffff22}
+.pf-chips{display:flex;flex-wrap:wrap;gap:4px}.pf-chips .type-badge{margin:0;font-size:11px}
+.pf-evos{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px}.pf-evos i{font-style:normal;opacity:.6}.pf-evo{padding:3px 10px;border-radius:12px;background:#ffffff1c}.pf-evo.here{background:var(--gold);color:#2a1c00;font-weight:700}.pf-evo.soon{opacity:.7}
+.pf-foot{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 -18px;padding:12px 18px;background:#0a2036f2;border-top:1px solid #ffffff2a}
+.pf-ribbon{display:flex;gap:8px}.pf-slot{position:relative;width:56px;height:56px;padding:0;border-radius:14px;border:3px solid #ffffff40;background:linear-gradient(160deg,color-mix(in srgb,var(--tc,#789) 75%,#fff),color-mix(in srgb,var(--tc,#789) 35%,#0b1a2a));cursor:pointer;overflow:hidden;transition:transform .15s}
+.pf-slot:hover:not(.on):not(.empty){transform:translateY(-3px);border-color:#fff}.pf-slot.on{border-color:var(--gold);box-shadow:0 0 0 3px #ffc94a55;cursor:default}
+.pf-slot img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}.pf-slot>span{position:absolute;left:4px;top:1px;font:700 11px var(--pixel);color:#fff;text-shadow:0 1px 2px #000}
+.pf-slot.empty{display:block;border-style:dashed;background:#0a162688;cursor:default}
+.pf-gold{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;border:2px solid #fff1bd;background:linear-gradient(#ffd66b,#ffb62e);color:#2a1c00;font:700 14px 'DM Sans',system-ui,sans-serif;cursor:pointer;white-space:nowrap}.pf-gold:hover:not(:disabled){filter:brightness(1.08)}.pf-gold:disabled{opacity:.45;cursor:not-allowed}
+.pf-chef{display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border-radius:12px;border:2px solid #ffc94a88;color:#ffd66b;font-weight:700;font-size:14px;white-space:nowrap}
+@media(max-width:760px){
+  .pf{padding:10px 10px 0}.pf-stage{grid-template-columns:1fr 1fr;grid-template-areas:"hero hero" "l r"}.pf-hero{grid-area:hero;min-height:210px}.pf-hero img{width:min(70%,230px)}.pf-stage>.pf-col:first-child{grid-area:l}.pf-stage>.pf-col:last-child{grid-area:r}
+  .pf-moves{grid-template-columns:1fr 1fr}.pf-info{grid-template-columns:1fr}.pf-foot{margin:0 -10px;padding:10px;flex-wrap:wrap}.pf-slot{width:44px;height:44px}.pf-ribbon{gap:5px}
+}
