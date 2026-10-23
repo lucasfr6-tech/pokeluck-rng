@@ -3,6 +3,7 @@ import {createTraining,effortYield,STAT_KEYS,STAT_NAMES} from './training.js';
 import {effectiveness, chooseAiMove, chooseAutoSwitch, createBattle, takeTurn, activeFighter, playerChoices, isUsable, isDamaging, statusKind, cureMatch, makeFighter, knownMoves, xpReward, STATUS_TAG, TYPE_FR, DEFAULT_BASE} from './battle.js';
 import {randomTraits, NATURE_KEYS} from './traits.js';
 import {getSpecies, getMoves, getMove} from './battle-data.js';
+import {tierOf} from './world.js';
 import {playAttackEffect} from './effects.js';
 import {mountTrainer, unmountTrainer, sendOut} from './trainer-fx.js';
 
@@ -86,7 +87,7 @@ export function createFight(ctx) {
         let earned = null;
         if (resolvedBattle.team.find(f => f.id === id)?.hp > 0) for (const foe of foes) { const g = ctx.addEVs?.(id, effortYield(foe.id)); if (g) { earned = earned || {}; for (const k of STAT_KEYS) if (g[k]) earned[k] = (earned[k] || 0) + g[k]; } }
         const evText=earned?STAT_KEYS.filter(key=>earned[key]).map(key=>'+'+earned[key]+' '+STAT_NAMES[key]).join(' · '):'';
-        const gain = foes.reduce((n, foe) => n + Math.max(1, Math.round(xpReward(foe.level, ctx.level(id)) * (ctx.xpMult?.(id) || 1))), 0), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
+        const gain = foes.reduce((n, foe) => n + Math.max(1, Math.round(xpReward(foe.level, ctx.level(id), tierOf(foe.id)) * (ctx.xpMult?.(id) || 1))), 0), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
         const fresh = (learnsets[id] || []).filter(([, at]) => at > r.before && at <= r.after), defs = await Promise.all(fresh.map(([mv]) => getMove(mv)));
         const moves = fresh.map(([, at], k) => `<span class="new-move">Nouvelle attaque disponible : ${esc(defs[k].fr)} (niv. ${at})</span>`).join('');
         rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${evText?`<span class="ev-reward">EV : ${esc(evText)}</span>`:earned?'<span class="ev-reward">EV au plafond pour ces statistiques</span>':''}${moves}</li>`);
