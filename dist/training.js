@@ -12,5 +12,8 @@ export function migrateTraining(counts,raw,random){return Object.fromEntries(Obj
 export const totalEVs=evs=>STAT_KEYS.reduce((sum,key)=>sum+(evs?.[key]||0),0);
 export function effortYield(id){return Object.fromEntries(STAT_KEYS.map((key,i)=>[key,EV_YIELDS[id-1]?.[i]||0]));}
 export function gainEVs(record,yieldStats){const evs=normalizeEVs(record.evs),gained=blankStats();let remaining=EV_TOTAL-totalEVs(evs);for(const key of STAT_KEYS){const requested=Number.isFinite(yieldStats?.[key])?Math.max(0,Math.floor(yieldStats[key])):0;const gain=Math.min(requested,EV_MAX-evs[key],remaining);evs[key]+=gain;gained[key]=gain;remaining-=gain;}return {record:{ivs:{...record.ivs},evs},gained};}
+// Nouvelle capture d'une espèce déjà possédée : chaque IV garde la meilleure valeur entre l'ancien et le nouvel exemplaire.
+// Les IV moins bons sont ignorés ; les EV (acquis en combat) ne changent pas.
+export function mergeBestIVs(current,caught){const ivs={...current.ivs},improved=[];for(const key of STAT_KEYS){if(validIV(caught?.ivs?.[key])&&caught.ivs[key]>ivs[key]){improved.push({key,from:ivs[key],to:caught.ivs[key]});ivs[key]=caught.ivs[key];}}return {record:{ivs,evs:{...current.evs}},improved};}
 export const trainingSignature=record=>JSON.stringify(record);
 export const ivJudgement=value=>value===31?'Exceptionnel':value===0?'Pas top':value<=15?'Passable':value<=25?'Bon':value<=29?'Très bon':'Fantastique';
