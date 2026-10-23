@@ -4,13 +4,13 @@ const typeRows=['grass poison','grass poison','grass poison','fire','fire','fire
 if(typeRows.length!==pool.length)throw new Error('Types et espèces désynchronisés');
 export const types=Object.fromEntries(typeRows.map((s,i)=>[i+1,s.split(' ')]));
 export const zones=[
- {id:'route',name:'Route 1',symbol:'⌁',label:'Les premiers pas',bonus:[],desc:'Un chemin tranquille pour commencer ton aventure.',note:'Tirage classique · aucun bonus',color:'route'},
- {id:'forest',name:'Forêt de Jade',symbol:'♧',label:'Au cœur de la forêt',bonus:['grass','bug'],desc:'Sous les feuillages, de nouvelles rencontres t’attendent.',note:'Plante & Insecte · poids ×3',color:'forest'},
- {id:'cave',name:'Mont Sélénite',symbol:'◇',label:'Dans les profondeurs',bonus:['rock','ground'],desc:'Une grotte mystérieuse où chaque rencontre résonne.',note:'Roche & Sol · poids ×3',color:'cave'},
- {id:'power',name:'Centrale',symbol:'ϟ',label:'Une rencontre électrique',bonus:['electric'],desc:'Quelque chose crépite entre les vieux générateurs.',note:'Électrik · poids ×3',color:'power'},
- {id:'route2',name:'Route 2',bonus:['normal','bug'],note:'Normal & Insecte · poids ×3',color:'route'},
- {id:'route3',name:'Route 3',bonus:['normal','flying'],note:'Normal & Vol · poids ×3',color:'route'},
- {id:'route4',name:'Route 4',bonus:['ground','flying'],note:'Sol & Vol · poids ×3',color:'route'}
+ {id:'route',levels:[3,7],name:'Route 1',symbol:'⌁',label:'Les premiers pas',bonus:[],desc:'Un chemin tranquille pour commencer ton aventure.',note:'Tirage classique · aucun bonus',color:'route'},
+ {id:'forest',levels:[14,26],name:'Forêt de Jade',symbol:'♧',label:'Au cœur de la forêt',bonus:['grass','bug'],desc:'Sous les feuillages, de nouvelles rencontres t’attendent.',note:'Plante & Insecte · poids ×3',color:'forest'},
+ {id:'cave',levels:[36,54],name:'Mont Sélénite',symbol:'◇',label:'Dans les profondeurs',bonus:['rock','ground'],desc:'Une grotte mystérieuse où chaque rencontre résonne.',note:'Roche & Sol · poids ×3',color:'cave'},
+ {id:'power',levels:[72,100],name:'Centrale',symbol:'ϟ',label:'Une rencontre électrique',bonus:['electric'],desc:'Quelque chose crépite entre les vieux générateurs.',note:'Électrik · poids ×3',color:'power'},
+ {id:'route2',levels:[7,15],name:'Route 2',bonus:['normal','bug'],note:'Normal & Insecte · poids ×3',color:'route'},
+ {id:'route3',levels:[24,38],name:'Route 3',bonus:['normal','flying'],note:'Normal & Vol · poids ×3',color:'route'},
+ {id:'route4',levels:[52,75],name:'Route 4',bonus:['ground','flying'],note:'Sol & Vol · poids ×3',color:'route'}
 ];
 export const itinerary=[{town:'Bourg Palette'},{zone:'route'},{town:'Jadielle'},{zone:'route2'},{zone:'forest'},{town:'Argenta'},{zone:'route3'},{zone:'cave'},{zone:'route4'},{town:'Azuria'}];
 // Arrière-plans du cadre 1, un par zone (fichiers dans assets/backgrounds/).
