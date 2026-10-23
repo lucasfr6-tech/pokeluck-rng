@@ -5,7 +5,7 @@ export function mountTrainer(arena) {
   unmountTrainer();
   const stage = document.getElementById('stage'); if (!stage || !arena) return;
   trainerEl = document.createElement('img');
-  trainerEl.className = 'boss-trainer'; trainerEl.src = arena.sprite; trainerEl.alt = ''; trainerEl.draggable = false;
+  trainerEl.className = 'boss-trainer'; trainerEl.src = arena.sprite; fallbackSprite(trainerEl, arena.alts); trainerEl.alt = ''; trainerEl.draggable = false;
   trainerEl.onerror = () => { trainerEl.hidden = true; };
   stage.prepend(trainerEl);
 }
@@ -36,4 +36,9 @@ export async function sendOut({side, img, reduced = false, sound}) {
   flash.animate([{transform: 'translate(-50%,-50%) scale(.2)', opacity: .95}, {transform: 'translate(-50%,-50%) scale(2.6)', opacity: 0}], {duration: 520, easing: 'ease-out'}).finished.finally(() => flash.remove());
   img.style.opacity = '';
   await img.animate([{transform: 'scale(.05)', filter: 'brightness(4) saturate(0)', opacity: 1, offset: 0}, {transform: 'scale(1.12)', filter: 'brightness(1.6)', offset: .6}, {transform: 'scale(1)', filter: 'none', opacity: 1, offset: 1}], {duration: 520, easing: 'ease-out', transformOrigin: '50% 90%'}).finished.catch(() => {});
+}
+
+// Essaie les autres versions d'un sprite de dresseur si la première est introuvable.
+export function fallbackSprite(img, alts) {
+  const list = (alts || []).slice(); img.onerror = () => { const n = list.shift(); if (n) img.src = n; else { img.onerror = null; img.style.visibility = 'hidden'; } };
 }

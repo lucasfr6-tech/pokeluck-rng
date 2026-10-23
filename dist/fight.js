@@ -182,8 +182,7 @@ export function createFight(ctx) {
     autoStep(wait = 2) {
       if (starting || playing) return 'wait';
       if (bt && !bt.over && el.swPanel.hidden) {
-        const sw = chooseAutoSwitch(bt, autoSwitches);
-        if (sw !== null) { autoSwitches++; turn(null, sw); return 'turn'; }
+        // Le mode Auto ne change plus de Pokémon tout seul : c'est toujours celui en tête qui combat.
         turn(chooseAiMove(activeFighter(bt), bt.wild)); return 'turn';
       }
       if (!el.victory.hidden && $('#v-continue')) { if (++vWait >= wait) { vWait = 0; $('#v-continue').click(); return 'continue'; } return 'wait'; }

@@ -56,11 +56,11 @@ export function buildPath(shops = []) {
 }
 
 // Conseil des 4 (Plateau Indigo) : quatre combats d'affilée après Giovanni. Condition : les 8 badges et un Pokémon légendaire dans la collection.
-const eliteDef = (n, o) => ({n, ...o, elite:true, city:'Plateau Indigo', team:scale(o.real, o.ace), sprite:SPRITE_URL(o.trainer), badgeSprite:null, badgeName:'Victoire sur ' + o.leader});
+const eliteDef = (n, o) => ({n, ...o, elite:true, city:'Plateau Indigo', team:scale(o.real, o.ace), sprite:SPRITE_URL(o.trainer), alts:(o.alts||[]).map(SPRITE_URL), badgeSprite:null, badgeName:'Victoire sur ' + o.leader});
 export const ELITE = [
-  eliteDef(1, {id:'olga', leader:'Olga', title:'Olga, du Conseil des 4', type:'glace', trainer:'lorelei', ace:97, real:[[87, 54], [91, 53], [80, 54], [124, 56], [131, 56]], quote:'Rien n’échappe au froid de ma glace !'}),
+  eliteDef(1, {id:'olga', leader:'Olga', title:'Olga, du Conseil des 4', type:'glace', trainer:'lorelei-gen3', alts:['lorelei-gen1','lorelei-gen1rb','lorelei'], ace:97, real:[[87, 54], [91, 53], [80, 54], [124, 56], [131, 56]], quote:'Rien n’échappe au froid de ma glace !'}),
   eliteDef(2, {id:'aldo', leader:'Aldo', title:'Aldo, du Conseil des 4', type:'combat', trainer:'bruno', ace:98, real:[[95, 53], [107, 55], [106, 55], [95, 56], [68, 58]], quote:'Ma force et ma volonté sont sans limites !'}),
-  eliteDef(3, {id:'agatha', leader:'Agatha', title:'Agatha, du Conseil des 4', type:'spectre', trainer:'agatha', ace:99, real:[[94, 56], [42, 56], [93, 55], [24, 58], [94, 60]], quote:'Les jeunes d’aujourd’hui ne savent plus se battre !'}),
+  eliteDef(3, {id:'agatha', leader:'Agatha', title:'Agatha, du Conseil des 4', type:'spectre', trainer:'agatha-gen3', alts:['agatha-gen1','agatha-gen1rb'], ace:99, real:[[94, 56], [42, 56], [93, 55], [24, 58], [94, 60]], quote:'Les jeunes d’aujourd’hui ne savent plus se battre !'}),
   eliteDef(4, {id:'peter', leader:'Peter', title:'Peter, du Conseil des 4', type:'dragon', trainer:'lance', ace:100, real:[[130, 58], [148, 56], [148, 56], [142, 60], [149, 62]], quote:'Je suis le maître des dragons. Montre-moi ta valeur !'})
 ];
 export const eliteById = id => ELITE.find(m => m.id === id);
