@@ -166,7 +166,7 @@ export function mountShop(container, {getState, shopId, onChange}) {
     if (pick) {selected = pick.dataset.item; message = ''; render(); return;}
     if (e.target.closest('[data-buy]')) {
       const state = getState(), r = buyItem(state, selected);
-      if (r.ok) {message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'heal' ? 'ajoutée à ton sac. À utiliser en combat avec « Objets ».' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'stone' ? 'ajoutée à ton sac. À utiliser depuis le profil du Pokémon à faire évoluer.' : 'déjà actif !'}`; onChange(selected);}
+      if (r.ok) {const st = (state.stats = state.stats || {}); st.purchases = (st.purchases || 0) + 1; message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'heal' ? 'ajoutée à ton sac. À utiliser en combat avec « Objets ».' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'stone' ? 'ajoutée à ton sac. À utiliser depuis le profil du Pokémon à faire évoluer.' : 'déjà actif !'}`; onChange(selected);}
       else message = r.reason === 'money' ? `Il te manque ${fmtMoney(r.missing)}.` : 'Tu l’as déjà.';
       render();
     }

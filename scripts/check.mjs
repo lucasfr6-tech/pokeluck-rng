@@ -479,3 +479,16 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   for (const s of stones) assert.ok(sh.SHOPS.some(x => x.stock.includes(s.id)), s.id + ' est en vente');
   console.log('OK : 5 pierres d’évolution, évolutions valides, Évoli (3 pierres), boutiques.');
 }
+{
+  const M = await import('../dist/achievements.js');
+  assert.equal(M.ACHIEVEMENTS.length, 50); assert.equal(new Set(M.ACHIEVEMENTS.map(a => a.id)).size, 50);
+  for (const t of [1, 2, 3, 4]) assert.ok(M.ACHIEVEMENTS.filter(a => a.tier === t).length >= 5, 'chaque rang a des succès');
+  for (const a of M.ACHIEVEMENTS) assert.ok(a.target > 0 && a.name && a.desc && M.TIERS[a.tier]);
+  const m0 = {}, m1 = {draws:150, discovered:12};
+  assert.equal(M.newlyDone({}, m0).length, 0); assert.deepEqual(M.newlyDone({}, m1).map(a => a.id).sort(), ['dex-10', 'draw-1', 'draw-100']);
+  assert.deepEqual(M.newlyDone({'draw-1':true}, m1).map(a => a.id).sort(), ['dex-10', 'draw-100']);
+  assert.deepEqual(M.progressOf(M.achievementById('draw-1000'), {draws:250}), {cur:250, target:1000, done:false});
+  assert.deepEqual(M.sanitizeAch({'draw-1':true, bad:true, 'draw-100':1}), {'draw-1':true}); assert.deepEqual(M.sanitizeStats({purchases:3, tmUsed:-1, x:5, heals:1.5}), {purchases:3});
+  assert.deepEqual([0, 9e4, 1e5, 1e8, 1e9].map(M.powerRankOf), [0, 0, 1, 2, 3]);
+  console.log('OK : 50 succès (4 rangs), progression, déblocage unique, sanitation.');
+}
