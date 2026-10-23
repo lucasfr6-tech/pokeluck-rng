@@ -248,4 +248,8 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   sh.setShinyDenominator(2048); if (!sh.rollShiny(1 / 2048 - 1e-9) || sh.rollShiny(1 / 2048)) throw new Error('charme chroma'); sh.setShinyDenominator(4096);
   if (sh.rollShiny(1 / 4096)) throw new Error('retour au 1/4096');
 }
+{
+  const shop = await import('../dist/shop.js');
+  if (shop.shopById('jade').stock.join() !== 'super,xp' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma') throw new Error('stock des boutiques');
+}
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');

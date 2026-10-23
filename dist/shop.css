@@ -66,3 +66,4 @@
 .bag span b{display:block;font:700 18px var(--pixel)}.bag span small{display:block;color:#9fb8c8;font-size:13px;margin-top:2px}
 .bag span{flex:1}.bag em{font-style:normal;font:800 11px var(--pixel);letter-spacing:.05em;padding:4px 10px;border-radius:9px;background:#3fae5c;color:#fff}.bag em.off{background:#1b3a55;color:#9fb8c8}
 .bag-empty{margin:0;padding:16px;border:2px dashed #2c5f86;border-radius:14px;color:#7da0b8;font-size:14px}
+.items-icon{width:28px;height:28px;margin:-4px 0;image-rendering:pixelated}
