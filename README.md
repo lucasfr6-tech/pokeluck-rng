@@ -1,6 +1,6 @@
 # Pokéluck
 
-Jeu Pokémon RNG en français. Interface sombre, zones de Kanto, collection et équipe de six.
+Jeu Pokémon RNG en français. Aventure rétro en pixel art, plein navigateur, zones de Kanto, collection et équipe de six.
 
 - Jouer : https://lucasfr6-tech.github.io/pokeluck-rng/
 - Dépôt partagé : https://github.com/lucasfr6-tech/pokeluck-rng
@@ -17,7 +17,9 @@ Les sources du jeu se trouvent uniquement dans `dist/` :
 - `game.css` : thème sombre et responsive.
 - `game.js` : interactions, collection, équipe, sauvegarde, appels PokéAPI.
 - `pokemon.js` : les 31 espèces du prototype et les probabilités de base.
-- `world.js` : zones, types, poids de rencontre et puissances provisoires.
+- `world.js` : zones, parcours de Kanto, types, poids de rencontre et puissances provisoires.
+- `scenery.js` : paysages pixel art, dessinés dans un canvas plein navigateur.
+- `assets/` : carte de Kanto fournie comme référence.
 
 `npm test` vérifie les tirages pondérés des zones. `npm run build` génère `public/`, avec une version des fichiers CSS/JS pour éviter qu'une nouvelle publication conserve les anciens scripts en cache. Ne pas modifier `public/` directement.
 
@@ -30,6 +32,10 @@ Une autre IA doit travailler depuis ce même dépôt, récupérer la dernière v
 La sauvegarde est locale au navigateur et à l'adresse du jeu. Pour la déplacer entre le premier site, GitHub Pages ou un autre navigateur : Menu → Paramètres → Exporter / Importer ma sauvegarde. La première version du site n'avait pas l'export : utiliser sa mise à jour 0.2 pour récupérer sa progression.
 
 Le total de puissance correspond aux six espèces équipées au maximum. Les valeurs sont provisoires ; les doublons ne gonflent pas ce total. Une ancienne sauvegarde du prototype est reprise automatiquement.
+
+## Interface 0.3
+
+Direction retenue par le créateur : Aventure rétro. La scène occupe 100 % de la fenêtre (100dvh), sans défilement du terrain, avec un HUD en superposition et un bouton de plein écran optionnel. Menus et collection restent défilables. Les routes 1, 2, 3 et 4, la Forêt de Jade, le Mont Sélénite et la Centrale sont sélectionnables. La Centrale se trouve dans la carte, hors du parcours initial. Les paysages changent selon la zone ; les Pokémon du décor sont décoratifs, sans promesse de rencontre dans le lot actuel. La réduction des animations masque les sprites animés.
 
 ## Limites actuelles
 

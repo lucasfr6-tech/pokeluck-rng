@@ -1,3 +1,9 @@
+# Mise à jour 0.3 — Aventure rétro plein navigateur
+
+Le créateur a choisi la première maquette Aventure rétro et demandé de remplir toute la fenêtre. Cette direction est maintenant implémentée : canvas pixel art par zone, sprites animés décoratifs, HUD superposé, Pokéball centrale, vrais sprites Pokémon et objets pour les menus, destinations en bas. Les routes 2, 3 et 4 complètent Route 1, Forêt de Jade, Mont Sélénite et Centrale ; les anciens identifiants de zone sont conservés pour les sauvegardes. Carte et historique sont accessibles dans Menu. La collection, les puissances et les probabilités restent celles du prototype. GitHub Pages reste la publication de référence.
+
+---
+
 # Mise à jour 0.2 — 23 octobre 2026
 
 Ce dépôt GitHub est désormais la référence commune : https://github.com/lucasfr6-tech/pokeluck-rng

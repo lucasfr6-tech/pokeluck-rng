@@ -7,7 +7,10 @@ const version = (process.env.GITHUB_SHA || Date.now().toString()).replace(/[^a-z
 fs.mkdirSync(output, {recursive:true});
 for (const name of fs.readdirSync(source)) {
   const file = path.join(source,name);
-  if (!fs.statSync(file).isFile()) continue;
+  if (fs.statSync(file).isDirectory()) {
+    fs.cpSync(file, path.join(output,name), {recursive:true});
+    continue;
+  }
   let data = fs.readFileSync(file);
   if (/\.(html|js)$/.test(name)) {
     let text = data.toString('utf8');
