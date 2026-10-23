@@ -81,16 +81,18 @@ export function createFight(ctx) {
     let html;
     if (!lost) {
       const rows = [];
-      for (const id of resolvedBattle.participants) {
+      const partIds = Array.from(resolvedBattle.participants), shareIds = ctx.xpShare?.() ? (ctx.team?.() || []).filter(i => !partIds.includes(i)) : [];
+      for (const id of [...partIds, ...shareIds]) {
+        const shared = shareIds.includes(id);
         if(bt!==resolvedBattle)return;
         const foes = resolvedBattle.defeated.length ? resolvedBattle.defeated : [{id:resolvedBattle.wild.id, level:wildLevel}];
         let earned = null;
-        if (resolvedBattle.team.find(f => f.id === id)?.hp > 0) for (const foe of foes) { const g = ctx.addEVs?.(id, effortYield(foe.id)); if (g) { earned = earned || {}; for (const k of STAT_KEYS) if (g[k]) earned[k] = (earned[k] || 0) + g[k]; } }
+        if (!shared && resolvedBattle.team.find(f => f.id === id)?.hp > 0) for (const foe of foes) { const g = ctx.addEVs?.(id, effortYield(foe.id)); if (g) { earned = earned || {}; for (const k of STAT_KEYS) if (g[k]) earned[k] = (earned[k] || 0) + g[k]; } }
         const evText=earned?STAT_KEYS.filter(key=>earned[key]).map(key=>'+'+earned[key]+' '+STAT_NAMES[key]).join(' · '):'';
-        const gain = foes.reduce((n, foe) => n + Math.max(1, Math.round(xpReward(foe.level, ctx.level(id), tierOf(foe.id)) * (ctx.xpMult?.(id) || 1) * (boss?.xpBonus || 1))), 0), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
+        const gain = foes.reduce((n, foe) => n + Math.max(1, Math.round(xpReward(foe.level, ctx.level(id), tierOf(foe.id)) * (ctx.xpMult?.(id) || 1) * (boss?.xpBonus || 1) * (shared ? .5 : 1))), 0), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
         const fresh = (learnsets[id] || []).filter(([, at]) => at > r.before && at <= r.after), defs = await Promise.all(fresh.map(([mv]) => getMove(mv)));
         const moves = fresh.map(([, at], k) => `<span class="new-move">Nouvelle attaque disponible : ${esc(defs[k].fr)} (niv. ${at})</span>`).join('');
-        rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${evText?`<span class="ev-reward">EV : ${esc(evText)}</span>`:earned?'<span class="ev-reward">EV au plafond pour ces statistiques</span>':''}${moves}</li>`);
+        rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP${shared ? ' · partagée' : ''}</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${evText?`<span class="ev-reward">EV : ${esc(evText)}</span>`:earned?'<span class="ev-reward">EV au plafond pour ces statistiques</span>':''}${moves}</li>`);
       }
       if(bt!==resolvedBattle)return;
       setCard(activeFighter(bt), activeFighter(bt).hp);
