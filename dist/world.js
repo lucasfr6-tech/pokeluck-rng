@@ -11,7 +11,9 @@ export const zones=[
  {id:'route4',name:'Route 4',bonus:['ground','flying'],note:'Sol & Vol · poids ×3',color:'route'}
 ];
 export const itinerary=[{town:'Bourg Palette'},{zone:'route'},{town:'Jadielle'},{zone:'route2'},{zone:'forest'},{town:'Argenta'},{zone:'route3'},{zone:'cave'},{zone:'route4'},{town:'Azuria'}];
-export const sceneryFor=id=>id==='forest'?'forest':id==='cave'?'cave':id==='power'?'power':'route';
+// Arrière-plans du cadre 1, un par zone (fichiers dans assets/backgrounds/).
+export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant'};
+export const backgroundFor=id=>`assets/backgrounds/${backgrounds[id]||backgrounds.route}.png`;
 export const ambientFor=id=>id==='forest'?[10,12,25]:id==='cave'?[27,41,74]:id==='power'?[25,26,25]:id==='route4'?[21,16,27]:[19,16,25];
 export const powers=[12,48,180,14,54,210,13,50,195,2,8,35,2,8,38,4,46,125,3,25,5,42,10,52,30,110,12,65,5,30,130];
 export function zonePool(id){const zone=zones.find(z=>z.id===id)||zones[0];const entries=pool.map(p=>({...p,power:powers[p.id-1],probability:p.probability*(types[p.id].some(t=>zone.bonus.includes(t))?3:1)}));const total=entries.reduce((s,p)=>s+p.probability,0);return entries.map(p=>({...p,probability:p.probability/total}));}

@@ -1,0 +1,119 @@
+/* Mise en page en quatre cadres :
+   2 = bannière du dresseur (haut)   3 = menu (à gauche)
+   1 = scène et Pokéball (centre)    4 = carte de Kanto (bas à gauche) */
+:root{--gap:12px;--pad:14px;--menu-w:92px;--map-size:clamp(170px,min(31dvh,34vw),300px);--frame-bg:#11283eee}
+
+.game{display:grid;grid-template-columns:var(--menu-w) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:var(--gap);padding:max(var(--pad),env(safe-area-inset-top)) max(var(--pad),env(safe-area-inset-right)) max(30px,calc(env(safe-area-inset-bottom) + 24px)) max(var(--pad),env(safe-area-inset-left))}
+.banner,.menu-frame,.map-panel{background:var(--frame-bg);border:2px solid var(--edge);border-radius:8px;box-shadow:4px 4px 0 #061524}
+
+/* Cadre 2 — bannière */
+.game .banner{grid-column:1/-1;grid-row:1;justify-self:start;max-width:100%;display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;padding:8px 14px 8px 8px}
+.banner .avatar{width:48px;height:48px;flex-shrink:0}
+.banner .avatar img{width:58px;height:58px}
+.banner-info{display:flex;flex-direction:column;min-width:0;line-height:1.35}
+.banner-info>strong{font-size:17px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.banner .power{font-size:14px;color:var(--yellow)}
+.banner-team{background:none;padding:0;border:0}
+.banner-team>span{display:flex;gap:5px}
+.banner .team-mini{width:42px;height:42px;flex-shrink:0}
+.banner .team-mini img{width:54px;height:54px}
+.banner .team-mini.empty{background:#0f2031aa;border:1px dashed #6d8798}
+
+/* Cadre 3 — menu, rien d'autre */
+.game .menu-frame{grid-column:1;grid-row:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:9px;padding:16px 6px;font-size:15px;font-weight:700;color:var(--ink)}
+.menu-frame:hover{background:#2a4963}
+.menu-frame .mini-ball{width:26px;height:26px}
+.menu-frame .mini-ball:after{width:10px;height:10px;left:5.5px;top:5.5px}
+
+/* Cadre 1 — scène */
+.game .scene{grid-column:2;grid-row:2;position:relative;isolation:isolate;overflow:hidden;container-type:size;min-height:0;background:#14394a;border:2px solid var(--edge);border-radius:8px;box-shadow:4px 4px 0 #061524}
+.game #scenery{position:absolute;inset:0;z-index:-3;background-color:#14394a;background-repeat:no-repeat;background-size:cover;background-position:center 62%;image-rendering:pixelated}
+.game .scene-shade{background:linear-gradient(#04101b44,transparent 28%,transparent 60%,#030d1eb0)}
+.scene-place{position:absolute;top:10px;left:12px;z-index:3;background:var(--panel);border:2px solid var(--edge);border-radius:8px;box-shadow:3px 3px 0 #071321;padding:6px 12px;line-height:1.3}
+.scene-place strong{display:block;font-size:16px}
+.game .encounter-counters{position:absolute;right:10px;bottom:10px;z-index:3;color:#c8dce6;font-size:11px;text-shadow:0 1px 3px #000;background:#10283ccc;border:1px solid #7e9baa80;border-radius:5px;padding:5px 9px}
+.game .stage{--ball:clamp(64px,28cqh,150px);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 20px);min-width:0;z-index:2}
+.game .summon-ring{width:calc(var(--ball)*1.75);height:calc(var(--ball)*.46);top:calc(var(--ball)*.84)}
+.game .ball{width:var(--ball);height:var(--ball);border-width:clamp(3px,.045*var(--ball),6px)}
+.game .ball-core{width:30%;height:30%;left:35%;top:35%;border-width:clamp(3px,.045*var(--ball),6px)}
+.game .ball-top:after{top:10%;left:13%;width:25%;height:11%}
+.game .result{width:calc(var(--ball)*1.3);height:calc(var(--ball)*1.1);margin-top:calc(var(--ball)*-.12)}
+.game .result img{width:calc(var(--ball)*1.4);height:calc(var(--ball)*1.4)}
+.game .result small{font-size:clamp(8px,.07*var(--ball),11px)}
+.game .encounter-status{margin-top:clamp(10px,.2*var(--ball),26px)}
+.game .encounter-status strong{font-size:clamp(14px,.14*var(--ball),20px)}
+.game .encounter-status>span{font-size:clamp(9px,.085*var(--ball),12px)}
+.game .roll-caption{margin-top:clamp(8px,.16*var(--ball),24px);font-size:clamp(10px,.085*var(--ball),12px)}
+.game .wild{width:clamp(48px,20cqh,110px);height:clamp(48px,20cqh,110px)}
+.game .wild.one{left:10%;top:56%}.game .wild.two{right:12%;top:22%}.game .wild.three{right:22%;bottom:12%}
+
+/* Cadre 4 — carte */
+.game .map-panel{grid-column:1/-1;grid-row:3;justify-self:start;width:calc(var(--map-size) + 12px);padding:4px;z-index:2}
+.map-panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 6px 6px;min-height:28px}
+.map-panel-head strong{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--yellow)}
+.map-panel-head .mini-ball{width:17px;height:17px;border-width:1.5px}
+.map-panel-head .mini-ball:after{width:7px;height:7px;left:3.5px;top:3.5px}
+.map-place{color:#d1e3ea;font-size:11px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.map-panel-foot{padding:5px 6px 3px;font-size:10px;line-height:1.35;color:#b9dac6}
+.illustrated-map{width:100%;aspect-ratio:1;position:relative;isolation:isolate;border-radius:3px;overflow:hidden;background:#286d71}
+.exploration-image{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;user-select:none;-webkit-user-drag:none}
+.map-trails{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.map-trails path{fill:none;stroke:#fff5bc;stroke-width:.8;stroke-dasharray:1.5 2.2;stroke-linecap:round;opacity:.4}
+.map-water{position:absolute;inset:0;z-index:1;pointer-events:none;clip-path:polygon(27% 0,44% 0,43% 24%,51% 29%,52% 47%,58% 57%,78% 57%,79% 68%,64% 69%,52% 65%,45% 54%,46% 37%,36% 25%);background:repeating-linear-gradient(180deg,transparent 0 12px,#c4f3ff44 13px 15px,transparent 16px 27px);background-size:100% 54px;mix-blend-mode:screen;animation:water-flow 4s linear infinite;opacity:.42}
+.map-glint{position:absolute;pointer-events:none;z-index:2;width:3px;height:3px;border-radius:50%;background:#f1ffd6;box-shadow:0 0 5px #e7ffd6;animation:map-glint 3s ease-in-out infinite}
+.map-glint.g1{left:78%;top:86%}.map-glint.g2{left:52%;top:37%;animation-delay:-1.5s}
+
+/* Ronds en surbrillance cliquables */
+.map-spot{position:absolute;z-index:3;transform:translate(-50%,-50%);width:max(22px,13%);aspect-ratio:1;padding:0;border:2px solid #fff3a8;border-radius:50%;background:radial-gradient(circle,#ffec9a99 0 35%,#ffec9a33 70%);box-shadow:0 0 0 2px #1a2e3f99,0 0 12px 2px #ffe27ccc;animation:spot-pulse 1.8s ease-in-out infinite;cursor:pointer;transition:transform .15s}
+.map-spot-dot{position:absolute;left:50%;top:50%;width:28%;height:28%;transform:translate(-50%,-50%);border-radius:50%;background:#fff6c4;border:2px solid #29424e}
+.map-spot:hover,.map-spot:focus-visible{transform:translate(-50%,-50%) scale(1.18);background:radial-gradient(circle,#fff6b8cc 0 40%,#ffec9a55 75%)}
+.map-spot:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.map-spot:disabled{opacity:1;cursor:pointer}
+.map-spot.current{border-color:#fff;background:radial-gradient(circle,#ff9e5acc 0 35%,#ffd27c55 75%);box-shadow:0 0 0 2px #1a2e3fcc,0 0 16px 4px #ffb85aee}
+.map-spot.current .map-spot-dot{background:#fff;border-color:#8a3d12}
+.map-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:5;white-space:nowrap;background:#10283ff2;border:1px solid #b3cbdb;border-radius:4px;padding:3px 7px;color:#fff3c2;font-size:11px;font-weight:400;box-shadow:0 2px 5px #0008;pointer-events:none}
+.map-spot.edge-l .map-tooltip{left:0;transform:none}
+.map-spot.edge-r .map-tooltip{left:auto;right:0;transform:none}
+.map-spot.below .map-tooltip{bottom:auto;top:calc(100% + 6px)}
+.map-spot:hover .map-tooltip,.map-spot:focus-visible .map-tooltip,.map-spot.current .map-tooltip{display:block}
+.large-map{max-width:580px;margin:auto}.large-map .map-tooltip{font-size:14px;padding:5px 9px}
+.map-instructions{margin:10px 0;font-size:12px!important;color:#bed5df!important}
+.reduce-motion .map-water,.reduce-motion .map-spot,.reduce-motion .map-glint{animation:none!important}
+@keyframes water-flow{from{background-position:0 0}to{background-position:0 54px}}
+@keyframes spot-pulse{0%,100%{box-shadow:0 0 0 2px #1a2e3f99,0 0 6px 1px #ffe27c88}50%{box-shadow:0 0 0 2px #1a2e3f99,0 0 16px 5px #ffe27cdd}}
+@keyframes map-glint{0%,100%{opacity:.1}50%{opacity:1}}
+
+/* Grands écrans */
+@media(min-width:1600px){:root{--pad:20px;--menu-w:104px;--map-size:clamp(220px,min(34dvh,26vw),380px)}.banner .avatar{width:56px;height:56px}.banner .team-mini{width:48px;height:48px}.banner .team-mini img{width:62px;height:62px}.banner-info>strong{font-size:19px}}
+
+/* Téléphone en portrait : cadres empilés */
+@media(max-width:700px){
+  :root{--pad:10px;--gap:8px;--map-size:clamp(150px,min(calc(100vw - 38px),30dvh),300px)}
+  .game{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto}
+  .game .banner{grid-column:1;justify-self:stretch;gap:6px 10px;padding:6px 8px}
+  .banner .avatar{width:38px;height:38px}.banner .avatar img{width:48px;height:48px}
+  .banner-info>strong{font-size:14px;max-width:130px}.banner .power{font-size:12px}
+  .banner-team{margin-left:auto}.banner .team-mini{width:32px;height:32px}.banner .team-mini img{width:42px;height:42px}
+  .banner-team>span{gap:3px}
+  .game .menu-frame{grid-column:1;grid-row:2;flex-direction:row;justify-content:center;padding:6px;min-height:40px;font-size:14px}
+  .game .scene{grid-column:1;grid-row:3}
+  .game .map-panel{grid-column:1;grid-row:4;justify-self:center}
+  .scene-place{top:6px;left:8px;padding:4px 9px}.scene-place .overline{font-size:8px}.scene-place strong{font-size:13px}
+  .game .encounter-counters{right:6px;bottom:6px;font-size:9px;padding:3px 6px}
+  .map-panel-foot{font-size:9px;padding:3px 4px 1px}
+}
+
+/* Écran large mais bas (téléphone en paysage) : la carte passe à droite */
+@media(max-height:620px) and (min-width:701px){
+  :root{--pad:8px;--gap:8px;--menu-w:76px;--map-size:clamp(120px,56dvh,260px)}
+  .game{grid-template-columns:var(--menu-w) minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr)}
+  .game .banner{grid-column:1/3;padding:4px 10px 4px 5px;gap:4px 10px}
+  .banner .avatar{width:34px;height:34px}.banner .avatar img{width:44px;height:44px}
+  .banner .overline{display:none}.banner-info>strong{font-size:13px}.banner .power{font-size:11px}
+  .banner .team-mini{width:30px;height:30px}.banner .team-mini img{width:40px;height:40px}
+  .game .map-panel{grid-column:3;grid-row:1/3;align-self:start;justify-self:end}
+  .game .menu-frame{font-size:13px;padding:10px 4px}
+  .map-panel-head .mini-ball,.map-panel-foot{display:none}
+  .game .wild.three{display:none}
+}
+@media(prefers-reduced-motion:reduce){.map-water,.map-spot,.map-glint{animation:none!important}}
