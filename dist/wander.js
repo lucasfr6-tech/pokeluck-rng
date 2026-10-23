@@ -12,7 +12,7 @@ const rand=(a,b)=>a+Math.random()*(b-a);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 
 export function createWanderers(container){
-  let walkers=[],area={w:0,h:0},reduced=false,raf=0,last=0,zoneId='';
+  let walkers=[],area={w:0,h:0},reduced=false,raf=0,last=0,zoneId='',quality='standard',lastPaint=0;
   const ground=()=>({x0:area.w*.04,x1:area.w*.96,y0:area.h*.45,y1:area.h*.97});
   const depth=y=>{const g=ground();return clamp((y-g.y0)/Math.max(1,g.y1-g.y0),0,1);};
   const sizeAt=y=>Math.round((area.h>=260?52:42)*(.7+.65*depth(y)));
@@ -61,6 +61,9 @@ export function createWanderers(container){
   }
 
   function frame(t){
+    if(document.hidden){raf=0;return;}
+    const interval=quality==='high'?1000/60:1000/30;
+    if(t-lastPaint<interval-1){raf=requestAnimationFrame(frame);return;}lastPaint=t;
     const dt=Math.min(.1,(t-last)/1000||0);last=t;
     for(const w of walkers){
       let hop=0;
@@ -81,12 +84,12 @@ export function createWanderers(container){
     raf=requestAnimationFrame(frame);
   }
 
-  function start(){cancelAnimationFrame(raf);if(reduced||!walkers.length)return;last=performance.now();raf=requestAnimationFrame(frame);}
+  function start(){cancelAnimationFrame(raf);if(document.hidden||reduced||!walkers.length||quality==='eco')return;last=performance.now();lastPaint=0;raf=requestAnimationFrame(frame);}
   function measure(){const r=container.getBoundingClientRect();area={w:r.width,h:r.height};}
   function populate(){
     walkers.forEach(w=>w.el.remove());walkers=[];
     if(!zoneId||!area.w)return;
-    const entries=zonePool(zoneId),count=area.w<520?5:area.w<900?7:10,used=new Set();
+    const entries=zonePool(zoneId),count=quality==='eco'?0:quality==='standard'?5:area.w<520?5:area.w<900?7:10,used=new Set();
     for(let i=0;i<count;i++){
       let p=draw(entries);
       for(let k=0;k<4&&used.has(p.id);k++)p=draw(entries);
@@ -101,8 +104,10 @@ export function createWanderers(container){
     else for(const w of walkers){const g=ground();w.x=clamp(w.x,g.x0,g.x1);w.y=clamp(w.y,g.y0,g.y1);pickTarget(w);paint(w);}
   }).observe(container);
   measure();
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else start();});
 
   return{
+    setQuality(value){if(value===quality)return;quality=['eco','standard','high'].includes(value)?value:'standard';populate();},
     setZone(id,reduceMotion=false){reduced=reduceMotion;if(id===zoneId&&walkers.length){start();return;}zoneId=id;measure();populate();},
     setReduced(value){reduced=value;if(value){cancelAnimationFrame(raf);walkers.forEach(w=>{w.face='front';paint(w);});}else start();}
   };

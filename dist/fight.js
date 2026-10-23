@@ -1,6 +1,7 @@
 // Interface de combat dans la scène : barre de PV du Pokémon sauvage, carte du combattant, attaques et journal.
 import {effectiveness, createBattle, takeTurn, activeFighter, playerChoices, isUsable, makeFighter, knownMoves, xpReward, TYPE_FR, DEFAULT_BASE} from './battle.js';
 import {getSpecies, getMoves, getMove} from './battle-data.js';
+import {playAttackEffect} from './effects.js';
 
 const $ = s => document.querySelector(s);
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -41,7 +42,7 @@ export function createFight(ctx) {
   async function play(events) {
     for (const e of events) {
       if (e.type === 'attack') {
-        say(`${e.user} utilise ${e.move} !`); await delay(650);
+        say(`${e.user} utilise ${e.move} !`); playAttackEffect(e); await delay(650);
         if (e.target === 'wild') setWild(e.hp); else setCard(bt.team.find(t => t.name === e.targetName), e.hp);
         if (e.hit && e.dmg) flash(e.target === 'wild' ? $('#result img') : el.cardImg);
         const t = effectText(e); if (t) { say(`${e.user} utilise ${e.move} ! ${t}`); await delay(700); }

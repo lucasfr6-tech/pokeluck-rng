@@ -110,3 +110,23 @@ for(const z of zones){for(let id=1;id<=151;id++)for(const r of [0,.5,.999]){cons
 if(wildLevel('route',101,()=>.999)>7)throw new Error('Électrode trop fort sur la Route 1');
 if(zones.find(z=>z.id==='power').levels[1]!==100)throw new Error('Dernière zone ≠ 100');
 console.log(`OK : 151 espèces, puissances, ${zones.length} zones normalisées, bonus de type, intervalles de tirage et parcours Kanto.`);
+
+// Les limites de paliers et les préférences héritées ne doivent pas produire de progression invalide.
+const {powerProgress,normalizePreferences}=await import('../dist/preferences.js');
+assert.equal(powerProgress(99999).index,0);assert.equal(powerProgress(100000).index,1);
+assert.equal(powerProgress(100000000).index,2);assert.equal(powerProgress(1000000000).index,3);
+assert.equal(powerProgress(100000).percent,0);assert.equal(powerProgress(1000000000).next,null);
+assert.equal(powerProgress(50000).remaining,50000);assert.equal(powerProgress(50000).percent,50);
+for(const n of [-100,0,1,99999,100000,1e8,1e9,1e14,NaN]){const p=powerProgress(n);assert.ok(p.percent>=0&&p.percent<=100&&Number.isFinite(p.percent));}
+assert.equal(normalizePreferences({theme:'light',quality:'eco',volume:0,sound:false}).volume,0);
+assert.equal(normalizePreferences({sound:false}).sound,false);
+assert.equal(normalizePreferences({volume:999,quality:'invalid'}).volume,100);
+assert.equal(normalizePreferences({quality:'invalid'}).quality,'standard');
+const {renderRetroNoise}=await import('../dist/audio.js');
+const scratch=renderRetroNoise('scratch'),ember=renderRetroNoise('ember');
+assert.notEqual(scratch.length,ember.length);
+for(const samples of [scratch,ember]){assert.ok(samples.length>2000&&samples.length<22050);assert.ok(samples.some(v=>v!==0));assert.ok(samples.every(v=>Number.isFinite(v)&&Math.abs(v)<=.300001));}
+const {effectKind}=await import('../dist/effects.js');
+assert.equal(effectKind({moveKey:'scratch',moveType:'normal'}),'scratch');
+assert.equal(effectKind({moveKey:'ember',moveType:'fire'}),'ember');
+console.log('OK : paliers, validation des préférences et synthèse audio des attaques.');

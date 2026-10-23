@@ -110,7 +110,7 @@ export function takeTurn(b, move, switchIndex = null) {
     if (side === 'player') b.participants.add(attacker.id);
     const r = damage(attacker, defender, chosen, b.rand);
     defender.hp = Math.max(0, defender.hp - r.dmg);
-    events.push({type:'attack', side, user:attacker.name, move:chosen.fr || chosen.name, ...r, target:side === 'player' ? 'wild' : 'player', targetName:defender.name, hp:defender.hp, maxHp:defender.maxHp});
+    events.push({type:'attack', side, user:attacker.name, move:chosen.fr || chosen.name, moveKey:chosen.name, moveType:chosen.type, ...r, target:side === 'player' ? 'wild' : 'player', targetName:defender.name, hp:defender.hp, maxHp:defender.maxHp});
     if (defender.hp > 0) return;
     events.push({type:'faint', side:side === 'player' ? 'wild' : 'player', name:defender.name});
     if (side === 'player') { b.over = true; b.winner = 'player'; return; }

@@ -1,3 +1,11 @@
+# Mise à jour 1.0 — Bannière et nouveaux paramètres
+
+Le créateur a demandé un grand avatar, des emplacements Pokémon agrandis, la puissance en rectangle horizontal et une mini-barre vers le prochain palier, ainsi que la zone décalée à droite. Les seuils bronze/argent/or/diamant du dernier commit sont préservés. Il a aussi demandé la refonte des paramètres inspirée de sa référence, le mode Jour, des sons de Griffe et Flammèche et des effets courts, et les performances réglables. Fait : rubriques Affichage, Performances, Audio, Compte et sauvegarde, Aide ; réglages automatiquement persistés ; import/export retiré. Sons Game Boy recréés par synthèse, et effets visuels sans impact sur les règles de combat.
+
+Le créateur a explicitement reporté Google/Discord : « non pas encore on le fera plus tard ». Les boutons sont donc désactivés et marqués À venir. La sauvegarde de progression reste locale et automatique. Ne pas présenter les comptes en ligne comme fonctionnels. Aucun Supabase/Firebase n’a été créé ou configuré.
+
+---
+
 # Mise à jour 0.7 — Niveaux (option A)
 
 Le créateur veut des niveaux (départ niveau 5, attaques du niveau 5 des vrais jeux) mais craint que l'évolution par niveau casse la rareté de Dracaufeu. Option A choisie : l'évolution reste un tirage, le niveau est plafonné par stade (levels.js). Fait : niveau de départ 5 (ou niveau d'évolution pour une forme évoluée tirée), plafond = niveau d'évolution suivant − 1, 1 doublon = 1 point d'expérience (coût N pour passer de N à N+1, valeurs provisoires), puissance de 100 % à 200 % de la base selon le niveau dans le stade, affichage dans l'équipe, la collection, l'historique et l'étiquette de tirage. Sauvegarde inchangée : le niveau se déduit du nombre d'exemplaires.

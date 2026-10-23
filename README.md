@@ -34,11 +34,21 @@ Une autre IA doit travailler depuis ce même dépôt, récupérer la dernière v
 
 ## Progression du joueur
 
-La sauvegarde est locale au navigateur et à l'adresse du jeu. Pour la déplacer entre le premier site, GitHub Pages ou un autre navigateur : Menu → Paramètres → Exporter / Importer ma sauvegarde. La première version du site n'avait pas l'export : utiliser sa mise à jour 0.2 pour récupérer sa progression.
+La sauvegarde de progression est automatique, locale au navigateur et à l’adresse du jeu. L’import/export JSON a été retiré à la demande du créateur. Google et Discord sont affichés comme « À venir » : le créateur a reporté la configuration d’un service de comptes. Aucun compte ni synchronisation cloud n’est actuellement actif.
 
 Le total de puissance correspond aux six espèces équipées au maximum. Les valeurs sont provisoires ; les doublons ne gonflent pas ce total. Une ancienne sauvegarde du prototype est reprise automatiquement.
 
-## Interface 0.5
+## Interface 1.0 — Bannière et paramètres
+
+Grand avatar, six grands emplacements, puissance rectangulaire horizontale et barre de progression au sein du palier. Les seuils existants sont inchangés : Argent à 100 000 ; Or à 100 000 000 ; Diamant à 1 000 000 000. La barre revient à zéro au début de chaque nouveau palier et affiche 100 % au dernier.
+
+Les paramètres utilisent cinq rubriques et se sauvegardent automatiquement : profil et thèmes Nuit/Jour ; performances (Économie = aucun promeneur ni effet, Équilibré = 5 promeneurs à 30 images/s, Élevée = jusqu’à 10 à 60 images/s) ; audio (sons activables, volume, aperçus) ; compte/sauvegarde locale ; aide. Les mouvements sont suspendus quand l’onglet est masqué. Les préférences sont séparées de la progression dans `pokeluck-preferences-v1`.
+
+Nouveaux modules : `preferences.js` (validation et progression), `settings.js` (paramètres), `settings.css` (bannière, thèmes et réglages), `audio.js` (synthèse Web Audio), `effects.js` (animations temporaires).
+
+Griffe et Flammèche sont synthétisés à partir des séquences de bruit Game Boy de Rouge/Bleu ; ce ne sont pas des enregistrements bit-identiques au matériel. Sources : [table des sons](https://github.com/pret/pokered/blob/master/data/moves/sfx.asm), [Griffe](https://github.com/pret/pokered/blob/master/audio/sfx/damage.asm), [Flammèche](https://github.com/pret/pokered/blob/master/audio/sfx/battle_19.asm). Aucun son ne joue avant une interaction du joueur. Les événements de combat fournissent le nom interne et le type de l’attaque, uniquement pour l’audio et les effets visuels.
+
+## Historique : interface 0.5
 
 Quatre cadres, selon le croquis du créateur :
 1. **Scène** (centre) : lieu d'apparition des Pokémon, Pokéball au centre, arrière-plan propre à la zone (`world.js` → `backgrounds`, images dans `assets/backgrounds/`, mises à l'échelle du cadre sans être modifiées). Une petite vie en fond (`wander.js`) : des Pokémon de la zone se promènent, y compris en diagonale, vus de face, de dos ou de côté (miroir de la face, PokéAPI n'a pas de sprites de profil). Après un tirage, le Pokémon apparaît au milieu avec une barre de vie.
