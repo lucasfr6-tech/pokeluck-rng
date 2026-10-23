@@ -55,3 +55,10 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .pf-nick button{padding:8px 14px;border-radius:10px;border:2px solid #ffd27c;background:#ffd27c22;color:#ffe9b8;font:inherit;font-weight:700;cursor:pointer}
 .pf-nick .pf-fav[aria-pressed=true]{background:#ffd27c;color:#3a2800}
 .pf-real{display:block;opacity:.7}
+
+/* Pokédex : onglets Normal / Chromatique */
+.dex-tabs{display:flex;gap:8px;margin-bottom:10px}
+.dex-tabs button{flex:1;padding:10px 12px;border-radius:12px;border:2px solid #ffffff33;background:#0c1c2acc;color:#cfe2f3;font:inherit;font-weight:800;font-size:1rem;cursor:pointer}
+.dex-tabs button[aria-selected=true]{border-color:#ffd27c;background:#ffd27c;color:#3a2800}
+.shiny-dex .dex-tile.unknown img{filter:brightness(0) opacity(.45)}
+.shiny-dex .dex-tile.shiny{border-color:#ffd24a;box-shadow:0 0 10px #ffd24a66}

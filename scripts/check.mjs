@@ -528,7 +528,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 {
   const D = await import('../dist/dex.js'), Q = await import('../dist/quests.js'), S = await import('../dist/shop.js');
   assert.equal(D.DEX_TOTAL, 151); assert.deepEqual(D.DEX_MILESTONES.map(m => m.n), [25, 50, 100, 151]);
-  assert.deepEqual(D.sanitizeDex({claimed:{25:true, 77:true, 50:'x'}}), {claimed:{25:true}}); assert.equal(D.dexLuck(D.sanitizeDex()), 0); assert.equal(D.dexLuck({claimed:{25:true}}), .05); assert.equal(D.dexLuck({claimed:{25:true, 50:true}}), .15); assert.equal(D.dexLuck({claimed:{25:true, 50:true, 100:true, 151:true}}), .5); assert.deepEqual(D.DEX_MILESTONES.map(m => m.luck), [.05, .15, .25, .5]);
+  assert.deepEqual(D.sanitizeDex({claimed:{25:true, 77:true, 50:'x'}}), {claimed:{25:true}, shinyClaimed:{}}); assert.equal(D.dexLuck(D.sanitizeDex()), 0); assert.equal(D.dexLuck({claimed:{25:true}}), .05); assert.equal(D.dexLuck({claimed:{25:true, 50:true}}), .15); assert.equal(D.dexLuck({claimed:{25:true, 50:true, 100:true, 151:true}}), .5); assert.deepEqual(D.DEX_MILESTONES.map(m => m.luck), [.05, .15, .25, .5]);
   assert.equal(D.milestoneState(D.sanitizeDex(), 30).filter(m => m.ready).length, 1); assert.equal(D.milestoneState({claimed:{25:true}}, 30).filter(m => m.ready).length, 0);
   assert.deepEqual(D.lineOf(4), [[4], [5], [6]]); assert.deepEqual(D.lineOf(133).map(s => s.length), [1, 3]); assert.equal(D.evolutionHow(133, 134), 'Pierre Eau'); assert.equal(D.evolutionHow(4, 5), 'Niv. 16');
   assert.ok(D.zonesOf(19).length > 0 && D.zonesOf(19).every((z, i, a) => !i || a[i - 1].p >= z.p));
@@ -570,4 +570,12 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(N.nameOf({nick: {25: 'Sparky'}}, 25, 'Pikachu'), 'Sparky'); assert.equal(N.nameOf({nick: {}}, 25, 'Pikachu'), 'Pikachu');
   const L = [{id: 1}, {id: 2}, {id: 3}].sort(N.favFirst({fav: {3: true}}, (a, b) => a.id - b.id)); assert.deepEqual(L.map(x => x.id), [3, 1, 2]);
   console.log('OK : surnoms (nettoyage, 12 caractères max), favoris triés en premier.');
+}
+{
+  const D = await import('../dist/dex.js');
+  assert.deepEqual(D.sanitizeDex({shinyClaimed:{5:true, 7:true, 20:'x'}}).shinyClaimed, {5:true});
+  assert.equal(D.shinyDexLuck({}), 0); assert.equal(D.shinyDexLuck({shinyClaimed:{5:true, 20:true}}), .15); assert.equal(D.shinyDexLuck({shinyClaimed:{151:true}}), .5);
+  assert.equal(D.shinyOwned({1:2, 2:0, 3:1}), 2);
+  assert.equal(D.shinyMilestoneState(D.sanitizeDex(), 6).filter(m => m.ready).length, 1);
+  console.log('OK : Pokédex chromatique (paliers +5/+15/+25/+50 %, comptage des formes brillantes).');
 }
