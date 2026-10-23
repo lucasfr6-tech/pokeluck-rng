@@ -476,7 +476,8 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   const stones = Object.values(sh.ITEMS).filter(i => i.kind === 'stone'); assert.equal(stones.length, 5);
   for (const s of stones) for (const [from, to] of Object.entries(s.evolves)) assert.equal(P.evolvesFrom[to], +from, `${s.id} : ${from} → ${to} est une vraie évolution`);
   assert.deepEqual(sh.stoneTargets(133).map(t => t.to).sort(), [134, 135, 136]); assert.equal(sh.stoneTargets(25)[0].to, 26); assert.equal(sh.stoneTargets(4).length, 0);
-  for (const s of stones) assert.ok(sh.SHOPS.some(x => x.stock.includes(s.id)), s.id + ' est en vente');
+  for (const id of ['fire-stone', 'water-stone']) assert.ok(sh.SHOPS.some(x => x.stock.includes(id)), id + ' est en vente'); // Foudre, Plante, Lune : prévues plus tard
+  assert.equal(sh.SHOPS.length, 3, 'trois boutiques pour l’instant');
   console.log('OK : 5 pierres d’évolution, évolutions valides, Évoli (3 pierres), boutiques.');
 }
 {
