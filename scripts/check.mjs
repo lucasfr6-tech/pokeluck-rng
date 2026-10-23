@@ -5,7 +5,7 @@ import {tierOf,zones,zonePool,draw,types,powers,itinerary,backgroundFor,backgrou
 import {chooseAiMove,effectiveness,computeStats,knownMoves,nextMove,damage,makeFighter,createBattle,takeTurn,xpReward,LUTTE,isUsable,DEFAULT_BASE} from '../dist/battle.js';
 import {parseSpecies,parseMove} from '../dist/battle-data.js';
 import {existsSync} from 'node:fs';
-import {wildLevelNear,wildLevel,minLevel,maxLevel,levelInfo,powerAt,xpToNext,START_LEVEL} from '../dist/levels.js';
+import {wildLevelZone,wildLevelNear,wildLevel,minLevel,maxLevel,levelInfo,powerAt,xpToNext,START_LEVEL} from '../dist/levels.js';
 assert.equal(pool.length,151);
 assert.equal(names.length,151);
 assert.equal(powers.length,151);
@@ -504,3 +504,6 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual([0, 9e4, 1e5, 1e8, 1e9].map(M.powerRankOf), [0, 0, 1, 2, 3]);
   console.log('OK : 50 succès (4 rangs), progression, déblocage unique, sanitation.');
 }
+{ for (const z of zones) for (const r of [0, .5, .999]) { const l = wildLevelZone(z.id, () => r); assert.ok(l >= z.min && l <= z.min + 2, 'niveau sauvage de zone ' + z.id); }
+  assert.equal(wildLevelZone('route2', () => 0), 8); assert.equal(wildLevelZone('route3', () => 0), 22); assert.ok(wildLevelZone('route2', () => .999) <= 10);
+  console.log('OK : niveaux sauvages liés à la zone (Route 2 → 8, Route 3 → 22), plafonnés avant la zone suivante.'); }

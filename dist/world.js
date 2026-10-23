@@ -4,7 +4,7 @@ const typeRows=['grass poison','grass poison','grass poison','fire','fire','fire
 if(typeRows.length!==pool.length)throw new Error('Types et espèces désynchronisés');
 export const types=Object.fromEntries(typeRows.map((s,i)=>[i+1,s.split(' ')]));
 // 16 zones sur un parcours en serpentin (voir arena.js : 2 zones, puis une arène). `min` = niveau minimal du Pokémon de tête pour y entrer ;
-// il n'y a pas de niveau maximal : les sauvages ont le niveau de ton Pokémon de tête ±2. `levels` ne sert plus qu'à l'ancien tirage par zone.
+// les sauvages ont le niveau de la zone (niveau d’entrée jusqu’à +2, plafonné avant la zone suivante) — voir wildLevelZone.
 export const zones=[
  {id:'route',min:1,shares:[1],levels:[3,7],name:'Route 1',symbol:'⌁',label:'Les premiers pas',bonus:[],desc:'Un chemin tranquille pour commencer ton aventure.',note:'Tirage classique · aucun bonus',color:'route'},
  {id:'route2',min:8,shares:[.75,.25],levels:[7,15],name:'Route 2',bonus:['normal','bug'],note:'Normal & Insecte · poids ×3',color:'route'},
