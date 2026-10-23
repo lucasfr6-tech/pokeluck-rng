@@ -34,7 +34,9 @@ export function parseSpecies(json) {
     if (list.length) { learnset = list; break; }
   }
   learnset.sort((a, b) => a[1] - b[1]);
-  return {stats, evYield, learnset: learnset.length ? learnset : [['tackle', 1]]};
+  // CT compatibles (jeux Rouge/Bleu et Jaune).
+  const machines = [...new Set((json.moves || []).filter(m => (m.version_group_details || []).some(d => GROUPS.includes(d.version_group.name) && d.move_learn_method.name === 'machine')).map(m => m.move.name))];
+  return {stats, evYield, machines, learnset: learnset.length ? learnset : [['tackle', 1]]};
 }
 
 export function getSpecies(id) {

@@ -250,6 +250,32 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma,ct-thunder,band') throw new Error('stock des boutiques');
+}
+{
+  const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
+  const st = () => ({money:1e6, inv:shop.defaultInv()});
+  let s = st();
+  // CT : achat multiple, consommation
+  shop.buyItem(s, 'ct-swift'); shop.buyItem(s, 'ct-swift');
+  if (shop.stockOf(s.inv, 'ct-swift') !== 2 || s.money !== 1e6 - 9000) throw new Error('achat de CT');
+  if (!shop.useTm(s, 'ct-swift') || shop.stockOf(s.inv, 'ct-swift') !== 1 || shop.useTm(s, 'ct-thunder')) throw new Error('consommation de CT');
+  // objets tenus : 1 emplacement, 2 pour les espèces à méga-évolution
+  shop.buyItem(s, 'band'); shop.buyItem(s, 'band');
+  if (shop.slotsFor(133) !== 1 || shop.slotsFor(6) !== 2) throw new Error('emplacements');
+  if (!shop.equipHeld(s, 133, 'band') || shop.equipHeld(s, 133, 'band') || shop.heldList(s.inv, 133).length !== 1) throw new Error('Évoli : un seul objet');
+  if (!shop.equipHeld(s, 6, 'band') || shop.freeCopies(s.inv, 'band') !== 0 || shop.equipHeld(s, 25, 'band')) throw new Error('exemplaires libres');
+  if (!shop.unequipHeld(s, 133, 'band') || shop.freeCopies(s.inv, 'band') !== 1) throw new Error('retirer un objet');
+  // effets : Ceinture Force = Attaque +20 %, puissance +15 %
+  const m = shop.statMultipliers(s.inv, 6);
+  if (m.atk !== 1.2 || shop.powerMultiplier(s.inv, 6) !== 1.15 || shop.powerMultiplier(s.inv, 25) !== 1) throw new Error('effets de la Ceinture Force');
+  const base = bt.computeStats(bt.DEFAULT_BASE, 30, {}), up = bt.boostStats(base, {atk:1.2});
+  if (up.atk !== Math.floor(base.atk * 1.2) || up.def !== base.def) throw new Error('boost par statistique');
+  // sauvegarde assainie : pas plus d'objets portés que de copies, jamais deux fois le même
+  const clean = shop.sanitizeInv({stock:{band:1}, held:{25:['band'], 6:['band','band'], 999:['band']}});
+  if (shop.heldCount(clean, 'band') !== 1) throw new Error('assainissement des objets tenus');
+  // CT compatibles lues depuis PokéAPI
+  const sp = bd.parseSpecies({id:25, stats:[], moves:[{move:{name:'thunderbolt'}, version_group_details:[{version_group:{name:'red-blue'}, move_learn_method:{name:'machine'}, level_learned_at:0}]}, {move:{name:'growl'}, version_group_details:[{version_group:{name:'red-blue'}, move_learn_method:{name:'level-up'}, level_learned_at:1}]}]});
+  if (sp.machines.join() !== 'thunderbolt') throw new Error('CT compatibles');
 }
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');
