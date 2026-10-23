@@ -399,5 +399,36 @@ body.reduce-motion .catalog-sprite,body.reduce-motion .roster-card:first-child,b
 @media(max-width:800px){.dex-miles{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 body.reduce-motion .dex-count b,body.reduce-motion .dex-bar i,body.reduce-motion .dex-mile{animation:none!important}
 body:not([data-theme=light]) #content-dialog{background:radial-gradient(circle at 50% -10%,#2a1f4a,#120d22 55%,#0a0814)!important}
-body:not([data-theme=light]) #content-dialog>.modal-head{background:linear-gradient(110deg,#3b1d7a,#5b21b6 60%,#9d174d)!important}
 body:not([data-theme=light]) #content-dialog>.modal-head h2{background:linear-gradient(90deg,#fde047,#fff,#f9a8d4,#fde047);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pr-flow 3s linear infinite}
+
+/* Pension : médaillons ronds, anneau de progression autour de l'œuf */
+.dcgarden{max-width:none!important;--pg-line:#7c3aed;--pg-panel:#1a1233}
+.daycare-mode .modal-body{background:transparent!important}
+.pg-title,.dcgarden .pg-heading h3{background:linear-gradient(90deg,#fde047,#fff,#f9a8d4,#fde047);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:pr-flow 3s linear infinite;font-size:34px!important}
+.pg-status{border:3px solid #4ade80!important;border-radius:999px!important;background:#0007!important;color:#fff!important;font-weight:900!important}
+.pg-scene{background:transparent!important;border:0!important;padding:10px 40px!important;grid-template-columns:minmax(0,1fr) minmax(300px,.9fr) minmax(0,1fr)!important}
+.pg-parent{background:transparent!important;border:0!important;box-shadow:none!important;--mc:#38bdf8;--md:#075985}.pg-parent.parent-b{--mc:#f472b6;--md:#9d174d}
+.pg-label{color:#fff}
+.pg-medal{display:flex;align-items:center;justify-content:center;width:250px;height:250px;margin:10px auto;border-radius:50%;border:6px solid var(--mc);background:radial-gradient(circle,color-mix(in srgb,var(--mc) 40%,transparent),var(--md));box-shadow:0 6px 0 var(--md),0 0 36px color-mix(in srgb,var(--mc) 55%,transparent);animation:pr-glow 2.6s ease-in-out infinite;--c:var(--mc);--d:var(--md)}
+.pg-medal .pg-parent-art{width:200px!important;height:200px!important;margin:0!important;image-rendering:pixelated!important;filter:drop-shadow(0 6px 4px #0009)!important;animation:pr-bob 2.6s ease-in-out infinite}
+.pg-parent-placeholder{width:250px;height:250px!important;margin:10px auto;border-radius:50%;border:6px dashed #6b82c4;color:#6b82c4!important}
+.pg-parent h3{font:900 24px system-ui!important}
+.pg-parent .pg-button,.pg-hatch{background:linear-gradient(#fde047,#f59e0b)!important;border:0!important;color:#3a2400!important;font-weight:900!important;border-radius:12px!important;box-shadow:0 3px 0 #a15c07!important}
+.pg-remove{background:#2a2050!important;border:0!important;color:#fff!important;font-weight:900!important;border-radius:12px!important}
+.pg-ring{position:relative;width:330px;height:330px;margin:0 auto}
+.pg-ring:before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(#4ade80 0,#fde047 calc(var(--p)*1%),#0008 calc(var(--p)*1%) 100%);-webkit-mask:radial-gradient(circle,transparent 0 134px,#000 135px);mask:radial-gradient(circle,transparent 0 134px,#000 135px)}
+.pg-ring .pg-egg{position:absolute;inset:0;margin:auto;width:200px;height:230px;display:flex;align-items:center;justify-content:center}
+.pg-egg-area{position:relative}
+.pg-egg-area .pg-ring{filter:none}
+.pg-progress{display:none}
+.pg-egg-area h3{font:900 28px system-ui!important;background:linear-gradient(90deg,#fde047,#fff,#f9a8d4,#fde047);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pr-flow 3s linear infinite}
+.pg-block{border:3px solid #7c3aed!important;border-radius:22px!important;background:repeating-linear-gradient(115deg,#ffffff0d 0 14px,transparent 14px 28px),linear-gradient(165deg,#2a1a5e,#140f26 95%)!important;box-shadow:0 5px 0 #1b1236}
+.pg-block h3{font:900 20px system-ui!important;color:#fff}
+.pg-shiny{border-color:#fde047!important;background:repeating-linear-gradient(115deg,#ffffff12 0 14px,transparent 14px 28px),linear-gradient(165deg,#854d0e,#1a1206 95%)!important;box-shadow:0 5px 0 #854d0e!important}
+.pg-rate{font:900 44px system-ui!important;background:linear-gradient(90deg,#fde047,#fff,#fde047);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:pr-flow 3s linear infinite}
+.pg-babies img{width:72px!important;height:72px!important;image-rendering:pixelated!important}
+.dcgarden .dcb-list{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important}
+.dcgarden .pg-pokemon{border:3px solid var(--pokemon-color,#7c3aed)!important;border-radius:18px!important;background:repeating-linear-gradient(115deg,#ffffff12 0 12px,transparent 12px 24px),linear-gradient(165deg,color-mix(in srgb,var(--pokemon-color,#7c3aed) 42%,#120d22),#140f26 95%)!important}
+@media(max-width:900px){.pg-scene{padding:6px!important}.pg-medal,.pg-parent-placeholder{width:170px;height:170px}.pg-medal .pg-parent-art{width:130px!important;height:130px!important}.pg-ring{width:240px;height:240px}.pg-ring:before{-webkit-mask:radial-gradient(circle,transparent 0 96px,#000 97px);mask:radial-gradient(circle,transparent 0 96px,#000 97px)}.pg-ring .pg-egg{width:150px;height:180px}}
+body.reduce-motion .pg-medal,body.reduce-motion .pg-parent-art,body.reduce-motion .pg-rate,body.reduce-motion .pg-title{animation:none!important}
+.pg-ring .pg-egg:disabled{opacity:.8!important}.pg-ring .pg-shell{transform:scale(1.35)}
