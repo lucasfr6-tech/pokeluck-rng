@@ -562,3 +562,12 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual(T.sanitizeRival({1: true, 9: true, 2: 'x'}), {1: true});
   console.log('OK : dresseurs sauvages (10 classes, 2–3 Pokémon, niveau de zone, prime), rival (équipe croissante, sanitize).');
 }
+{
+  const N = await import('../dist/nick.js');
+  assert.ok(!/[<>&"']/.test(N.cleanNick('<img onerror="x">')) && N.cleanNick('a'.repeat(40)).length === 12);
+  assert.deepEqual(N.sanitizeNick({25: ' Sparky ', 0: 'x', 200: 'y', 3: '   '}), {25: 'Sparky'});
+  assert.deepEqual(N.sanitizeFav({25: true, 26: 'yes', 999: true}), {25: true});
+  assert.equal(N.nameOf({nick: {25: 'Sparky'}}, 25, 'Pikachu'), 'Sparky'); assert.equal(N.nameOf({nick: {}}, 25, 'Pikachu'), 'Pikachu');
+  const L = [{id: 1}, {id: 2}, {id: 3}].sort(N.favFirst({fav: {3: true}}, (a, b) => a.id - b.id)); assert.deepEqual(L.map(x => x.id), [3, 1, 2]);
+  console.log('OK : surnoms (nettoyage, 12 caractères max), favoris triés en premier.');
+}

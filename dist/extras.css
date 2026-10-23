@@ -48,3 +48,10 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .q-note{opacity:.7;margin:0;font-size:12.5px}
 @media(max-width:520px){.quest{grid-template-columns:1fr}.q-side{grid-auto-flow:column;justify-content:space-between;align-items:center;justify-items:start}}
 .compass-menu .compass-nav button[data-view=dex]>.dex-icon{width:56px;height:56px}.dex-icon svg{image-rendering:pixelated}
+
+/* Surnoms et favoris (profil) */
+.pf-nick{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.pf-nick input{flex:1 1 140px;min-width:0;padding:8px 10px;border-radius:10px;border:2px solid #ffffff44;background:#0c1c2acc;color:#fff;font:inherit}
+.pf-nick button{padding:8px 14px;border-radius:10px;border:2px solid #ffd27c;background:#ffd27c22;color:#ffe9b8;font:inherit;font-weight:700;cursor:pointer}
+.pf-nick .pf-fav[aria-pressed=true]{background:#ffd27c;color:#3a2800}
+.pf-real{display:block;opacity:.7}
