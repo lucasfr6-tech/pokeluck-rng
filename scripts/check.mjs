@@ -150,3 +150,10 @@ assert.equal(TIER_NAMES[4],'Épiques');
 for(const id of [144,145,146,150,151])assert.ok(zonePool('power').some(p=>p.id===id&&p.tier===5));
 assert.deepEqual([...new Set(zonePool('power').map(p=>p.tier))].sort(),[1,2,3,4,5]);
 console.log('OK : dépôts, échanges, remplacement de lignée et cinq catégories à la Centrale.');
+
+const {opaqueBounds,centeredOffset,combatPositions}=await import('../dist/sprite-centering.js');
+const pixels=new Uint8ClampedArray(10*8*4);for(let y=1;y<5;y++)for(let x=6;x<9;x++)pixels[(y*10+x)*4+3]=255;
+const bounds=opaqueBounds(pixels,10,8);assert.deepEqual(bounds,{left:6,top:1,width:3,height:4});
+assert.deepEqual(centeredOffset(bounds,10,8),{x:-2.5,y:1});assert.equal(opaqueBounds(new Uint8Array(16),2,2),null);
+for(const [w,h,strip,hp,card] of [[1766,495,110,60,110],[1280,400,118,60,96],[390,320,155,50,65],[740,230,100,45,65]])for(const p of Object.values(combatPositions(w,h,strip,hp,card))){assert.ok(p.left>=0&&p.top>=0&&p.size>=0);assert.ok(p.left+p.size<=w+.01);assert.ok(p.top+p.size<=h-strip+.01);}
+console.log('OK : centrage des pixels visibles et combattants contenus dans l’arène.');

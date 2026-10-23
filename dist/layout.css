@@ -397,3 +397,11 @@ body.team-dragging,body.team-dragging .team-card{cursor:grabbing!important}
 @media(max-width:700px){.banner .pw{padding:2px 10px 2px 2px;gap:6px}.banner .pw .medal{width:30px;height:30px}.banner .pw small{display:none}.banner .pw b{font-size:17px}.banner .pw i{font-size:11px}}
 .pf-card.pf-power>.pfp{display:flex;align-items:center;justify-content:center;gap:12px;text-align:left;font-size:inherit;color:inherit}
 .pf-card.pf-power>.pfp small{white-space:nowrap}
+
+/* Les dimensions de combat sont bornées à l’arène par sprite-centering.js. */
+.game .stage.fighting .result{padding:0;border:0;background:none;min-width:0;min-height:0;aspect-ratio:1}
+.game .stage.fighting .result img,.ally{object-position:center center}
+.rail-btn>img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}
+.game .rail>.menu-frame,.game .rail>.rail-btn{flex:0 0 76px}
+@media(max-width:700px) and (orientation:portrait){.game .rail>.menu-frame,.game .rail>.rail-btn{flex:1 1 0}}
+@media(max-height:600px) and (min-width:701px){.game .rail>.menu-frame,.game .rail>.rail-btn{flex:0 0 44px}.rail-btn>img{width:24px;height:24px}}

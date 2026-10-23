@@ -1,3 +1,4 @@
+import {initializeSpriteCentering} from './sprite-centering.js';
 import {mountCollection,mountZoneIndex} from './catalog.js';
 import {applyAvatar} from './avatar.js';
 import {pool,sprite,odds,sameLine,evolvesFrom} from './pokemon.js';
@@ -122,3 +123,5 @@ window.addEventListener('pointerup',end);window.addEventListener('pointercancel'
 $('#team-grid').onclick=e=>{if(dragged)return;const c=e.target.closest('[data-profile]');if(c)openProfile(+c.dataset.profile);else openView('pokemon');};$('#power-widget').onclick=()=>openView('power');$('#edit-profile').onclick=()=>openView('settings');$('#open-zone-index').onclick=()=>openView('zone');$('#expand-map').onclick=()=>openView('map');state.reducedMotion=getPreferences().reducedMotion;applyPreferences();render();
 
 const fullButton=$('#fullscreen');if(!document.documentElement.requestFullscreen)fullButton.hidden=true;else fullButton.onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{fullButton.textContent='⛶';}};document.addEventListener('fullscreenchange',()=>fullButton.setAttribute('aria-label',document.fullscreenElement?'Quitter le plein écran':'Activer le plein écran'));
+
+initializeSpriteCentering();
