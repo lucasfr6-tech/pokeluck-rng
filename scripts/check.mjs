@@ -634,3 +634,10 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   if(teamEvolution([4,25],[4,25,7])!==null)throw new Error('pas d’évolution en ajout');
   console.log('OK evolution');
 }
+{
+  const {xpRoom,levelInfo}=await import('../dist/levels.js');
+  const room=xpRoom(25,1,0,10); // niveau 5 -> 10 : 5+6+7+8+9 = 35 XP utiles
+  if(room!==35)throw new Error('xpRoom '+room);
+  if(levelInfo(25,1,room,10).level!==10||xpRoom(25,1,room,10)!==0)throw new Error('plafond atteint');
+  console.log('OK plafond d’XP : plus d’accumulation au maximum.');
+}

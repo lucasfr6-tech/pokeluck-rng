@@ -14,7 +14,7 @@ import {getPreferences,powerProgress,POWER_THRESHOLDS} from './preferences.js';
 import {powerRank} from './power.js';
 import {mountSettings} from './settings.js';
 import {updateAudio} from './audio.js';
-import {levelInfo,powerAt,wildLevel,wildLevelNear,wildLevelZone} from './levels.js';
+import {xpRoom,xpBonusMax,levelInfo,powerAt,wildLevel,wildLevelNear,wildLevelZone} from './levels.js';
 import {mapMarkup} from './map.js';
 import {ACHIEVEMENTS,TIERS as ACH_TIERS,progressOf,sanitizeAch,sanitizeStats,newlyDone,powerRankOf} from './achievements.js';
 import {ARENAS,ELITE,arenaById,eliteById,elitePrize,sanitizeElite,eliteCleared,eliteAccess,arenaPrize,zoneAccess,arenaAccess,sanitizeBadges,ZONE_ORDER,levelCap,badgeCount} from './arena.js';
@@ -269,7 +269,7 @@ const abilityOf=(id,sp)=>{const l=sp?.abilities||[];return l.length?l[Math.min(t
 const fight=createFight({weather:()=>{const w=weatherOf(state.zone).id;return w==='clear'?null:w;},weatherText:()=>{const w=weatherOf(state.zone);return w.id==='clear'?'':`${w.icon} ${w.name} sur la zone. `;},trait:id=>traitOf(id),foeName:id=>pool[id-1].name,showFoe(id){const a=curBoss;$('#result').hidden=false;$('#result').innerHTML=`<img src="${sprite(id,false)}" alt="${pool[id-1].name}"><small>${a?a.leader:''}</small>`;$('#result').classList.remove('is-shiny');$('#result-name').textContent=pool[id-1].name;},arenaWin(a){if(a.trainer===true)return trainerWin(a);if(a.rival)return rivalWin(a);bump('arenaWins');if(a.elite)return eliteWin(a);const first=!state.badges[a.id];state.badges[a.id]=true;const money=Math.round(arenaPrize(a,first)*moneyMultiplier(state.inv)*COMBAT_MONEY);let tm=null;if(first){state.inv.stock[a.tm]=Math.min(9999,(state.inv.stock[a.tm]||0)+1);tm=ITEMS[a.tm].name;}gainMoney(money);save();render();renderZones();return{first,money,tm,cap:levelCap(state.badges)};},bagItems:()=>healList(state.inv),useHeal(id){if(useHeal(state,id)){state.stats.heals=(state.stats.heals||0)+1;save();render();return true;}return false;},training:id=>state.training[id],moves:id=>knownNames(id),boost:id=>multsOf(id),sash:id=>hasHeld(state.inv,id,'band'),oran:id=>hasHeld(state.inv,id,'oran'),leftovers:id=>hasHeld(state.inv,id,'leftovers'),consumeHeld(id,item){if(consumeHeld(state,id,item)){save();render();}},team:()=>state.team,level:id=>lv(id).level,name:id=>nameOf(state,id,pool[id-1].name)+(selectedShiny(state,id)?' ✦':''),types:id=>types[id],wildLevel:id=>wildLevelZone(state.zone),info:id=>{const l=lv(id);return{level:l.level,pct:l.capped?100:Math.round(l.xp/l.need*100),text:l.capped?(l.evolvesAt?'Niveau max du stade':'Niveau max'):`XP ${l.xp} / ${l.need}`};},sprite:ownedSprite,backSprite:id=>sprite(id,selectedShiny(state,id),true),reduced:()=>state.reducedMotion||prefersReduced(),
  addMoney(tierId,level){if(tierId>=3)bump('rareKills');const n=victoryMoney(tierOf(tierId),level)*moneyMultiplier(state.inv)*COMBAT_MONEY;state.kills[state.zone]=(state.kills[state.zone]||0)+1;gainMoney(n);renderShops();return n;},
  xpMult:id=>xpMultiplierFor(state.inv,id),xpShare:()=>!!state.inv.owned.xp,
- addXp(id,n){const before=lv(id).level;state.xp[id]=(state.xp[id]||0)+n;const after=lv(id).level;save();return{before,after};},
+ addXp(id,n){const before=lv(id).level;n=Math.min(n,xpRoom(id,state.counts[id]||1,state.xp[id]||0,levelCap(state.badges)));if(n>0)state.xp[id]=(state.xp[id]||0)+n;const after=lv(id).level;save();return{before,after};},
  addEVs(id,yieldStats){const result=gainEVs(state.training[id],yieldStats);state.training[id]=result.record;save();return result.gained;},
  onEnd(r){if(eliteRun)eliteRun.last=r;if(r==='win')recordWin(state.play);else if(r==='loss')recordLoss(state.play);save();render();},onContinue(){const er=eliteRun&&fight.isBoss()?eliteRun:null;resetEncounter();learnAll();if(er&&er.last==='win'&&er.i<ELITE.length-1){er.i++;er.last=null;launchBoss(ELITE[er.i]);}else eliteRun=null;},onFlee(){eliteRun=null;resetEncounter();}});
 const teamPower=()=>state.team.reduce((n,id)=>n+powerOf(id),0);
@@ -379,3 +379,5 @@ cm.addEventListener('click',e=>{const b=e.target.closest('.cm-b');if(!b)return;e
   cmClose();openView(b.dataset.view);},true);
 cm.addEventListener('pointerover',e=>{const b=e.target.closest('.cm-b');if(b&&!cm.className.includes('open-'))cmHint.textContent=b.querySelector('strong').textContent+' · '+b.querySelector('small').textContent;});
 $('#menu-drawer').addEventListener('close',cmClose);
+
+;(function clampXp(){let ch=false;for(const id of Object.keys(state.xp)){const max=xpBonusMax(+id,state.counts[id]||1,levelCap(state.badges));if(state.xp[id]>max){state.xp[id]=max;ch=true;}if(state.xp[id]<=0)delete state.xp[id];}if(ch)save();})();

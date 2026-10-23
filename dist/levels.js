@@ -35,6 +35,15 @@ export function levelInfo(id, count = 1, bonus = 0, ceiling = MAX_LEVEL) {
   return {level, cap, min, capped, limited: capped && cap < stageCap, xp: capped ? 0 : xp, need: capped ? 0 : xpToNext(level), evolvesAt: nextLevels[id] ?? null};
 }
 
+// XP encore utile avant d'atteindre le plafond (stade d'évolution ou arènes) : au-delà, l'expérience ne s'accumule plus.
+export function xpRoom(id, count = 1, bonus = 0, ceiling = MAX_LEVEL) {
+  const cap = Math.min(maxLevel(id), ceiling); let need = 0;
+  for (let l = minLevel(id); l < cap; l++) need += xpToNext(l);
+  return Math.max(0, need - (Math.max(0, Math.floor(count) - 1) + Math.max(0, Math.floor(bonus))));
+}
+// Part de l'XP bonus qui reste valable au plafond donné.
+export const xpBonusMax = (id, count = 1, ceiling = MAX_LEVEL) => xpRoom(id, count, 0, ceiling);
+
 // Puissance : valeur de référence de l'espèce (niveau 5) multipliée par (niveau / 5)^2,15.
 // Une équipe de six Pokémon niv. 100 (légendaires compris) ≈ 50 M au maximum ; Mewtwo niv. 100 ≈ 14 M (provisoire).
 export const LEVEL_POWER_EXP = 2.15;
