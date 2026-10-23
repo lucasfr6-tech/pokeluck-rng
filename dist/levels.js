@@ -40,10 +40,9 @@ export function powerAt(id, level) {
   return Math.round(powers[id - 1] * (Math.max(1, level) / START_LEVEL) ** LEVEL_POWER_EXP);
 }
 
-// Niveau d'un Pokémon sauvage : tiré dans la fourchette de la zone (de la Route 1 au niveau 100 à la Centrale),
-// sans dépasser le plafond de son stade d'évolution. Le niveau minimum de l'espèce ne le relève PAS :
-// un Pokémon évolué rencontré tôt reste faible, la difficulté dépend de la zone.
+// Niveau d'un Pokémon sauvage : toujours tiré dans la fourchette de la zone (de la Route 1 au niveau 100 à la Centrale).
+// Ni le plafond du stade d'évolution ni le niveau minimum de l'espèce ne le modifient : la difficulté dépend de la zone.
 export function wildLevel(zoneId, id, rand = Math.random) {
   const [lo, hi] = (zones.find(z => z.id === zoneId) || zones[0]).levels;
-  return Math.max(2, Math.min(lo + Math.floor(rand() * (hi - lo + 1)), maxLevel(id)));
+  return lo + Math.floor(rand() * (hi - lo + 1));
 }
