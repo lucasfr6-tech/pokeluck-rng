@@ -617,3 +617,13 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual(Object.keys(F.FX_TIERS), ['4', '5']); assert.ok(F.FX_TIERS[5].ms > F.FX_TIERS[4].ms); assert.equal(F.playEncounterFx(3, {}), null);
   console.log('OK : animations de rencontre (épique normale, légendaire plus longue, aucune en dessous).');
 }
+{
+  const S = await import('../dist/stats.js'), p = S.blankPlay(), log = [];
+  S.recordDraw(p, 'route'); S.recordDraw(p, 'route'); S.recordDraw(p, 'forest'); assert.deepEqual(S.favoriteZone(p), {id: 'route', n: 2});
+  S.recordWin(p); S.recordWin(p); S.recordWin(p); S.recordLoss(p); S.recordWin(p); assert.equal(p.best, 3); assert.equal(p.streak, 1);
+  assert.equal(S.logShiny(log, p, 25, 1000, 300), 300); assert.equal(S.logShiny(log, p, 6, 2000, 450), 150); assert.deepEqual(log.map(e => e.id), [6, 25]); assert.equal(S.shinyAverage(log), 225);
+  S.addTime(p, 3725); assert.equal(S.fmtDuration(3725 + 0), '1 h 02 min'); assert.equal(S.fmtDuration(59), '59 s');
+  assert.deepEqual(S.sanitizeShinyLog([{id: 25, at: 5, n: 2}, {id: 999, at: 5, n: 1}, null, {id: 3, at: -1, n: 1}]), [{id: 25, at: 5, n: 2}]);
+  const sp = S.sanitizePlay({time: -3, zones: {route: 5, bad: 9}, streak: 4, best: 2}, ['route']); assert.deepEqual([sp.time, sp.zones, sp.best], [0, {route: 5}, 4]);
+  console.log('OK : statistiques (zone préférée, série, temps, historique des chromatiques, sanitize).');
+}
