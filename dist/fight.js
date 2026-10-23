@@ -91,10 +91,10 @@ export function createFight(ctx) {
 
   return {
     active: () => !!bt && !bt.over,
-    cancel() { token++; bt = null; playing = false; el.battle.hidden = true; el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); },
+    cancel() { token++; bt = null; playing = false; el.battle.hidden = true; el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
     async start(p, types) {
       this.cancel(); const my = token; wildLevel = ctx.wildLevel(p.id);
-      el.battle.hidden = false; el.stage.classList.add('fighting'); el.moves.innerHTML = ''; say('Préparation du combat…');
+      el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
