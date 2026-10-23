@@ -38,7 +38,7 @@ export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024
 // Pièce Rune et Charme Chroma ne sont pas en vente pour l'instant (prévus dans la 2e région) ; leurs effets restent actifs pour qui les possède déjà.
 // `after` : zone à explorer ; `at` : position (en % de la carte) du logo, entre `after` et la zone suivante.
 export const SHOPS = [
-  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','paralyze-heal','awakening','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
+  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
   {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];

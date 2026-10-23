@@ -250,7 +250,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,antidote,paralyze-heal,awakening,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,antidote,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -442,3 +442,4 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.ok(A.arenaPrize(A.ARENAS[0], true) > A.arenaPrize(A.ARENAS[0], false));
   console.log('OK : 8 arènes, 16 zones, niveaux minimaux, accès par badge, champion niveau 100, parcours de 24 étapes.');
 }
+{ const sh = await import('../dist/shop.js'); for (const s of sh.SHOPS) assert.ok(s.stock.length <= 9, 'boutique : 9 objets maximum'); console.log('OK : 9 objets maximum par boutique.'); }
