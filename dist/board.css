@@ -215,3 +215,12 @@ body.reduce-motion .wx-fx,body.reduce-motion .wx-pill{animation:none!important}
 .map-spot.spot-elite.champion.won{background:radial-gradient(circle,#fff3b0 0 35%,#f5c542 36% 70%,#a77a00 100%)}
 .banner .overline.master{color:#ffd24a!important;font-weight:800;text-shadow:0 0 8px #ffd24a99;letter-spacing:.06em}
 .elite-mem:last-child{border-color:#ffd27c;background:rgba(224,72,47,.14)}
+
+/* Pokéball du milieu : elle prend l'apparence de la ball équipée */
+.ball[data-ball=super] .ball-top{background:#3f86e8;box-shadow:inset -12px 5px 0 #2b66bd}
+.ball[data-ball=super] .ball-top:before{content:"";position:absolute;left:12%;top:38%;width:24%;height:30%;background:#ee4a52;border-radius:0 0 40% 40%;box-shadow:calc(var(--ball,132px)*.5) 0 0 #ee4a52}
+.ball[data-ball=hyper] .ball-top{background:#2f2f3a;box-shadow:inset -12px 5px 0 #1b1b24}
+.ball[data-ball=hyper] .ball-top:before{content:"";position:absolute;left:10%;top:30%;width:26%;height:26%;background:#ffc93c;border-radius:30%;box-shadow:calc(var(--ball,132px)*.52) 0 0 #ffc93c}
+.ball[data-ball=hyper] .ball-core,.ball[data-ball=super] .ball-core{background:#fff9e9}
+.ball[data-ball=master] .ball-top{background:#8a45c8;box-shadow:inset -12px 5px 0 #6a2ea3}
+.ball[data-ball=master] .ball-top:before{content:"M";position:absolute;left:50%;top:6%;transform:translateX(-50%);color:#ff7fc8;font:700 calc(var(--ball,132px)*.2)/1 var(--pixel,sans-serif)}

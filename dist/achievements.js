@@ -70,7 +70,7 @@ export const ACHIEVEMENTS = [
 export const achievementById = id => ACHIEVEMENTS.find(a => a.id === id);
 export const progressOf = (a, m) => { const cur = Math.max(0, Math.floor(m[a.metric] || 0)); return {cur: Math.min(cur, a.target), target: a.target, done: cur >= a.target}; };
 export const sanitizeAch = raw => { const out = {}; if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const a of ACHIEVEMENTS) if (raw[a.id] === true) out[a.id] = true; return out; };
-const STAT_KEYS = ['moneyEarned', 'purchases', 'tmUsed', 'heals', 'evolutions'];
+const STAT_KEYS = ['moneyEarned', 'purchases', 'tmUsed', 'heals', 'evolutions', 'newSpecies', 'rareKills', 'arenaWins', ...['normal', 'water', 'grass', 'bug', 'poison', 'flying', 'ground'].map(t => 't_' + t)];
 export const sanitizeStats = raw => { const out = {}; if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const k of STAT_KEYS) if (Number.isSafeInteger(raw[k]) && raw[k] > 0) out[k] = raw[k]; return out; };
 // Succès nouvellement remplis (non encore acquis) pour des statistiques données.
 export const newlyDone = (ach, m) => ACHIEVEMENTS.filter(a => !ach[a.id] && progressOf(a, m).done);

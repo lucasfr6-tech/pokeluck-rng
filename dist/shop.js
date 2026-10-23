@@ -61,7 +61,9 @@ export const defaultInv = () => ({owned:{}, ball:'poke', stock:{}, held:{}});
 // Pokémon qui possèdent une méga-évolution (Gen. 1) : ils portent deux objets, les autres un seul.
 export const MEGA_SPECIES = [3, 6, 9, 15, 18, 65, 80, 94, 115, 127, 130, 142, 150];
 // Un seul emplacement pour les objets classiques (Ceinture Force, Baie, etc.) : jamais deux.
-export const slotsFor = id => 1;
+let bonusSlots = 0;
+export const setBonusSlots = n => { bonusSlots = Math.max(0, Math.min(3, n | 0)); };
+export const slotsFor = id => 1 + bonusSlots;
 // Les Pokémon capables de Méga-évolution / Dynamax ont en plus un emplacement RÉSERVÉ à la Méga-Gemme / au Dynamax (à venir) : aucun autre objet n'y entre.
 export const hasReservedSlot = id => MEGA_SPECIES.includes(id);
 export const isStack = id => ITEMS[id]?.stack === true;

@@ -1,0 +1,49 @@
+/* Menu : Pokédex et Quêtes */
+.compass-menu .compass-nav button>.dex-icon{display:block;width:52px;height:52px;flex:none}.dex-icon svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 0 #0005)}
+.has-ready{position:relative}
+.compass-menu .compass-nav button.has-ready:after,.rail .menu-frame.has-ready:after{content:"!";position:absolute;top:6px;right:8px;width:20px;height:20px;border-radius:50%;background:#ff4a64;color:#fff;font:700 13px/20px 'Trebuchet MS',sans-serif;text-align:center;box-shadow:0 0 0 2px #0d2035,0 0 10px #ff4a64;animation:readyPulse 1.6s ease-in-out infinite}
+.rail .menu-frame.has-ready:after{top:4px;right:4px}
+@keyframes readyPulse{50%{transform:scale(1.18)}}
+body.reduce-motion .has-ready:after{animation:none!important}
+
+/* Pokédex */
+.dex-view{display:grid;gap:12px}
+.dex-count{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.dex-count b{font:700 28px var(--pixel,sans-serif);color:#ffd24a}.dex-count em{font-style:normal;margin-left:auto;background:#ffd24a;color:#3a2f0e;border-radius:10px;padding:2px 10px;font-weight:700}
+.dex-bar{position:relative;height:12px;border-radius:8px;background:#0a1626;border:1px solid #3d6a8a;margin-top:6px}.dex-bar i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#ff6b6b,#ffd24a)}.dex-bar u{position:absolute;top:-3px;width:2px;height:18px;background:#fff9}
+.dex-miles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.dex-mile{display:grid;gap:3px;justify-items:center;text-align:center;padding:8px 6px;border-radius:12px;border:2px solid #3d6a8a;background:#0e2338}
+.dex-mile b{font:700 20px var(--pixel,sans-serif);color:#9fd6f6}.dex-mile small{font-size:11.5px;opacity:.85;min-height:2.4em}.dex-mile em{font-style:normal;color:#7ee787;font-size:12px}
+.dex-mile.ready{border-color:#ffd24a;box-shadow:0 0 12px #ffd24a66;background:#3a2f0e}.dex-mile.ready b{color:#ffd24a}.dex-mile.got{opacity:.75}
+.dex-mile button,.dex-open,.dex-back,.quest button{padding:5px 12px;border-radius:10px;border:2px solid #5d87a3;background:#16405f;color:#fff;font:inherit;cursor:pointer}
+.dex-mile.ready button,.quest.ready button{background:#e0a31c;border-color:#ffe28a;color:#2b1d00;font-weight:700}.dex-mile button:disabled,.quest button:disabled{opacity:.5;cursor:default}
+.dex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+.dex-tile{position:relative;display:grid;justify-items:center;gap:0;padding:4px 2px 5px;border-radius:12px;border:2px solid #3d6a8a;background:linear-gradient(#17405f,#0e2338);color:#fff;font:inherit;cursor:pointer;transition:transform .12s,border-color .12s}
+.dex-tile:hover,.dex-tile:focus-visible{transform:translateY(-2px);border-color:#ffd24a;outline:none}
+.dex-tile img{width:64px;height:64px;object-fit:contain;image-rendering:pixelated}
+.dex-tile.unknown{background:#0a1626;border-color:#27455c}.dex-tile.unknown img{filter:brightness(0) opacity(.55)}
+.dex-tile.shiny{border-color:#ffd24a}.dex-no{font-size:10.5px;opacity:.65;align-self:start;justify-self:start;margin-left:4px;font-variant-numeric:tabular-nums}
+.dex-name{font-size:11.5px;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dex-entry{display:grid;gap:10px}.dex-entry h4{margin:6px 0 0;font:700 14px var(--pixel,sans-serif);color:#ffd24a}
+.dex-back{justify-self:start}
+.dex-top{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:14px;align-items:center}
+.dex-art{display:grid;place-items:center;aspect-ratio:1;border-radius:18px;border:2px solid #3d6a8a;background:radial-gradient(circle,#2a5f86,#0e2338)}.dex-art img{width:86%;height:86%;object-fit:contain;image-rendering:pixelated}.dex-art.unknown img{filter:brightness(0) opacity(.6)}
+.dex-id h3{margin:2px 0 6px;font:700 24px var(--pixel,sans-serif)}.dex-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}.dex-meta{margin:2px 0;opacity:.85}.dex-open{margin-top:6px}
+.dex-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.dex-stage{display:flex;flex-direction:column;gap:6px}.dex-arrow{font-size:22px;color:#ffd24a}
+.dex-evo-wrap{display:grid;justify-items:center}.dex-evo-wrap .how{font-size:11px;color:#ffd24a;margin-bottom:-2px}
+.dex-evo{display:grid;justify-items:center;padding:4px 8px;border-radius:12px;border:2px solid #3d6a8a;background:#0e2338;color:#fff;font:inherit;cursor:pointer}.dex-evo.cur{border-color:#ffd24a;background:#3a2f0e}.dex-evo img{width:56px;height:56px;object-fit:contain;image-rendering:pixelated}.dex-evo.unknown img{filter:brightness(0) opacity(.55)}
+.dex-zones{display:flex;flex-wrap:wrap;gap:6px}.dex-zones button{display:grid;text-align:left;padding:6px 12px;border-radius:12px;border:2px solid #3d8a5b;background:#0f3322;color:#fff;font:inherit;cursor:pointer}.dex-zones button:hover{filter:brightness(1.2)}.dex-zones small{opacity:.8}
+.dex-none,.dex-hint{opacity:.7;margin:0}
+@media(max-width:560px){.dex-top{grid-template-columns:110px 1fr}.dex-grid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}.dex-tile img{width:54px;height:54px}}
+
+/* Quêtes */
+.quests-view{display:grid;gap:12px}
+.q-streak{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;border:2px solid #3d6a8a;background:#0e2338}.q-streak span{font-size:26px;filter:grayscale(1);opacity:.6}.q-streak.on{border-color:#ff9a3c;background:#3a1f0a}.q-streak.on span{filter:none;opacity:1}.q-streak small{display:block;opacity:.8}
+.q-sec{display:grid;gap:8px}.q-sec header{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.q-sec h3{margin:0;font:700 17px var(--pixel,sans-serif);color:#ffd24a}.q-sec header small{opacity:.75}
+.q-sec.weekly h3{color:#c4a3ff}
+.quest{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;border:2px solid #3d6a8a;background:#0e2338}
+.quest.ready{border-color:#ffd24a;box-shadow:0 0 12px #ffd24a55;background:#2f2808}.quest.got{opacity:.6;border-color:#2f6a46}
+.q-main b{display:block;margin-bottom:6px}.q-bar{position:relative;height:18px;border-radius:9px;background:#0a1626;border:1px solid #3d6a8a;overflow:hidden}.q-bar i{display:block;height:100%;background:linear-gradient(90deg,#3a86d8,#8ad4ff)}.quest.ready .q-bar i{background:linear-gradient(90deg,#e0a31c,#ffe28a)}.q-sec.weekly .q-bar i{background:linear-gradient(90deg,#7c3aed,#c4a3ff)}
+.q-bar span{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:700;text-shadow:0 1px 2px #000}
+.q-side{display:grid;gap:4px;justify-items:end;min-width:104px}.q-reward{font-weight:700;color:#ffd24a}.q-side em{font-style:normal;color:#7ee787;font-size:12.5px}
+.q-note{opacity:.7;margin:0;font-size:12.5px}
+@media(max-width:520px){.quest{grid-template-columns:1fr}.q-side{grid-auto-flow:column;justify-content:space-between;align-items:center;justify-items:start}}

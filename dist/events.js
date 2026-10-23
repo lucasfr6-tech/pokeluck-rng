@@ -6,7 +6,7 @@ import {zones, zonePool, tierOf} from './world.js';
 export const HOUR = 3600000;
 export const LUCK_MULT = 2;
 export const DAILY_SHINY_MULT = 25;
-const seeded = seed => { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
+export const seeded = seed => { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
 
 export function luckEvent(now = Date.now()) {
   const slot = Math.floor(now / HOUR), rand = seeded(slot * 2654435761), zone = zones[Math.floor(rand() * zones.length)];

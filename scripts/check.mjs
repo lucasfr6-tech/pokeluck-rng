@@ -525,3 +525,26 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(A.eliteCleared({olga:true, aldo:true, agatha:true, peter:true}), false); assert.equal(A.eliteCleared({olga:true, aldo:true, agatha:true, peter:true, blue:true}), true);
   console.log('OK : météo (soleil, pluie, grêle), événements déterministes, équipes sauvegardées, champion Blue.');
 }
+{
+  const D = await import('../dist/dex.js'), Q = await import('../dist/quests.js'), S = await import('../dist/shop.js');
+  assert.equal(D.DEX_TOTAL, 151); assert.deepEqual(D.DEX_MILESTONES.map(m => m.n), [25, 50, 100, 151]);
+  assert.deepEqual(D.sanitizeDex({claimed:{25:true, 77:true, 50:'x'}}), {claimed:{25:true}}); assert.equal(D.dexSlotBonus({claimed:{50:true}}), 1); assert.equal(D.dexSlotBonus(D.sanitizeDex()), 0);
+  assert.equal(D.milestoneState(D.sanitizeDex(), 30).filter(m => m.ready).length, 1); assert.equal(D.milestoneState({claimed:{25:true}}, 30).filter(m => m.ready).length, 0);
+  assert.deepEqual(D.lineOf(4), [[4], [5], [6]]); assert.deepEqual(D.lineOf(133).map(s => s.length), [1, 3]); assert.equal(D.evolutionHow(133, 134), 'Pierre Eau'); assert.equal(D.evolutionHow(4, 5), 'Niv. 16');
+  assert.ok(D.zonesOf(19).length > 0 && D.zonesOf(19).every((z, i, a) => !i || a[i - 1].p >= z.p));
+  S.setBonusSlots(1); assert.equal(S.slotsFor(25), 2); S.setBonusSlots(0); assert.equal(S.slotsFor(25), 1);
+  for (let k = 0; k < 400; k++) { const day = 20260101 + k, d = Q.generateQuests('daily', day, {badges:k % 9, discovered:k % 152}), w = Q.generateQuests('weekly', day, {badges:k % 9, discovered:k % 152});
+    assert.equal(d.length, 3); assert.equal(w.length, 3); assert.equal(new Set(d.map(q => q.key)).size, 3); assert.deepEqual(Q.generateQuests('daily', day, {badges:k % 9, discovered:k % 152}), d);
+    for (const q of [...d, ...w]) assert.ok(q.target >= 1 && Q.questReward(q, k % 9) >= 1000); }
+  assert.ok(Q.questReward({kind:'weekly', weight:1}, 0) > Q.questReward({kind:'daily', weight:1}, 0) * 4); assert.ok(Q.questReward({kind:'daily', weight:1}, 8) > Q.questReward({kind:'daily', weight:1}, 0));
+  const now = Date.UTC(2026, 9, 23, 12), q = Q.sanitizeQuests(null), m0 = {wins:10, draws:20};
+  assert.equal(Q.syncQuests(q, now, m0, {badges:1, discovered:5}), true); assert.equal(Q.syncQuests(q, now, {wins:99}, {badges:3, discovered:9}), false); assert.equal(q.dBase.wins, 10); assert.equal(q.dCtx.badges, 1);
+  const quest = {id:'daily:' + q.day + ':0', kind:'daily', metric:'wins', target:5, weight:1};
+  assert.equal(Q.questProgress(q, quest, {wins:12}), 2); assert.equal(Q.claimQuest(q, quest, now, {wins:12}, 0), 0); assert.equal(Q.claimQuest(q, quest, now, {wins:15}, 0), 3000); assert.equal(Q.claimQuest(q, quest, now, {wins:15}, 0), 0);
+  assert.equal(q.streak.count, 1); assert.equal(Q.currentStreak(q, now), 1);
+  const next = now + 86400000; Q.syncQuests(q, next, {wins:15}, {badges:1, discovered:5}); assert.equal(Object.keys(q.claimed).filter(k => k.startsWith('daily:')).length, 0); assert.equal(Q.currentStreak(q, next), 1);
+  const q2 = {id:'daily:' + q.day + ':0', kind:'daily', metric:'wins', target:1, weight:1}; assert.equal(Q.claimQuest(q, q2, next, {wins:16}, 0), 3100 - 0 === 3100 ? Math.round(3000 * 1.05 / 100) * 100 : 0); assert.equal(q.streak.count, 2);
+  assert.equal(Q.currentStreak(q, next + 3 * 86400000), 0); assert.ok(Q.streakBonus(100) <= 1.5);
+  assert.equal(Q.sanitizeQuests({day:'x', claimed:{'daily:1:0':true, bad:true}, streak:{count:-4, last:1}}).claimed['bad'], undefined);
+  console.log('OK : Pokédex (paliers, évolutions, zones, place d’objet), quêtes (tirage stable, récompenses, série de jours).');
+}
