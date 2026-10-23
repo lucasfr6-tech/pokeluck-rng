@@ -18,6 +18,7 @@ Les sources du jeu se trouvent uniquement dans `dist/` :
 - `game.js` : interactions, collection, équipe, sauvegarde, appels PokéAPI.
 - `pokemon.js` : les 151 espèces de Kanto (noms français, poids de base, table d'évolutions `evolvesFrom`).
 - `world.js` : zones, parcours de Kanto, types, poids de rencontre, puissances provisoires et règles d'équipe (une évolution remplace sa forme précédente).
+- `levels.js` : niveaux (départ, plafond par stade, expérience par doublon, puissance selon le niveau).
 - `wander.js` : petits Pokémon qui se promènent dans la scène.
 - `update.js` : rechargement automatique après une nouvelle publication.
 - `map.js` : ronds lumineux cliquables de la carte illustrée (positions en pourcentage) et noms au survol.
@@ -45,6 +46,8 @@ Quatre cadres, selon le croquis du créateur :
 4. **Carte** (en bas à gauche) : carte illustrée avec des ronds lumineux cliquables (`map.js`). L'**équipe de six** (grandes cartes avec nom et puissance) est à droite de la carte.
 
 Le bouton **Index**, à côté du nom de la zone, ouvre la liste des Pokémon de cette zone avec leurs chances (les espèces pas encore rencontrées restent en ombre). Une évolution capturée prend la place de sa forme précédente dans l'équipe ; une forme plus ancienne ne remplace pas une évolution déjà équipée.
+
+**Niveaux (provisoires)** : une espèce de base commence au niveau 5 ; une forme évoluée tirée directement commence au niveau où sa forme précédente évolue dans les jeux (Reptincel 16, Dracaufeu 36…). Chaque doublon tiré donne 1 point d'expérience (passer du niveau N à N+1 coûte N points). Un Pokémon est plafonné un niveau avant l'évolution suivante (Salamèche 15, Reptincel 35) : pour aller plus loin, il faut tirer l'évolution, ce qui garde sa rareté. La puissance va de 100 % de la valeur de base au niveau de départ à 200 % au plafond du stade. Le niveau se déduit du nombre d'exemplaires : la sauvegarde `pokeluck-save-v1` n'a pas changé.
 
 La barre de vie est provisoire : `maxHp(power)` dans `world.js` (10 × puissance), à décider avec le créateur ; il n'y a pas encore de mécanique de combat. La page se recharge automatiquement quand une nouvelle version est publiée (`update.js`, `version.json` écrit par le build).
 

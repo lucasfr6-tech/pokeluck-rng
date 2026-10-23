@@ -1,3 +1,11 @@
+# Mise à jour 0.7 — Niveaux (option A)
+
+Le créateur veut des niveaux (départ niveau 5, attaques du niveau 5 des vrais jeux) mais craint que l'évolution par niveau casse la rareté de Dracaufeu. Option A choisie : l'évolution reste un tirage, le niveau est plafonné par stade (levels.js). Fait : niveau de départ 5 (ou niveau d'évolution pour une forme évoluée tirée), plafond = niveau d'évolution suivant − 1, 1 doublon = 1 point d'expérience (coût N pour passer de N à N+1, valeurs provisoires), puissance de 100 % à 200 % de la base selon le niveau dans le stade, affichage dans l'équipe, la collection, l'historique et l'étiquette de tirage. Sauvegarde inchangée : le niveau se déduit du nombre d'exemplaires.
+
+À faire ensuite avec le créateur : attaques par niveau (idée : PokéAPI, version Rouge/Bleu, mises en cache), règles de combat, niveau et vie du Pokémon sauvage, gain d'expérience par combat. Idée non décidée : les doublons d'une forme précédente pourraient nourrir la forme évoluée.
+
+---
+
 # Mise à jour 0.6 — 151 Pokémon, évolutions, Index
 
 Demandes du créateur réalisées : les 151 premiers Pokémon sont dans le jeu (noms français, types de première génération, poids de rareté et puissances PROVISOIRES pour les espèces 32 à 151 : puissance ≈ 12 × (total des stats / 300)^5 ; les 31 premières espèces gardent leurs valeurs) ; une évolution capturée prend la place de sa forme précédente dans l'équipe (équipement manuel : remplacement sur place dans la même lignée ; anciennes sauvegardes dédoublonnées au chargement) ; bouton **Index** à côté du nom de la zone, qui liste les Pokémon de la zone avec leurs chances. Nidoran♀ (50 %) et Salamèche (1/6) conservent leurs chances fixes du prototype. Toutes les espèces peuvent apparaître dans toutes les zones (bonus de type ×3) : des listes d'espèces propres à chaque route restent à décider avec le créateur.

@@ -11,3 +11,4 @@
 - Avant de travailler, récupérer les changements distants sans écraser de modifications locales. Publier sur Pages exige un push dans main ou la fusion d'une branche dans main. Ne pas forcer un push.
 - Ne pas inclure de secrets, sauvegardes de joueur ou identifiants d'accès dans le dépôt.
 - Équipe : une seule forme par lignée d'évolution ; une évolution capturée remplace sa forme précédente (`teamAfterCapture` dans world.js, testé dans scripts/check.mjs). Les 151 espèces de Kanto sont présentes ; poids et puissances des espèces 32 à 151 sont provisoires.
+- Niveaux : l'évolution reste un tirage (option A choisie par le créateur) ; le niveau est plafonné par stade et se déduit des doublons (levels.js, testé). Ne pas permettre l'évolution par simple montée de niveau sans en parler au créateur : cela casserait la rareté des formes évoluées.
