@@ -250,7 +250,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,rune,chroma,ct-thunder,band') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -310,5 +310,23 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   const s = {money:1e6, inv:shop.defaultInv()}; shop.buyItem(s, 'egg'); shop.equipHeld(s, 25, 'egg');
   if (shop.xpMultiplierFor(s.inv, 25) !== 1.5 || shop.xpMultiplierFor(s.inv, 4) !== 1) throw new Error('Œuf Chance : XP du porteur seulement');
   shop.buyItem(s, 'xp'); if (shop.xpMultiplierFor(s.inv, 25) !== 2.25 || shop.xpMultiplierFor(s.inv, 4) !== 1.5) throw new Error('Œuf Chance et Multi-XP cumulés');
+}
+{
+  const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js');
+  // Pièce Rune et Charme Chroma ne sont plus en vente
+  for (const sh of shop.SHOPS) if (sh.stock.includes('rune') || sh.stock.includes('chroma')) throw new Error('Pièce Rune et Charme Chroma retirés des boutiques');
+  // Baie Oran : +10 PV à 50 % de PV ou moins, une seule fois, jamais au-dessus de 50 %
+  const mk = berry => bt.makeFighter({id:25, name:'P', level:30, types:['normal'], base:bt.DEFAULT_BASE, moves:[], training:{}, berry});
+  const hit = pw => ({name:'x', power:pw, acc:100, type:'normal', cls:'physical'}), splash = {name:'splash', power:null, acc:100, type:'normal', cls:'status', fr:'Éclaboussure'};
+  const foe = mk(false), me = mk(true);
+  const target = Math.floor(me.maxHp * 0.45), want = me.hp - target;
+  let power = 1; while (bt.damage(foe, me, hit(power), () => 0.5).dmg < want && power < 400) power++;
+  const b = bt.createBattle([me], {...foe, stats:{...foe.stats, spe:9999}, moves:[hit(power)]}, () => 0.5);
+  const hp0 = me.hp, ev = bt.takeTurn(b, splash), got = ev.find(e => e.type === 'berry');
+  if (!got || got.healed < 1 || got.healed > 10 || me.berry) throw new Error('Baie Oran : soin de 10 PV maximum');
+  const safe = mk(true), tiny = {...foe, stats:{...foe.stats, spe:9999}, moves:[hit(1)]};
+  const b2 = bt.createBattle([safe], tiny, () => 0.5); bt.takeTurn(b2, splash);
+  if (!safe.berry || safe.hp !== safe.maxHp - (safe.maxHp - safe.hp)) throw new Error('Baie Oran : inactive au-dessus de 50 %');
+  if (hp0 <= 0) throw new Error('combat de test invalide');
 }
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');

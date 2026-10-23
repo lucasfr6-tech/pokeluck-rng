@@ -70,9 +70,9 @@ export const SHINY_BOOST = 1.5;
 // `mult` : un nombre (toutes les stats) ou un objet {stat: multiplicateur} (objets tenus, chromatique).
 export const boostStats = (stats, mult) => mult === 1 ? stats : Object.fromEntries(Object.entries(stats).map(([k, v]) => [k, Math.floor(v * (typeof mult === 'number' ? mult : (mult?.[k] ?? 1)))]));
 
-export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false}) {
+export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false, berry = false}) {
   const stats = boostStats(computeStats(base, level, training), boost);
-  return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp, sash};
+  return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp, sash, berry};
 }
 
 // Expérience gagnée par chaque participant en battant un Pokémon sauvage (provisoire).
@@ -123,6 +123,11 @@ export function takeTurn(b, move, switchIndex = null) {
     if (defender.sash && defender.hp === defender.maxHp && r.dmg >= defender.hp) {r.dmg = defender.hp - 1; defender.sash = false; sashSaved = true;}
     defender.hp = Math.max(0, defender.hp - r.dmg);
     events.push({type:'attack', side, sashSaved, targetId:defender.id, user:attacker.name, move:chosen.fr || chosen.name, moveKey:chosen.name, moveType:chosen.type, ...r, target:side === 'player' ? 'wild' : 'player', targetName:defender.name, hp:defender.hp, maxHp:defender.maxHp});
+    // Baie Oran : à 50 % de PV ou moins, rend 10 PV (objet consommé).
+    if (defender.berry && defender.hp > 0 && defender.hp <= defender.maxHp / 2) {
+      const healed = Math.min(10, defender.maxHp - defender.hp); defender.hp += healed; defender.berry = false;
+      events.push({type:'berry', side:side === 'player' ? 'wild' : 'player', targetId:defender.id, name:defender.name, healed, hp:defender.hp, maxHp:defender.maxHp});
+    }
     if (defender.hp > 0) return;
     events.push({type:'faint', side:side === 'player' ? 'wild' : 'player', name:defender.name});
     if (side === 'player') { b.over = true; b.winner = 'player'; return; }
