@@ -142,3 +142,4 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .dcb-ivhead{color:#b6cede}.dcb-ivbar{height:8px;border-radius:6px;background:#06121d;overflow:hidden}.dcb-ivbar i{display:block;height:100%;background:#5fd468}.dcb-ivbar.b i{background:#6390f0}
 .dcb-shinybox{flex-direction:row;justify-content:space-between;align-items:center}.dcb-big{display:block;font-size:1.6rem;color:#ffd27c}
 @media(max-width:860px){.dcb{grid-template-columns:1fr}.dcb-th,.dcb-row{grid-template-columns:52px 1.4fr .5fr .8fr .8fr 80px}.dcb-th button:last-child{display:none}}
+.compass-menu .compass-nav button>img.dex-icon{object-fit:contain;image-rendering:pixelated;width:60px;height:56px}
