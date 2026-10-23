@@ -17,4 +17,4 @@
 - Préférences séparées de la progression dans pokeluck-preferences-v1. Préserver les seuils de puissance existants : bronze <100 k, argent <100 M, or <1 Md, diamant ensuite. Les effets des attaques ne doivent jamais modifier les dégâts.
 - Menus collection/index : conserver les choix « Équipe de champions » et « Carnet de raretés », implémentés dans catalog.js/css. Le palier 3 reste Rares ; seul Très rares est renommé Épiques au palier 4, à la demande explicite du créateur. Ne pas changer les probabilités en renommant.
 
-- Menu principal : choix validé « Boussole d’aventure », cinq raccourcis disposés autour d’une Pokéball dans un dialogue centré (menu.css). Garder les logos : Pikachu, carte, pièce rune, cherche VS et magnétophone VS. Préserver les cinq accès et les modes Nuit/Jour.
+- Menu principal : choix validé « Boussole d’aventure », deux raccourcis (Mes Pokémon et Paramètres) disposés autour d’une Pokéball dans un dialogue centré (menu.css). Garder les logos Pikachu et magnétophone VS. Carte de Kanto, Probabilités et Dernières rencontres sont retirés de la boussole à la demande du créateur. Préserver ces deux accès et les modes Nuit/Jour.
