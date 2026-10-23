@@ -65,13 +65,13 @@ export function parseMove(json) {
     category:meta.category?.name || null, ailment:ail && ail !== 'none' ? ail : null, ailmentChance:meta.ailment_chance || 0,
     statChanges:(json.stat_changes || []).filter(s => STAT2[s.stat.name]).map(s => [STAT2[s.stat.name], s.change]), statChance:meta.stat_chance || 0,
     drain:meta.drain || 0, healing:meta.healing || 0, flinch:meta.flinch_chance || 0, crit:meta.crit_rate || 0, minHits:meta.min_hits || 1, maxHits:meta.max_hits || 1,
-    target:json.target?.name || null, priority:json.priority || 0};
+    target:json.target?.name || null, priority:json.priority || 0, pp:json.pp || null};
 }
 export function getMove(name) {
   return dedupe(mvCache, name, async () => {
-    const cached = store.get('pokeluck-mv-v2-' + name);
+    const cached = store.get('pokeluck-mv-v3-' + name);
     if (cached) return cached;
-    try { const mv = parseMove(await getJson(`${API}move/${name}/`)); store.set('pokeluck-mv-v2-' + name, mv); return mv; }
+    try { const mv = parseMove(await getJson(`${API}move/${name}/`)); store.set('pokeluck-mv-v3-' + name, mv); return mv; }
     catch { return name === 'tackle' ? FALLBACK_MOVE : {name, fr:name.replace(/-/g, ' '), power:null, acc:null, type:'normal', cls:'status', fallback:true}; }
   });
 }

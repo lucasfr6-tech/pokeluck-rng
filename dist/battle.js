@@ -52,6 +52,9 @@ export function knownMoves(learnset, level) {
 }
 export const nextMove = (learnset, level) => { const e = learnset.find(([, at]) => at > level); return e ? {name:e[0], level:e[1]} : null; };
 
+// PP : valeur des vrais jeux (fournie par PokéAPI) ; à défaut, estimée d'après la puissance.
+export const ppOf = m => m?.pp > 0 ? m.pp : !(m?.power > 0) ? 20 : m.power >= 120 ? 5 : m.power >= 90 ? 10 : m.power >= 70 ? 15 : m.power >= 50 ? 20 : 25;
+export const ppLeft = (f, m) => f?.pp ? (f.pp[m.name] ?? ppOf(m)) : ppOf(m);
 export const LUTTE = {name:'struggle', fr:'Lutte', power:40, acc:100, type:'normal', cls:'physical'};
 
 // ── Statuts, niveaux de stats, attaques de statut (règles des jeux récents) ──
@@ -123,7 +126,7 @@ export const boostStats = (stats, mult) => mult === 1 ? stats : Object.fromEntri
 
 export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false, berry = false, nature = null, ability = null, leftovers = false}) {
   const stats = boostStats(computeStats(base, level, training, nature), boost);
-  return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp, sash, berry, leftovers, ability, status:null, confused:0, flinched:false, stages:{atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}};
+  return {id, name, level, types, stats, moves, pp:Object.fromEntries(moves.map(m => [m.name, ppOf(m)])), hp:stats.hp, maxHp:stats.hp, sash, berry, leftovers, ability, status:null, confused:0, flinched:false, stages:{atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}};
 }
 
 // Expérience gagnée par chaque participant en battant un Pokémon sauvage (provisoire).
@@ -140,8 +143,9 @@ export function createBattle(team, wild, rand = Math.random, queue = []) {
   return b;
 }
 export const activeFighter = b => b.team[b.active];
-const usableMoves = f => { const u = f.moves.filter(isUsable); return u.length ? u : [LUTTE]; };
-export const playerChoices = f => f.moves.length ? [...f.moves, ...(f.moves.some(isUsable) ? [] : [LUTTE])] : [LUTTE];
+const hasPp = (f, m) => ppLeft(f, m) > 0;
+const usableMoves = f => { const u = f.moves.filter(m => isUsable(m) && hasPp(f, m)); return u.length ? u : [LUTTE]; };
+export const playerChoices = f => f.moves.length ? [...f.moves, ...(f.moves.some(m => isUsable(m) && hasPp(f, m)) ? [] : [LUTTE])] : [LUTTE];
 
 function canInflict(f, code, m) {
   const t = f.types, ab = f.ability;
@@ -282,6 +286,7 @@ function engine(b, events) {
         }
       }
       if (a.status?.type === 'par' && rand() < .25) { msg(`${a.name} est paralysé : il ne peut pas attaquer !`, a, side); return; }
+      if (move.name !== 'struggle' && a.pp && a.pp[move.name] != null) a.pp[move.name] = Math.max(0, a.pp[move.name] - 1);
       const base = {type:'attack', side, user:a.name, move:move.fr || move.name, moveKey:move.name, moveType:move.type, target:side === 'player' ? 'wild' : 'player', targetName:d.name, targetId:d.id};
       const sk = statusKind(move);
       if (!sk && dmgKind(move) === null) { events.push({...base, status:true, hit:true, dmg:0, eff:1, stab:false, hp:d.hp, maxHp:d.maxHp}); msg('Mais rien ne se passe…', d, dside); return; }

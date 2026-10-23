@@ -1,6 +1,6 @@
 import {createTraining,effortYield,STAT_KEYS,STAT_NAMES} from './training.js';
 // Interface de combat dans la scène : barre de PV du Pokémon sauvage, carte du combattant, attaques et journal.
-import {effectiveness, chooseAiMove, chooseAutoSwitch, createBattle, takeTurn, activeFighter, playerChoices, isUsable, isDamaging, statusKind, cureMatch, makeFighter, knownMoves, xpReward, STATUS_TAG, TYPE_FR, DEFAULT_BASE} from './battle.js';
+import {ppLeft, ppOf, effectiveness, chooseAiMove, chooseAutoSwitch, createBattle, takeTurn, activeFighter, playerChoices, isUsable, isDamaging, statusKind, cureMatch, makeFighter, knownMoves, xpReward, STATUS_TAG, TYPE_FR, DEFAULT_BASE} from './battle.js';
 import {randomTraits, NATURE_KEYS} from './traits.js';
 import {getSpecies, getMoves, getMove} from './battle-data.js';
 import {tierOf} from './world.js';
@@ -47,9 +47,9 @@ export function createFight(ctx) {
     el.swBtn.disabled = !enabled || !bt || bt.team.filter(t => t.hp > 0).length < 2; $('#bag').disabled = !enabled || !bt;
     const f = activeFighter(bt);
     el.moves.innerHTML = playerChoices(f).map((m, i) => {
-      const usable = isUsable(m);
-      const info = !usable ? 'Effet à venir' : isDamaging(m) ? `Puiss. ${m.power || '—'}${m.acc ? ' · Préc. ' + m.acc : ''}` : `Statut${m.acc ? ' · Préc. ' + m.acc : ''}`;
-      return `<button class="move" data-i="${i}" ${enabled && usable ? '' : 'disabled'} style="--tc:${typeColor(m.type)}" title="${esc(TYPE_FR[m.type] || m.type)} · ${info}"><b>${i + 1} · ${esc(m.fr)}</b><small>${esc(TYPE_FR[m.type] || m.type)} · ${info}</small></button>`;
+      const left = m.name === 'struggle' ? null : ppLeft(f, m), max = ppOf(m), usable = isUsable(m) && (left === null || left > 0);
+      const info = !isUsable(m) ? 'Effet à venir' : left === 0 ? 'Plus de PP' : isDamaging(m) ? `Puiss. ${m.power || '—'}${m.acc ? ' · Préc. ' + m.acc : ''}` : `Statut${m.acc ? ' · Préc. ' + m.acc : ''}`;
+      return `<button class="move" data-i="${i}" ${enabled && usable ? '' : 'disabled'} style="--tc:${typeColor(m.type)}" title="${esc(TYPE_FR[m.type] || m.type)} · ${info}"><b>${i + 1} · ${esc(m.fr)}</b><small>${esc(TYPE_FR[m.type] || m.type)} · ${info}${left === null ? '' : ` · PP ${left}/${max}`}</small></button>`;
     }).join('');
   }
   const effectText = e => !e.hit ? 'Raté !' : e.eff === 0 ? 'Ça n’affecte pas la cible…' : e.eff > 1 ? 'C’est super efficace !' : e.eff < 1 ? 'Ce n’est pas très efficace…' : '';

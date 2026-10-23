@@ -34,7 +34,7 @@ import {luckEvent,dailyShiny,luckBonus,shinyMult,fmtCountdown} from './events.js
 import {emptyTeams,sanitizeTeams,loadableTeam,sameTeam,TEAM_SLOTS} from './teams.js';
 import {getSpecies,getMoves} from './battle-data.js';
 import {randomTraits,sanitizeTraits,natureText,abilityFr,abilityDesc,ABILITIES} from './traits.js';
-import {computeStats,boostStats,SHINY_BOOST,knownMoves,nextMove,isUsable,TYPE_FR,effectiveness} from './battle.js';
+import {ppOf,computeStats,boostStats,SHINY_BOOST,knownMoves,nextMove,isUsable,TYPE_FR,effectiveness} from './battle.js';
 const $=s=>document.querySelector(s),saveKey='pokeluck-save-v1';
 const wanderers=createWanderers(document.querySelector('#wanderers'));
 const prefersReduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -311,7 +311,7 @@ async function openProfile(id,form){$('#content-dialog').classList.remove('catal
   const xpLine=l.limited?`Plafond de niveau : ${l.cap} (bats l’arène suivante)`:l.capped?(l.evolvesAt?`Niveau max du stade (${l.cap})`:'Niveau maximum'):`${l.xp} / ${l.need} XP`;
   const idx=state.team.indexOf(id),inTeam=idx>=0,main=types[id][0];
   const sc=(n,v,c)=>`<div class="pf-card"><div><span>${n}</span><b>${v}</b></div><div class="pf-bar"><i style="width:${Math.min(100,Math.round(v/(n==='PV'?(st.hp>60?st.hp:60):60)*100))}%;background:${c}"></i></div></div>`;
-  const mvCard=(m,i)=>`<div class="pf-move swap${isUsable(m)?'':' off'}" data-swap="${i}" role="button" tabindex="0" title="Changer cette attaque" style="--tc:${typeColor(m.type)}"><div><b>${m.fr}</b><span class="type-badge" style="--tc:${typeColor(m.type)}">${TYPE_FR[m.type]||m.type}</span></div><small>${isUsable(m)?m.power>0?`${m.cls==='physical'?'Physique':'Spécial'} · Puiss. <b>${m.power}</b> · Préc. <b>${m.acc??'—'}${m.acc?'%':''}</b>`:`Statut · Préc. <b>${m.acc??'—'}${m.acc?'%':''}</b>`:'Statut · <b>Effet à venir</b>'}</small></div>`;
+  const mvCard=(m,i)=>`<div class="pf-move swap${isUsable(m)?'':' off'}" data-swap="${i}" role="button" tabindex="0" title="Changer cette attaque" style="--tc:${typeColor(m.type)}"><div><b>${m.fr}</b><span class="type-badge" style="--tc:${typeColor(m.type)}">${TYPE_FR[m.type]||m.type}</span></div><small>${isUsable(m)?m.power>0?`${m.cls==='physical'?'Physique':'Spécial'} · Puiss. <b>${m.power}</b> · Préc. <b>${m.acc??'—'}${m.acc?'%':''}</b>`:`Statut · Préc. <b>${m.acc??'—'}${m.acc?'%':''}</b>`:'Statut · <b>Effet à venir</b>'}${isUsable(m)?` · PP <b>${ppOf(m)}</b>`:''}</small></div>`;
   const mult={};for(const t of Object.keys(TYPE_FR)){const e=effectiveness(t,types[id]);if(e!==1)mult[t]=e;}
   const chip=(t,e)=>`<span class="type-badge" style="--tc:${typeColor(t)}">${TYPE_FR[t]} ${e===0?'immunisé':e>=1?'×'+e:e===.5?'½':'¼'}</span>`;
   const weak=Object.entries(mult).filter(([,e])=>e>1).sort((x,y)=>y[1]-x[1]).map(([t,e])=>chip(t,e)).join('')||'<small>Aucune</small>';

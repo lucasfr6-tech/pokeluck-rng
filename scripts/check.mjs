@@ -650,3 +650,15 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(li.level,60);
   console.log('OK migration d’XP');
 }
+{
+  const b=await import('../dist/battle.js');
+  const mv={name:'roost',fr:'Atterrissage',power:null,acc:null,type:'flying',cls:'status',category:'heal',healing:50,pp:5,target:'user'};
+  const hit={name:'tackle',fr:'Charge',power:40,acc:100,type:'normal',cls:'physical',pp:3};
+  const f=b.makeFighter({id:145,name:'A',level:50,types:['electric'],base:b.DEFAULT_BASE,moves:[hit,mv]});
+  assert.equal(f.pp.tackle,3);assert.equal(f.pp.roost,5);
+  f.pp.tackle=0;f.pp.roost=0;
+  assert.equal(b.chooseAiMove(f,f).name,'struggle','plus de PP : Lutte');
+  assert.deepEqual(b.playerChoices(f).map(m=>m.name),['tackle','roost','struggle']);
+  assert.equal(b.ppOf({power:120}),5);assert.equal(b.ppOf({pp:35,power:40}),35);
+  console.log('OK système de PP');
+}
