@@ -33,11 +33,11 @@ export function levelInfo(id, count = 1, bonus = 0) {
   return {level, cap, min, capped, xp: capped ? 0 : xp, need: capped ? 0 : xpToNext(level), evolvesAt: nextLevels[id] ?? null};
 }
 
-// Puissance : la valeur de base de l'espèce au niveau de départ, doublée au plafond du stade (provisoire).
+// Puissance : valeur de référence de l'espèce (niveau 5) multipliée par (niveau / 5)^3,7.
+// Dracaufeu niv. 36 ≈ 20 millions, niv. 100 ≈ 900 millions ; Mewtwo niv. 100 ≈ 3 milliards (provisoire).
+export const LEVEL_POWER_EXP = 3.7;
 export function powerAt(id, level) {
-  const min = minLevel(id), cap = maxLevel(id);
-  const progress = cap > min ? Math.min(1, Math.max(0, (level - min) / (cap - min))) : 0;
-  return Math.round(powers[id - 1] * (1 + progress));
+  return Math.round(powers[id - 1] * (Math.max(1, level) / START_LEVEL) ** LEVEL_POWER_EXP);
 }
 
 // Niveau d'un Pokémon sauvage : tiré dans la fourchette de la zone (de la Route 1 au niveau 100 à la Centrale),

@@ -13,8 +13,6 @@ assert.equal(names[0],'Bulbizarre');assert.equal(names[149],'Mewtwo');assert.equ
 for(const p of pool)assert.ok(types[p.id]?.length>=1&&types[p.id].length<=2,'Types manquants : '+p.name);
 assert.ok(Math.abs(pool.reduce((s,p)=>s+p.probability,0)-1)<1e-9);
 assert.ok(powers.every(n=>Number.isInteger(n)&&n>=1));
-assert.equal(powers[18],3);
-assert.equal(powers[16],46);
 for(const zone of zones){
   const entries=zonePool(zone.id);
   assert.ok(Math.abs(entries.reduce((s,p)=>s+p.probability,0)-1)<1e-12);
@@ -76,8 +74,11 @@ assert.deepEqual([levelInfo(4,5).level,levelInfo(4,6).level],[5,6]); // 5 points
 assert.equal(levelInfo(4,20).level,8);assert.equal(levelInfo(4,20).xp,1);assert.equal(levelInfo(4,20).need,xpToNext(8));
 assert.equal(levelInfo(4,100000).level,15);assert.ok(levelInfo(4,100000).capped); // bloqué tant qu'on ne tire pas Reptincel
 assert.equal(levelInfo(6,1).level,36);
-assert.equal(powerAt(4,5),powers[3]);assert.equal(powerAt(4,15),powers[3]*2);assert.equal(powerAt(6,36),powers[5]);
-assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,10)<powerAt(4,15));
+assert.equal(powerAt(4,5),powers[3]);assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,15)>powerAt(4,10));
+assert.ok(powers[0]>=500&&powers[0]<=3000,'Bulbizarre démarre vers 1 000');
+assert.ok(powerAt(5,35)<powerAt(6,36),'Une évolution est plus puissante que la forme précédente à son plafond');
+const legend=[144,145,146,150,151,149].reduce((n,id)=>n+powerAt(id,100),0);assert.ok(legend>=1e9&&legend<1e11,'Équipe de légendaires niv. 100 en milliards : '+legend);
+for(let id=1;id<=151;id++)assert.ok(powerAt(id,100)>=powerAt(id,50));
 // Combat : types, attaques apprises, dégâts, déroulement et expérience.
 assert.equal(effectiveness('fire',['grass']),2);assert.equal(effectiveness('electric',['ground']),0);assert.equal(effectiveness('water',['fire','rock']),4);
 const ls=[['scratch',1],['growl',1],['ember',7],['smokescreen',13],['rage',19],['slash',25]];

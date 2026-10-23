@@ -17,9 +17,9 @@ export const itinerary=[{town:'Bourg Palette'},{zone:'route'},{town:'Jadielle'},
 // Arrière-plans du cadre 1, un par zone (fichiers dans assets/backgrounds/).
 export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant'};
 export const backgroundFor=id=>`assets/backgrounds/${backgrounds[id]||backgrounds.route}.png`;
-export const powers=[12,48,180,14,54,210,13,50,195,2,8,35,2,8,38,4,46,125,3,25,5,42,10,52,30,110,12,65,5,30,130,
- // Espèces 32 à 151 : puissance PROVISOIRE déduite des statistiques de base (≈ 12 × (total/300)^5).
- ...([273,365,505,323,483,299,505,270,435,245,455,320,395,490,285,405,305,450,265,425,290,440,320,500,305,455,350,555,300,385,510,310,400,500,305,405,505,300,390,490,335,515,300,390,495,410,500,315,490,325,465,377,310,470,325,475,325,500,305,525,310,405,500,385,328,483,325,475,330,490,325,530,320,425,455,455,385,340,490,345,485,450,435,490,295,440,320,450,340,520,460,500,455,490,495,500,490,200,540,535,288,325,525,525,525,395,355,495,355,495,515,540,580,580,580,300,420,600,680,600]).map(total=>Math.max(1,Math.round(12*(total/300)**5)))];
+// Puissance de référence (au niveau 5) : ≈ 750 × (total des stats de base / 300)^5. Elle grandit ensuite avec le niveau (voir levels.js).
+// Valeurs PROVISOIRES : Bulbizarre démarre vers 1 000, une équipe de légendaires niveau 100 se compte en milliards.
+export const powers=baseTotals.map(total=>Math.max(1,Math.round(750*(total/300)**5)));
 if(powers.length!==pool.length)throw new Error('Puissances et espèces désynchronisées');
 // Paliers de rareté (PROVISOIRES), selon les statistiques de base totales : 1 Communs (≤ 320), 2 Peu communs (≤ 420),
 // 3 Rares (≤ 485), 4 Très rares (au-delà), 5 Légendaires (liste fixe).
