@@ -12,7 +12,7 @@ const TEMPLATES = [
   {key:'draws', metric:'draws',      weight:.8,  daily:[30, 45], weekly:[420, 560], text:n => `Fais ${n} tirages`},
   {key:'type',  metric:null,         weight:1.1, daily:[6, 10],  weekly:[60, 90],   text:(n, t) => `Tire ${n} Pokémon de type ${TYPE_FR[t] || t}`},
   {key:'rare',  metric:'rareKills',  weight:1.3, daily:[2, 4],   weekly:[20, 30],   text:n => `Bats ${n} Pokémon rares ou mieux`, needs:c => c.badges >= 2},
-  {key:'new',   metric:'newSpecies', weight:1.2, daily:[1, 1],   weekly:[4, 6],     text:n => `Découvre ${n} nouvelle${n > 1 ? 's' : ''} espèce${n > 1 ? 's' : ''}`, needs:c => c.discovered < 146},
+  {key:'new',   metric:'newSpecies', weight:1.2, weeklyWeight:2, daily:[1, 1], weekly:[20, 20], text:n => `Découvre ${n} nouvelle${n > 1 ? 's' : ''} espèce${n > 1 ? 's' : ''}`, needs:c => c.discovered <= 130},
   {key:'arena', metric:'arenaWins',  weight:1.2, daily:[1, 1],   weekly:[4, 6],     text:n => `Gagne ${n} combat${n > 1 ? 's' : ''} d’arène`, needs:c => c.badges >= 1}
 ];
 const pick = (rand, [lo, hi]) => lo + Math.floor(rand() * (hi - lo + 1));
@@ -21,7 +21,7 @@ export function generateQuests(kind, key, ctx = {badges:0, discovered:0}) {
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   return pool.slice(0, 3).map((t, i) => {
     const type = t.key === 'type' ? QUEST_TYPES[Math.floor(rand() * QUEST_TYPES.length)] : null, target = pick(rand, t[kind]);
-    return {id:`${kind}:${key}:${i}`, kind, key:t.key, metric:t.metric || 't_' + type, target, weight:t.weight, text:t.text(target, type)};
+    return {id:`${kind}:${key}:${i}`, kind, key:t.key, metric:t.metric || 't_' + type, target, weight:kind === 'weekly' && t.weeklyWeight ? t.weeklyWeight : t.weight, text:t.text(target, type)};
   });
 }
 export const questReward = (q, badges) => Math.round((q.kind === 'daily' ? DAILY_BASE : WEEKLY_BASE) * q.weight * questScale(badges) / 100) * 100;
