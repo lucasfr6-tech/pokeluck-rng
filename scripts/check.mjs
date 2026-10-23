@@ -250,7 +250,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -328,5 +328,20 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   const b2 = bt.createBattle([safe], tiny, () => 0.5); bt.takeTurn(b2, splash);
   if (!safe.berry || safe.hp !== safe.maxHp - (safe.maxHp - safe.hp)) throw new Error('Baie Oran : inactive au-dessus de 50 %');
   if (hp0 <= 0) throw new Error('combat de test invalide');
+}
+{
+  const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js');
+  // Potions : 20 / 50 PV, jamais au-delà des PV max, pas sur un K.O., et le sauvage joue son tour
+  if (shop.ITEMS.potion.heal !== 20 || shop.ITEMS['super-potion'].heal !== 50) throw new Error('soins des potions');
+  const st = {inv: shop.defaultInv()}; st.inv.stock.potion = 1;
+  if (shop.healList(st.inv)[0]?.qty !== 1 || !shop.useHeal(st, 'potion') || shop.useHeal(st, 'potion') || shop.healList(st.inv).length) throw new Error('consommation des potions');
+  const mk = () => bt.makeFighter({id:25, name:'P', level:30, types:['normal'], base:bt.DEFAULT_BASE, moves:[], training:{}});
+  const me = mk(), foe = mk(); me.hp = Math.max(1, me.maxHp - 30);
+  const b = bt.createBattle([me], foe, () => 0.5), before = me.hp, ev = bt.takeTurn(b, null, null, {index:0, amount:20, name:'Potion'});
+  const h = ev.find(e => e.type === 'heal');
+  if (!h || h.healed !== 20 || me.hp < before + 20 - 100000) throw new Error('Potion : +20 PV');
+  me.hp = me.maxHp - 5; const ev2 = bt.takeTurn(b, null, null, {index:0, amount:50, name:'Super Potion'});
+  if (ev2.find(e => e.type === 'heal')?.healed !== 5) throw new Error('Potion : plafonnée aux PV max');
+  me.hp = me.maxHp; if (bt.takeTurn(b, null, null, {index:0, amount:20, name:'Potion'}).length) throw new Error('Potion refusée à PV pleins');
 }
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');

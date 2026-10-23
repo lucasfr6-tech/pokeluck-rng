@@ -29,7 +29,7 @@ export function createFight(ctx) {
   const setWild = hp => { el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(bt.wild.maxHp)}`; bar(el.hpFill, hp, bt.wild.maxHp); };
   const setCard = (f, hp = f.hp) => { const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
   function renderMoves(enabled = true) {
-    el.swBtn.disabled = !enabled || !bt || bt.team.filter(t => t.hp > 0).length < 2;
+    el.swBtn.disabled = !enabled || !bt || bt.team.filter(t => t.hp > 0).length < 2; $('#bag').disabled = !enabled || !bt;
     const f = activeFighter(bt);
     el.moves.innerHTML = playerChoices(f).map((m, i) => {
       const usable = isUsable(m);
@@ -49,6 +49,7 @@ export function createFight(ctx) {
         const t = effectText(e); if (t) { say(`${e.user} utilise ${e.move} ! ${t}`); await delay(700); }
         if (e.sashSaved && e.target === 'player') { say(`${e.targetName} s’accroche grâce à sa Ceinture Force !`); ctx.consumeHeld?.(e.targetId, 'band'); await delay(1000); }
       } else if (e.type === 'berry') { if (e.side === 'player') setCard(bt.team.find(t => t.id === e.targetId), e.hp); say(`${e.name} mange sa Baie Oran et récupère ${e.healed} PV !`); ctx.consumeHeld?.(e.targetId, 'oran'); await delay(1000); }
+      else if (e.type === 'heal') { if (activeFighter(bt).id === e.id) setCard(activeFighter(bt), e.hp); say(`${e.name} récupère ${e.healed} PV grâce à ${e.item} !`); await delay(900); }
       else if (e.type === 'faint') { say(`${e.name} est K.O. !`); const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
       else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, f.hp); say(`${e.name} entre au combat !`); await delay(800); }
     }
@@ -83,10 +84,10 @@ export function createFight(ctx) {
     ctx.onEnd?.(lost ? 'loss' : 'win');
   }
 
-  async function turn(move, sw = null) {
+  async function turn(move, sw = null, heal = null) {
     const my = token;
     playing = true; renderMoves(false);
-    const events = takeTurn(bt, move, sw);
+    const events = takeTurn(bt, move, sw, heal);
     await play(events);
     if (my !== token) return;
     playing = false;
@@ -114,9 +115,31 @@ export function createFight(ctx) {
     el.swPanel.hidden = false;
     el.swPanel.querySelector('.sw-item:not([disabled])')?.focus({preventScroll: true});
   }
-  const closeSwitch = () => { el.swPanel.hidden = true; el.swPanel.innerHTML = ''; };
-  el.swBtn.onclick = openSwitch;
+  // Sac de combat : choisir une potion, puis le Pokémon à soigner (le sauvage joue ensuite son tour).
+  function openBag(pickedId = null) {
+    if (!bt || bt.over || playing) return;
+    const items = ctx.bagItems?.() || [], pick = items.find(i => i.id === pickedId);
+    let body;
+    if (!pick) body = `<p>Choisis un objet à utiliser — le Pokémon sauvage jouera son tour.</p><div class="sw-list">${items.length ? items.map(i => `<button class="sw-item bag-use" data-item="${i.id}" style="--tc:#5fd468"><img src="${i.sprite}" alt=""><span class="sw-name"><b>${esc(i.name)}</b><small>Rend ${i.heal} PV</small></span><span class="sw-hp"><small>×${i.qty}</small></span></button>`).join('') : '<p class="bag-empty">Ton sac est vide. Achète des potions à la boutique !</p>'}</div>`;
+    else body = `<p>${esc(pick.name)} : qui soigner ? (+${pick.heal} PV)</p><div class="sw-list">${bt.team.map((f, i) => {
+      const dead = f.hp <= 0, full = f.hp >= f.maxHp, r = Math.round(f.hp / f.maxHp * 100);
+      return `<button class="sw-item bag-target" data-i="${i}" data-item="${pick.id}" ${dead || full ? 'disabled' : ''} style="--tc:${typeColor(f.types[0])}"><img src="${ctx.sprite(f.id)}" alt=""><span class="sw-name"><b>${esc(f.name)}</b><small>Niv. ${f.level}</small></span><span class="sw-hp"><span class="hp-track"><i data-level="${r > 50 ? 'high' : r > 20 ? 'mid' : 'low'}" style="width:${r}%"></i></span><small>${dead ? 'K.O.' : full ? 'PV pleins' : `PV ${f.hp} / ${f.maxHp}`}</small></span></button>`;
+    }).join('')}</div>`;
+    el.swPanel.innerHTML = `<div class="v-card sw-card" role="dialog" aria-label="Sac"><h2>Sac</h2>${body}<button class="v-continue sw-close" id="sw-close">${pick ? 'Retour au sac' : 'Retour au combat'}</button></div>`;
+    el.swPanel.dataset.bag = pick ? 'target' : 'list'; el.swPanel.hidden = false;
+    el.swPanel.querySelector('.sw-item:not([disabled])')?.focus({preventScroll: true});
+  }
+  const closeSwitch = () => { delete el.swPanel.dataset.bag; el.swPanel.hidden = true; el.swPanel.innerHTML = ''; };
+  el.swBtn.onclick = openSwitch; $('#bag').onclick = () => openBag();
   el.swPanel.addEventListener('click', e => {
+    if (el.swPanel.dataset.bag && e.target.closest('#sw-close') && el.swPanel.dataset.bag === 'target') { openBag(); return; }
+    const bu = e.target.closest('.bag-use'); if (bu) { openBag(bu.dataset.item); return; }
+    const btg = e.target.closest('.bag-target');
+    if (btg && !btg.disabled && bt && !playing) {
+      const item = (ctx.bagItems?.() || []).find(i => i.id === btg.dataset.item);
+      if (item && ctx.useHeal?.(item.id)) { closeSwitch(); turn(null, null, {index: +btg.dataset.i, amount: item.heal, name: item.name}); }
+      return;
+    }
     if (e.target === el.swPanel || e.target.closest('#sw-close')) { closeSwitch(); return; }
     const it = e.target.closest('.sw-item'); if (!it || it.disabled || !bt || playing) return;
     const i = +it.dataset.i; closeSwitch(); turn(null, i);

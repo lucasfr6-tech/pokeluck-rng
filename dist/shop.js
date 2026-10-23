@@ -10,6 +10,8 @@ export const ITEMS = {
   hyper:  {id:'hyper',  kind:'ball',    name:'Hyper Ball',    price:90000,   sprite:SPRITE('ultra-ball'),  bonus:.60,  effect:'Raretés +60 %', desc:'Équipée sur la Pokéball du milieu, elle augmente de 60 % la part des Pokémon rares à chaque tirage.'},
   xp:     {id:'xp',     kind:'passive', name:'Multi-XP',      price:75000,   sprite:SPRITE('exp-share'),   effect:'XP des combats ×1,5', desc:'Actif dès l’achat : tous tes combats rapportent 50 % d’XP en plus.'},
   rune:   {id:'rune',   kind:'passive', name:'Pièce Rune',    price:900000,  sprite:SPRITE('amulet-coin'), effect:'Pokédollars ×2 sur les combats', desc:'Actif dès l’achat : chaque victoire rapporte deux fois plus de Pokédollars.'},
+  potion: {id:'potion', kind:'heal', stack:true, heal:20, name:'Potion', price:3000, sprite:SPRITE('potion'), effect:'Rend 20 PV · utilisable en combat', desc:'Comme dans les jeux : rend 20 PV à un Pokémon. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
+  'super-potion': {id:'super-potion', kind:'heal', stack:true, heal:50, name:'Super Potion', price:8000, sprite:SPRITE('super-potion'), effect:'Rend 50 PV · utilisable en combat', desc:'Comme dans les jeux : rend 50 PV à un Pokémon. Se range dans le sac et s’utilise en combat (le Pokémon sauvage joue son tour).'},
   'ct-water': {id:'ct-water', kind:'tm', stack:true, move:'water-gun', name:'CT12 · Pistolet à O', price:3000,  sprite:SPRITE('tm-water'),    effect:'Eau · Puissance 40 · Précision 100', desc:'Apprend Pistolet à O à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-swift': {id:'ct-swift', kind:'tm', stack:true, move:'swift',     name:'CT39 · Météores',     price:4500,  sprite:SPRITE('tm-normal'),   effect:'Normal · Puissance 60 · Précision 100', desc:'Apprend Météores à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-ice': {id:'ct-ice', kind:'tm', stack:true, move:'ice-beam', name:'CT13 · Laser Glace', price:60000, sprite:SPRITE('tm-ice'), effect:'Glace · Puissance 90 · Précision 100', desc:'Apprend Laser Glace à un Pokémon compatible. Consommable : disparaît après usage.'},
@@ -24,8 +26,8 @@ export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024
 // Pièce Rune et Charme Chroma ne sont pas en vente pour l'instant (prévus dans la 2e région) ; leurs effets restent actifs pour qui les possède déjà.
 // `after` : zone à explorer ; `at` : position (en % de la carte) du logo, entre `after` et la zone suivante.
 export const SHOPS = [
-  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
-  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','ct-thunder','ct-ice','oran','band'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'}
+  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
+  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','ct-thunder','ct-ice','oran','band'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
 export const zoneName = id => zones.find(z => z.id === id)?.name || id;
@@ -97,6 +99,11 @@ export function useTm(state, id) {
   if (ITEMS[id]?.kind !== 'tm' || stockOf(state.inv, id) < 1) return false;
   state.inv.stock[id] -= 1; if (state.inv.stock[id] <= 0) delete state.inv.stock[id]; return true;
 }
+export const healList = inv => Object.values(ITEMS).filter(i => i.kind === 'heal' && stockOf(inv, i.id) > 0).map(i => ({id:i.id, name:i.name, sprite:i.sprite, heal:i.heal, qty:stockOf(inv, i.id)}));
+export function useHeal(state, id) {
+  if (ITEMS[id]?.kind !== 'heal' || stockOf(state.inv, id) < 1) return false;
+  state.inv.stock[id] -= 1; if (state.inv.stock[id] <= 0) delete state.inv.stock[id]; return true;
+}
 // Consomme un objet tenu (ex. Ceinture Force après avoir sauvé son porteur) : il quitte le Pokémon et le sac.
 export function consumeHeld(state, pid, id) {
   if (!unequipHeld(state, pid, id)) return false;
@@ -129,7 +136,7 @@ export function mountShop(container, {getState, shopId, onChange}) {
     if (pick) {selected = pick.dataset.item; message = ''; render(); return;}
     if (e.target.closest('[data-buy]')) {
       const state = getState(), r = buyItem(state, selected);
-      if (r.ok) {message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : 'déjà actif !'}`; onChange(selected);}
+      if (r.ok) {message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'heal' ? 'ajoutée à ton sac. À utiliser en combat avec « Objets ».' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : 'déjà actif !'}`; onChange(selected);}
       else message = r.reason === 'money' ? `Il te manque ${fmtMoney(r.missing)}.` : 'Tu l’as déjà.';
       render();
     }
@@ -143,7 +150,7 @@ const stackList = inv => {
     const holders = i.kind === 'held' ? Object.entries(inv.held).filter(([, l]) => l.includes(i.id)).length : 0;
     return `<div class="bag-item stack">${icon(i, 64)}<span><b>${esc(i.name)}</b><small>${esc(i.effect)}${holders ? ' · porté ×' + holders : ''}</small></span><em class="qty">×${stockOf(inv, i.id)}</em></div>`;
   });
-  return rows.length ? rows.join('') : '<p class="bag-empty">Ton sac est vide. Les boutiques vendent des CT et des objets à faire porter à tes Pokémon.</p>';
+  return rows.length ? rows.join('') : '<p class="bag-empty">Ton sac est vide. Les boutiques vendent des potions, des CT et des objets à faire porter à tes Pokémon.</p>';
 };
 export function mountItems(container, {getState, onChange}) {
   container.innerHTML = '<div class="bag"></div>';

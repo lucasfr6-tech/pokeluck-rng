@@ -108,7 +108,7 @@ export function chooseAiMove(attacker, defender, rand = Math.random) {
 
 // Un tour : le joueur choisit une attaque ; renvoie la liste des événements à afficher.
 // Si `switchIndex` est donné, le joueur change de Pokémon au lieu d'attaquer et l'adversaire attaque aussitôt.
-export function takeTurn(b, move, switchIndex = null) {
+export function takeTurn(b, move, switchIndex = null, heal = null) {
   if (b.over) return [];
   const events = [];
   const strike = side => {
@@ -136,6 +136,14 @@ export function takeTurn(b, move, switchIndex = null) {
     b.active = next; b.participants.add(b.team[next].id);
     events.push({type:'switch', name:b.team[next].name, hp:b.team[next].hp, maxHp:b.team[next].maxHp});
   };
+  if (heal) {
+    const f = b.team[heal.index];
+    if (!f || f.hp <= 0 || f.hp >= f.maxHp) return [];
+    const healed = Math.min(heal.amount, f.maxHp - f.hp); f.hp += healed;
+    events.push({type:'heal', name:f.name, id:f.id, healed, hp:f.hp, maxHp:f.maxHp, item:heal.name});
+    strike('wild');
+    return events;
+  }
   if (switchIndex !== null) {
     const f = b.team[switchIndex];
     if (!f || f.hp <= 0 || switchIndex === b.active) return [];
