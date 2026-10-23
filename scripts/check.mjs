@@ -219,4 +219,33 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (captureMoney(1, false, true) !== SHINY_REWARD || captureMoney(1, true, true) !== FIRST_CATCH[1] + SHINY_REWARD) throw new Error('prime chromatique');
   if (sanitizeMoney(-5) !== 0 || sanitizeMoney('x') !== 0 || sanitizeMoney(120) !== 120) throw new Error('sauvegarde de l’argent');
 }
+{
+  const shop = await import('../dist/shop.js'), world = await import('../dist/world.js'), sh = await import('../dist/shiny.js');
+  const st = () => ({money:0, inv:shop.defaultInv(), kills:{}});
+  // achats
+  let s = st(); s.money = 7500;
+  if (!shop.buyItem(s, 'super').ok || s.money !== 0 || s.inv.ball !== 'super') throw new Error('achat de la Super Ball');
+  if (shop.buyItem(s, 'super').reason !== 'owned') throw new Error('doublon');
+  if (shop.buyItem(s, 'hyper').reason !== 'money') throw new Error('argent insuffisant');
+  s.money = 90000; shop.buyItem(s, 'hyper'); if (s.inv.ball !== 'hyper') throw new Error('Hyper Ball équipée');
+  if (!shop.equipBall(s, 'super') || s.inv.ball !== 'super' || shop.equipBall(st(), 'hyper')) throw new Error('équipement des balls');
+  // effets passifs actifs dès l'achat
+  s = st(); s.money = 5e6; ['xp', 'rune', 'chroma'].forEach(id => shop.buyItem(s, id));
+  if (shop.xpMultiplier(s.inv) !== 1.5 || shop.moneyMultiplier(s.inv) !== 2 || shop.shinyDenominator(s.inv) !== 2048) throw new Error('effets passifs');
+  if (shop.xpMultiplier(shop.defaultInv()) !== 1 || shop.shinyDenominator(shop.defaultInv()) !== 4096) throw new Error('effets par défaut');
+  // déblocage : 3 victoires dans la zone précédente
+  const jade = shop.shopById('jade');
+  if (shop.shopOpen({forest:2}, jade) || !shop.shopOpen({forest:3}, jade) || shop.shopOpen({route:9}, jade)) throw new Error('déblocage de la boutique');
+  // sauvegarde assainie
+  const clean = shop.sanitizeInv({owned:{super:true, bogus:true, poke:true}, ball:'hyper'});
+  if (clean.owned.bogus || clean.ball !== 'poke' || !clean.owned.super) throw new Error('inventaire assaini');
+  // bonus de rareté : total 100 %, Communs en baisse, rien à changer en Route 1
+  const base = world.zonePool('forest'), boosted = world.zonePool('forest', .6), sum = a => a.reduce((x, p) => x + p.probability, 0);
+  const tierSum = (a, t) => a.filter(p => p.tier === t).reduce((x, p) => x + p.probability, 0);
+  if (Math.abs(sum(boosted) - 1) > 1e-9 || !(tierSum(boosted, 3) > tierSum(base, 3)) || !(tierSum(boosted, 1) < tierSum(base, 1))) throw new Error('bonus de rareté');
+  if (Math.abs(tierSum(world.zonePool('route', .6), 1) - 1) > 1e-9) throw new Error('Route 1 inchangée');
+  // charme chroma
+  sh.setShinyDenominator(2048); if (!sh.rollShiny(1 / 2048 - 1e-9) || sh.rollShiny(1 / 2048)) throw new Error('charme chroma'); sh.setShinyDenominator(4096);
+  if (sh.rollShiny(1 / 4096)) throw new Error('retour au 1/4096');
+}
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');

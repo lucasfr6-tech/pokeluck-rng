@@ -31,13 +31,15 @@ function routeSvg(selected){
   return `<svg class="map-route" viewBox="0 0 100 100" aria-hidden="true">${out}</svg>`;
 }
 
-export function mapMarkup(selected,busy=false){
+const SHOP_ICON='<svg viewBox="0 0 40 40" aria-hidden="true"><path class="sh-roof" d="M4 16 L8 6 H32 L36 16 Z"/><path class="sh-stripe" d="M12 6 L11 16 M20 6 V16 M28 6 L29 16"/><rect class="sh-wall" x="6" y="16" width="28" height="18"/><rect class="sh-door" x="16" y="22" width="8" height="12"/><rect class="sh-win" x="8" y="20" width="6" height="6"/><rect class="sh-win" x="26" y="20" width="6" height="6"/></svg>';
+export function mapMarkup(selected,busy=false,shops=[]){
   const zone=zones.find(z=>z.id===selected);
   return `<div class="illustrated-map" role="group" aria-label="Carte interactive des destinations de Kanto">
     <img class="exploration-image" src="assets/kanto-exploration.png" alt="Paysage pixel art avec une grotte en haut à gauche, une rivière, des sentiers et une forêt en bas à droite" draggable="false">
     ${routeSvg(selected)}
     <span class="map-water" aria-hidden="true"></span><span class="map-glint g1" aria-hidden="true"></span><span class="map-glint g2" aria-hidden="true"></span>
     ${mapSpots.map(s=>{const z=zones.find(z=>z.id===s.id);const current=s.id===selected;const side=s.x>72?' edge-r':s.x<28?' edge-l':'';const pos=s.y<18?' below':'';return `<button class="map-spot${current?' current':''}${side}${pos}" data-zone="${s.id}" aria-label="Voyager vers ${z.name}" aria-pressed="${current}" ${busy?'disabled':''} style="left:${s.x}%;top:${s.y}%"><span class="map-spot-dot" aria-hidden="true"></span><span class="map-num" aria-hidden="true">${routeOrder.indexOf(s.id)+1}</span><span class="map-tooltip">${routeOrder.indexOf(s.id)+1} · ${z.name}</span></button>`;}).join('')}
+    ${shops.map(s=>`<button class="map-shop${s.open?' open':' closed'}" data-shop="${s.id}" style="left:${s.x}%;top:${s.y}%" aria-label="${s.name}${s.open?'':' (fermée : '+s.kills+' / '+s.need+' Pokémon vaincus)'}"><span class="map-shop-art">${SHOP_ICON}</span>${s.open?'':`<span class="map-shop-lock" aria-hidden="true">${s.kills}/${s.need}</span>`}<span class="map-tooltip">${s.name}${s.open?'':' · '+s.kills+' / '+s.need}</span></button>`).join('')}
     <span class="sr-only">Destination actuelle : ${zone?.name||'Route 1'}. Sélectionnez un rond lumineux sur la carte pour voyager.</span>
   </div>`;
 }

@@ -1,7 +1,11 @@
 // Tirage indépendant de l'espèce. Les futures améliorations passeront par ce taux.
 export const SHINY_DENOMINATOR = 4096;
 export const SHINY_CHANCE = 1 / SHINY_DENOMINATOR;
-export const rollShiny = (random = Math.random()) => random >= 0 && random < SHINY_CHANCE;
+// Le Charme Chroma change le dénominateur (1 sur 2 048) ; sans lui, 1 sur 4 096.
+let denominator = SHINY_DENOMINATOR;
+export const setShinyDenominator = n => {denominator = Number.isInteger(n) && n >= 1 ? n : SHINY_DENOMINATOR;};
+export const getShinyDenominator = () => denominator;
+export const rollShiny = (random = Math.random()) => random >= 0 && random < 1 / denominator;
 export function formCount(state, id, shiny = false) {
  const total = state.counts[id] || 0;
  const count = Math.min(total, state.shinyCounts?.[id] || 0);
@@ -27,5 +31,5 @@ export function recordForm(state, id, shiny) {
   if (first) state.appearance[id] = 'shiny';
  }
 }
-export const formProbability = (probability, shiny) => probability * (shiny ? SHINY_CHANCE : 1 - SHINY_CHANCE);
+export const formProbability = (probability, shiny) => probability * (shiny ? 1 / denominator : 1 - 1 / denominator);
 export const shinyBadge = '<span class="shiny-badge">✦ Chromatique</span>';
