@@ -181,3 +181,24 @@ assert.equal(makeFighter({id:1,name:'IV test',level:100,types:['grass'],base:DEF
 const parsedEffort=parseSpecies({id:4,stats:[{base_stat:65,effort:1,stat:{name:'speed'}}],moves:[]});assert.equal(parsedEffort.evYield.spe,1);
 const {radarMarkup}=await import('../dist/training-ui.js');assert.ok(radarMarkup(zeroTraining.evs,252,'ev').includes('0 / 252'));assert.ok(!radarMarkup(perfectTraining.ivs,31,'iv').includes('NaN'));
 console.log('OK : IV 0–31, migration stable, EV 252/510, gains des 151 espèces, stats et radar.');
+
+const shiny=await import('../dist/shiny.js');
+const {sprite:formSprite}=await import('../dist/pokemon.js');
+assert.equal(shiny.SHINY_CHANCE,1/4096);
+assert.equal(Array.from({length:4096},(_,i)=>shiny.rollShiny(i/4096)).filter(Boolean).length,1);
+assert.equal(shiny.rollShiny(0),true);assert.equal(shiny.rollShiny(1/4096-Number.EPSILON),true);
+assert.equal(shiny.rollShiny(1/4096),false);assert.equal(shiny.rollShiny(1),false);assert.equal(shiny.rollShiny(-1),false);
+const legacyForms=shiny.migrateShinies({4:10,25:2});
+assert.deepEqual(legacyForms,{shinyCounts:{},appearance:{}});
+const savedForms=shiny.migrateShinies({4:10,25:2},{4:3,25:999,1:4,3:-1,5:'2'},{4:'shiny',25:'normal'});
+assert.deepEqual(savedForms,{shinyCounts:{4:3,25:2},appearance:{4:'shiny',25:'shiny'}});
+assert.deepEqual(shiny.migrateShinies({4:10,25:2},savedForms.shinyCounts,savedForms.appearance),savedForms);
+const forms={counts:{4:10},...legacyForms};
+assert.equal(shiny.formCount(forms,4),10);assert.equal(shiny.selectedShiny(forms,4),false);
+shiny.recordForm(forms,4,true);assert.equal(forms.counts[4],11);assert.equal(shiny.formCount(forms,4),10);assert.equal(shiny.formCount(forms,4,true),1);assert.equal(shiny.selectedShiny(forms,4),true);
+shiny.recordForm(forms,4,false);assert.equal(shiny.formCount(forms,4),11);assert.equal(shiny.formCount(forms,4,true),1);assert.equal(shiny.selectedShiny(forms,4),true);
+forms.appearance[4]='normal';shiny.recordForm(forms,4,true);assert.equal(shiny.selectedShiny(forms,4),false);
+shiny.recordForm(forms,25,true);assert.equal(shiny.formCount(forms,25),0);assert.equal(shiny.selectedShiny(forms,25),true);
+for(const zone of zones){const entries=zonePool(zone.id);let formSum=0;for(const p of entries){assert.equal(shiny.formProbability(p.probability,true),p.probability/4096);formSum+=shiny.formProbability(p.probability,true)+shiny.formProbability(p.probability,false);}assert.ok(Math.abs(formSum-1)<1e-12);}
+for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'.png'));assert.ok(formSprite(id,true,true).endsWith('/back/shiny/'+id+'.png'));assert.ok(formSprite(id).endsWith('/pokemon/'+id+'.png'));}
+console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');

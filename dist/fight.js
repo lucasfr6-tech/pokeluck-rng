@@ -135,14 +135,14 @@ export function createFight(ctx) {
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
-        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name,encounterTraining), ...ids.map(id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id)))]);
+        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id)))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), wild.fighter);
         this.wild = wild.fighter;
-        el.hpName.textContent = `${p.name} · Niv. ${wildLevel}`; setWild(wild.fighter.hp); el.hp.hidden = false;
+        el.hpName.textContent = `${p.name}${p.shiny?' ✦ Chromatique':''} · Niv. ${wildLevel}`; setWild(wild.fighter.hp); el.hp.hidden = false;
         setCard(activeFighter(bt)); renderMoves(true);
-        say(`Un ${p.name} sauvage apparaît ! Que doit faire ${activeFighter(bt).name} ?`);
+        say(`Un ${p.name}${p.shiny?' chromatique':''} sauvage apparaît ! Que doit faire ${activeFighter(bt).name} ?`);
       } catch { if (my === token) say('Combat indisponible pour le moment.'); }
     }
   };

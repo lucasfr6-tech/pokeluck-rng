@@ -88,3 +88,13 @@ Dans le profil, les boutons IV et EV se trouvent à droite de l’évolution et 
 Fichiers : training.js (règles pures), training-ui.js/css (profil), ev-yields.js (les 151 rendements en données locales). Sauvegarde : champ training de pokeluck-save-v1, sans changer counts, xp ou team. Le cache des espèces utilise désormais pokeluck-sp-v2-* ; parseSpecies expose aussi evYield.
 
 Références : [rendements EV PokéAPI](https://github.com/PokeAPI/pokeapi/blob/master/data/v2/csv/pokemon_stats.csv), [formules du jeu Émeraude](https://github.com/pret/pokeemerald/blob/master/src/pokemon.c), [validation moderne des limites](https://github.com/smogon/pokemon-showdown/blob/master/sim/team-validator.ts). Le plafond moderne de 252 est utilisé, et non l’ancien plafond de stockage de 255.
+
+
+## Pokémon chromatiques
+Les 151 espèces actuelles ont une forme chromatique, sprites de face et de dos issus de PokeAPI/sprites. Chaque rencontre effectue un second tirage indépendant à 1/4096 (shiny.js), après le choix de l’espèce et sans changer les poids des zones. La chance d’une espèce chromatique est donc sa probabilité de zone divisée par 4096. Aucun bonus de chance n’est encore actif ; le taux est centralisé pour la suite.
+
+Sauvegarde pokeluck-save-v1 : counts reste le total par espèce ; shinyCounts est le sous-ensemble chromatique validé et borné au total, appearance indique le visuel choisi, historyShiny suit les cinq rencontres. Les anciennes captures restent normales. Première découverte chromatique : apparence chromatique sélectionnée automatiquement, sans changer la composition d’équipe. Un doublon normal ne remplace pas ce choix.
+
+Le profil permet de sélectionner une apparence possédée ; les cartes, miniatures et combats la reprennent. Le modèle d’un représentant par espèce est conservé : niveau, XP, puissance et IV/EV sont partagés entre les couleurs, sans bonus chromatique. Évolution toujours par RNG et une seule forme par lignée dans l’équipe.
+
+Index : sélecteur Normale / Chromatique à côté de À découvrir. Il se combine avec recherche, type, rareté, découverte et tri. Découverte et exemplaires sont propres à la couleur sélectionnée ; les chances affichées combinent espèce et couleur. Les cinq raretés restent visibles, y compris les légendaires à la Centrale. Le centrage couvre aussi les 302 sprites chromatiques face/dos.

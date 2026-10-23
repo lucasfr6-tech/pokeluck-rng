@@ -8,7 +8,7 @@ export function combatPositions(width,height,strip,wildHud,allyHud){
 }
 export function initializeSpriteCentering(){
  const cache=new Map(),requested=new WeakMap();
- const isSprite=src=>/^https:\/\/raw\.githubusercontent\.com\/PokeAPI\/sprites\/master\/sprites\/pokemon\/(?:back\/)?(?:[1-9]|[1-9]\d|1[0-4]\d|15[01])\.png$/.test(src);
+ const isSprite=src=>/^https:\/\/raw\.githubusercontent\.com\/PokeAPI\/sprites\/master\/sprites\/pokemon\/(?:back\/)?(?:shiny\/)?(?:[1-9]|[1-9]\d|1[0-4]\d|15[01])\.png$/.test(src);
  function normalized(src){if(cache.has(src))return cache.get(src);const promise=new Promise(resolve=>{const image=new Image();image.crossOrigin='anonymous';image.onload=()=>{try{const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const bounds=opaqueBounds(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);if(!bounds){resolve(src);return;}const offset=centeredOffset(bounds,canvas.width,canvas.height);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.imageSmoothingEnabled=false;ctx.drawImage(image,offset.x,offset.y);resolve(canvas.toDataURL());}catch{resolve(src);}};image.onerror=()=>resolve(src);image.src=src;});cache.set(src,promise);return promise;}
  function center(img){const src=img.getAttribute('src')||'';if(!isSprite(src)||requested.get(img)===src)return;requested.set(img,src);normalized(src).then(result=>{if(requested.get(img)===src)requested.delete(img);if(img.isConnected&&img.getAttribute('src')===src&&result!==src)img.src=result;});}
  function scan(node){if(node instanceof HTMLImageElement)center(node);node.querySelectorAll?.('img').forEach(center);}
