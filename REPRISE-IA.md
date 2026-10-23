@@ -1,3 +1,9 @@
+# Mise à jour 0.4 — Carte illustrée interactive
+
+Nouvelle disposition demandée par le créateur : bannière en haut à gauche avec toutes les espèces possédées en petit (plus de vignettes à droite) ; bloc Menu / Pokédex / Carte juste dessous ; image fournie en carte interactive en bas à gauche. L’ancienne barre de destinations et ses deux raccourcis ont été supprimés. La grotte en haut à gauche correspond au Mont Sélénite ; la forêt en bas à droite à la Forêt de Jade ; les sentiers accèdent aux routes. Les zones cliquables sont définies dans map.js avec des coordonnées proportionnelles, des labels accessibles et des noms révélés au survol/focus. La navigation reste la même dans la carte agrandie. De légères animations CSS animent la carte, désactivées en réduction des mouvements. La puissance reste calculée sur l’équipe équipée ; la bannière montre la collection, pas seulement les six équipés. Pas de modification des chances ni des sauvegardes.
+
+---
+
 # Mise à jour 0.3 — Aventure rétro plein navigateur
 
 Le créateur a choisi la première maquette Aventure rétro et demandé de remplir toute la fenêtre. Cette direction est maintenant implémentée : canvas pixel art par zone, sprites animés décoratifs, HUD superposé, Pokéball centrale, vrais sprites Pokémon et objets pour les menus, destinations en bas. Les routes 2, 3 et 4 complètent Route 1, Forêt de Jade, Mont Sélénite et Centrale ; les anciens identifiants de zone sont conservés pour les sauvegardes. Carte et historique sont accessibles dans Menu. La collection, les puissances et les probabilités restent celles du prototype. GitHub Pages reste la publication de référence.

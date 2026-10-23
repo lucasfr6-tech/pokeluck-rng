@@ -1,0 +1,58 @@
+/* The trainer, navigation and illustrated map share the left side of the HUD. */
+:root{--sidebar-left:26px;--banner-width:326px;--map-size:clamp(180px,min(27vw,39dvh),370px)}
+.hud{left:var(--sidebar-left);right:26px;top:20px}
+.trainer{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:3px 10px;width:var(--banner-width);max-width:none;padding:9px 11px;align-items:center}
+.trainer .avatar{width:44px;height:44px;grid-column:1;grid-row:1}
+.trainer .avatar img{width:54px;height:54px}
+.trainer-info{grid-column:2;grid-row:1}
+.trainer-info>strong{font-size:16px;max-width:155px}
+.trainer-info .overline{font-size:9px}
+.trainer .power{font-size:13px}.trainer .power small{font-size:11px}
+.owned-count{font-size:10px;align-self:start;padding-top:3px;color:#afc9d8;grid-column:3;grid-row:1;white-space:nowrap}
+.trainer .trainer-team{position:static;grid-column:1/-1;grid-row:2;width:100%;margin:3px 0 0;padding:0;background:none;text-align:left;border-top:1px solid #63809666}
+.trainer .trainer-team>span{display:flex;gap:0;overflow-x:auto;overscroll-behavior:contain;max-width:100%;padding-top:3px;scrollbar-width:thin;scrollbar-color:#688598 transparent}
+.trainer .team-mini{flex:0 0 29px;width:29px;height:29px;border:0;border-radius:0;background:none;overflow:hidden}
+.trainer .team-mini img{width:39px;height:39px}
+.trainer .empty-owned{color:#a8c2cf;display:block;font-size:10px;padding:4px 0}
+.quick-menu{left:var(--sidebar-left);top:150px;width:120px;gap:7px;padding:5px;background:#11263cb3;border:1px solid #7894a5;border-radius:8px;box-shadow:3px 3px 0 #061524}
+.quick-menu .game-button{width:100%;min-height:47px;box-shadow:none;padding:6px 9px;font-size:12px;gap:8px;border-width:1px;border-radius:5px}
+.quick-menu .game-button img{width:27px;height:27px}
+.map-panel{position:absolute;left:var(--sidebar-left);bottom:max(33px,calc(env(safe-area-inset-bottom) + 28px));width:calc(var(--map-size) + 10px);padding:4px;z-index:4;background:#11283eee;border:2px solid #819fad;border-radius:8px;box-shadow:4px 4px 0 #061524}
+.map-panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 7px 7px;min-height:29px}
+.map-panel-head strong{display:flex;align-items:center;gap:7px;font-size:12px;color:#ffdf87}
+.map-panel-head .mini-ball{width:17px;height:17px;border-width:1.5px}
+.map-panel-head .mini-ball:after{width:7px;height:7px;left:3.5px;top:3.5px}
+.map-place{color:#d1e3ea;font-size:11px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.map-panel-foot{display:flex;flex-direction:column;gap:2px;padding:5px 7px 3px;font-size:9px;color:#b9dac6}
+.map-hint{font-size:9px;color:#a4bfcc}
+.illustrated-map{width:100%;aspect-ratio:1;position:relative;isolation:isolate;border-radius:3px;overflow:hidden;background:#286d71}
+.exploration-image{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;user-select:none;-webkit-user-drag:none}
+.map-trails{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.map-trails path{fill:none;stroke:#fff5bc;stroke-width:.8;stroke-dasharray:1.5 2.2;stroke-linecap:round;opacity:.45}
+.map-hotspot{position:absolute;z-index:3;border:0;border-radius:35%;padding:0;background:transparent;cursor:pointer;transition:background .18s}
+.map-hotspot:hover,.map-hotspot:focus-visible{background:#fff8ba38;box-shadow:inset 0 0 0 1px #fff4b9aa}
+.map-hotspot:focus-visible{outline:2px solid #fff6b5;outline-offset:-2px}
+.map-hotspot:disabled{opacity:1;cursor:pointer}
+.map-tooltip{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;white-space:nowrap;background:#10283ff2;border:1px solid #b3cbdb;border-radius:4px;padding:3px 7px;color:#fff3c2;font-size:11px;box-shadow:0 2px 5px #0008;pointer-events:none}
+.map-hotspot:hover .map-tooltip,.map-hotspot:focus-visible .map-tooltip{display:block}
+.map-position{position:absolute;z-index:2;transform:translate(-50%,-50%);pointer-events:none;width:13%;aspect-ratio:1;border:2px solid #fff0a5;border-radius:50%;box-shadow:0 0 0 2px #132b4199,0 0 15px #ffde7c88;animation:map-pulse 2.2s ease-in-out infinite}
+.map-position span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:#fff2ad;border:2px solid #29424e;border-radius:50%}
+.map-water{position:absolute;inset:0;z-index:1;pointer-events:none;clip-path:polygon(27% 0,44% 0,43% 24%,51% 29%,52% 47%,58% 57%,78% 57%,79% 68%,64% 69%,52% 65%,45% 54%,46% 37%,36% 25%);background:repeating-linear-gradient(180deg,transparent 0 12px,#c4f3ff44 13px 15px,transparent 16px 27px);background-size:100% 54px;mix-blend-mode:screen;animation:water-flow 4s linear infinite;opacity:.42}
+.map-glint{position:absolute;pointer-events:none;z-index:2;width:3px;height:3px;border-radius:50%;background:#f1ffd6;box-shadow:0 0 5px #e7ffd6;animation:map-glint 3s ease-in-out infinite}
+.map-glint.g1{left:78%;top:86%}.map-glint.g2{left:52%;top:37%;animation-delay:-1.5s}
+.encounter-counters{position:absolute;right:28px;bottom:38px;z-index:3;color:#c8dce6;font-size:11px;text-shadow:0 1px 3px #000;background:#10283c99;border:1px solid #7e9baa80;border-radius:5px;padding:5px 9px}
+.stage{top:47%}
+.large-map{max-width:580px;margin:auto}.large-map .map-tooltip{font-size:14px;padding:5px 9px}
+.map-instructions{margin:10px 0;font-size:12px!important;color:#bed5df!important}
+.modal-map-footer{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.modal-map-footer .zone{font-size:12px}
+.reduce-motion .map-water,.reduce-motion .map-position,.reduce-motion .map-glint{animation:none!important}
+@keyframes water-flow{from{background-position:0 0}to{background-position:0 54px}}
+@keyframes map-pulse{0%,100%{box-shadow:0 0 0 2px #132b4199,0 0 5px #ffde7c44}50%{box-shadow:0 0 0 5px #fff1a522,0 0 16px #ffde7c99}}
+@keyframes map-glint{0%,100%{opacity:.1}50%{opacity:1}}
+@media(min-width:1600px){:root{--sidebar-left:30px}.hud{top:20px;right:30px}.quick-menu{top:151px;width:126px}.quick-menu .game-button{min-height:48px}.encounter-counters{right:32px}}
+@media(max-width:900px){:root{--sidebar-left:18px;--banner-width:290px}.hud{top:18px;right:18px}.trainer .team-mini{flex-basis:27px;width:27px}.quick-menu{top:147px;width:110px}.quick-menu .game-button{font-size:11px;min-height:43px}.encounter-counters{right:20px;font-size:10px}.map-panel-head strong{font-size:11px}.map-place{font-size:10px}}
+@media(max-width:600px){:root{--sidebar-left:12px;--banner-width:240px;--map-size:clamp(160px,43vw,205px)}.hud{top:max(12px,env(safe-area-inset-top));right:12px}.trainer{max-width:calc(100vw - 24px);padding:7px 8px;grid-template-columns:35px minmax(0,1fr) auto;gap:2px 7px}.trainer .avatar{width:35px;height:35px}.trainer .avatar img{width:45px;height:45px}.trainer-info>strong{font-size:14px;max-width:105px}.trainer-info .overline{font-size:8px}.trainer .power{font-size:11px}.trainer .power small{font-size:10px}.owned-count{font-size:9px}.trainer .trainer-team{margin-top:2px}.trainer .team-mini{width:24px;height:24px;flex-basis:24px}.trainer .team-mini img{height:34px;width:34px}.trainer .trainer-team>span{display:flex;gap:0;padding-top:1px}.location{position:absolute;right:0;top:116px;max-width:calc(100vw - 135px);padding:7px 9px}.location .overline{font-size:8px}.location strong{font-size:13px}.quick-menu{top:129px;width:98px;gap:5px;padding:4px}.quick-menu .game-button{min-height:39px;padding:5px 7px;font-size:11px;gap:6px}.quick-menu .game-button img{height:23px;width:23px}.quick-menu .mini-ball{width:18px;height:18px}.map-panel{bottom:max(31px,calc(env(safe-area-inset-bottom) + 26px));padding:3px}.map-panel-head{padding:3px 4px 5px;gap:5px;min-height:25px}.map-panel-head strong{font-size:10px;gap:4px}.map-place{font-size:9px;max-width:110px}.map-panel-head .mini-ball{display:none}.map-panel-foot{padding:4px 4px 2px;gap:2px;font-size:8px}.map-hint{font-size:8px}.map-tooltip{font-size:10px;padding:3px 5px}.stage{top:43%}.wild.one{left:10%;top:46%}.wild.three{right:8%;bottom:24%}.encounter-counters{right:12px;bottom:37px;max-width:calc(100vw - var(--map-size) - 38px);font-size:9px;padding:4px 6px;text-align:right}.world-status{font-size:8px}.world-status>div{gap:6px}.large-map .map-tooltip{font-size:12px}.map-instructions{font-size:11px!important}}
+@media(max-height:600px){:root{--sidebar-left:12px;--map-size:clamp(100px,28dvh,145px);--banner-width:255px}.hud{top:8px;right:12px}.trainer{padding:5px 8px;grid-template-columns:30px minmax(0,1fr) auto}.trainer .avatar{width:30px;height:30px}.trainer .avatar img{width:39px;height:39px}.trainer-info .overline{display:none}.trainer-info>strong{font-size:12px}.trainer .power{font-size:10px}.trainer .power small{font-size:9px}.trainer .team-mini{height:21px;width:23px;flex-basis:23px}.trainer .team-mini img{height:30px;width:30px}.trainer .trainer-team>span{padding:0}.owned-count{font-size:9px}.quick-menu{top:92px;width:96px;padding:4px;gap:4px}.quick-menu .game-button{min-height:32px;padding:2px 6px;font-size:10px;gap:5px}.quick-menu .game-button img{height:22px;width:22px}.map-panel{bottom:27px;padding:3px}.map-panel-head{padding:2px 3px 4px;min-height:19px}.map-panel-head strong{font-size:9px}.map-panel-head .mini-ball,.map-hint{display:none}.map-place{font-size:8px;max-width:95px}.map-panel-foot{padding:3px 2px 1px;font-size:8px;white-space:nowrap;overflow:hidden}.encounter-counters{bottom:32px;font-size:9px}.stage{top:44%}.map-position{border-width:1px}.map-position span{width:6px;height:6px;border-width:1px}.map-tooltip{font-size:9px}.wild.three{display:none}}
+@media(max-height:600px) and (min-width:650px){.quick-menu{top:90px;flex-direction:row;width:auto}.quick-menu .game-button{width:auto;min-height:34px;padding:3px 9px}.location{position:static}.stage{top:47%}}
+@media(prefers-reduced-motion:reduce){.map-water,.map-position,.map-glint{animation:none!important}}
