@@ -7,6 +7,7 @@ export const names = ['Bulbizarre','Herbizarre','Florizarre','Salamèche','Repti
 const weights = [9,3,1,0,3,0.3,9,3,1,18,7,2,18,7,2,18,7,2,18,5,14,4,12,4,6,2,12,4,0,3,1,
 12,4,1,6,1.5,6,1.5,10,2,18,5,14,5,1.5,12,3,12,3,12,3,12,3,12,3,12,3,6,1,14,5,1.5,6,2,0.6,12,4,1,14,5,1.5,14,3,16,5,1.2,10,2,10,2,10,3,3,12,3,10,2.5,10,2.5,10,1.5,10,3,0.8,4,12,3,12,3,10,3,10,2,10,2.5,1.5,1.5,3,10,2.5,10,2,0.8,4,1.5,10,2.5,14,3,12,1.2,1.5,1.2,1.5,1.5,1.5,1.2,1.5,18,0.5,0.4,1,3,0.4,0.4,0.4,0.4,0.8,0.2,0.8,0.2,0.3,0.3,0.002,0.002,0.002,0.5,0.15,0.02,0.0002,0.0002];
 if (weights.length !== names.length) throw new Error('Poids et noms désynchronisés');
+export const baseWeights = weights;
 const sum = weights.reduce((a,b)=>a+b,0);
 export const pool = names.map((name,i)=>({id:i+1,name,probability:i===28?1/2:i===3?1/6:weights[i]/sum/3}));
 

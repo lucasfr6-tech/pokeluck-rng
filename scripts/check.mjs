@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {pool,evolvesFrom,ancestors,sameLine,names} from '../dist/pokemon.js';
-import {zones,zonePool,draw,types,powers,itinerary,backgroundFor,backgrounds,dedupeLines,teamAfterCapture,teamAfterEquip,maxHp} from '../dist/world.js';
+import {tierOf,zones,zonePool,draw,types,powers,itinerary,backgroundFor,backgrounds,dedupeLines,teamAfterCapture,teamAfterEquip,maxHp} from '../dist/world.js';
 import {chooseAiMove,effectiveness,computeStats,knownMoves,nextMove,damage,makeFighter,createBattle,takeTurn,xpReward,LUTTE,isUsable,DEFAULT_BASE} from '../dist/battle.js';
 import {parseSpecies,parseMove} from '../dist/battle-data.js';
 import {existsSync} from 'node:fs';
@@ -24,7 +24,13 @@ for(const zone of zones){
   const baseline=entries.find(p=>!types[p.id].some(t=>zone.bonus.includes(t)));
   for(const p of entries){assert.ok(Math.abs(ratio(p)/ratio(baseline)-(types[p.id].some(t=>zone.bonus.includes(t))?3:1))<1e-10);}
 }
-assert.equal(zonePool('route')[28].probability,pool[28].probability/ pool.reduce((s,p)=>s+p.probability,0));
+// Paliers de rareté : chaque zone n'offre que les espèces de son palier ou des paliers inférieurs.
+for(const z of zones)for(const p of zonePool(z.id))assert.ok(tierOf(p.id)<=z.tier,'Palier dépassé '+z.id+' #'+p.id);
+assert.ok(zonePool('route').length<zonePool('route2').length&&zonePool('cave').length<zonePool('power').length);
+assert.ok(!zonePool('route').some(p=>[150,151,144,6,101].includes(p.id)),'Pas de rare ni de légendaire sur la Route 1');
+assert.ok([150,151,144,145,146].every(id=>zonePool('power').some(p=>p.id===id)&&!zonePool('route4').some(p=>p.id===id)),'Légendaires uniquement à la Centrale');
+assert.equal(zones.find(z=>z.id==='power').tier,5);assert.equal(Math.max(...zones.map(z=>z.tier)),5);
+assert.equal(tierOf(25),2);assert.equal(tierOf(4),1);assert.equal(tierOf(29),1);
 for(const step of itinerary.filter(s=>s.zone))assert.ok(zones.some(z=>z.id===step.zone));
 assert.deepEqual(itinerary.filter(s=>s.zone).map(s=>s.zone),['route','route2','forest','route3','cave','route4']);
 for(const id of ['route','forest','cave','power'])assert.ok(zones.some(z=>z.id===id),'Ancienne zone préservée : '+id);
