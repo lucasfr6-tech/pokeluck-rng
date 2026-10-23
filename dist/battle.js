@@ -68,8 +68,8 @@ export function makeFighter({id, name, level, types, base, moves}) {
 
 // Expérience gagnée par chaque participant en battant un Pokémon sauvage (provisoire).
 // Plus l'adversaire est haut niveau, plus l'XP est grande ; s'il dépasse le niveau du Pokémon, bonus jusqu'à ×3,
-// et s'il est plus faible, malus jusqu'à ×0,5. Ex. : sauvage niv. 30 contre un niv. 8 → 45 XP ; niv. 5 contre niv. 5 → 3 XP.
-export const xpReward = (wildLevel, ownLevel = wildLevel) => Math.max(1, Math.round(wildLevel / 2 * Math.min(3, Math.max(0.5, wildLevel / Math.max(1, ownLevel)))));
+// et s'il est plus faible, malus jusqu'à ×0,5. Ex. : sauvage niv. 30 contre un niv. 8 → 90 XP ; niv. 5 contre niv. 5 → 5 XP.
+export const xpReward = (wildLevel, ownLevel = wildLevel) => Math.max(1, Math.round(wildLevel * Math.min(3, Math.max(0.5, wildLevel / Math.max(1, ownLevel)))));
 
 export function createBattle(team, wild, rand = Math.random) {
   return {team, wild, active:0, over:false, winner:null, participants:new Set([team[0].id]), rand};

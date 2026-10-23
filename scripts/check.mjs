@@ -77,7 +77,7 @@ const d=damage(A,B,mv,()=>0.5);assert.ok(d.hit&&d.stab&&d.eff===2&&d.dmg>0);
 assert.equal(damage(A,B,{...mv,acc:50},()=>0.9).hit,false);
 assert.equal(isUsable({power:null,cls:'status'}),false);
 const bt=createBattle([A],B,()=>0.1);let guard=0;while(!bt.over&&guard++<50)takeTurn(bt,mv);
-assert.equal(bt.winner,'player');assert.equal(B.hp,0);assert.ok(xpReward(10)===5&&xpReward(1)===1);assert.equal(xpReward(30,8),45);assert.ok(xpReward(30,8)>xpReward(5,5)*10);assert.equal(xpReward(5,5),3);assert.ok(xpReward(10,40)<xpReward(10,10));
+assert.equal(bt.winner,'player');assert.equal(B.hp,0);assert.ok(xpReward(10)===10&&xpReward(1)===1);assert.equal(xpReward(30,8),90);assert.ok(xpReward(30,8)>xpReward(5,5)*10);assert.equal(xpReward(5,5),5);assert.ok(xpReward(10,40)<xpReward(10,10));
 // IA : Pikachu face à Carapuce choisit Éclair plutôt que Vive-Attaque ; il ne gaspille pas un coup sans effet.
 const pika=makeFighter({id:25,name:'Pikachu',level:10,types:['electric'],base:{hp:35,atk:55,def:40,spa:50,spd:50,spe:90},moves:[{name:'quick-attack',fr:'Vive-Attaque',power:40,acc:100,type:'normal',cls:'physical'},{name:'thunder-shock',fr:'Éclair',power:40,acc:100,type:'electric',cls:'special'},{name:'growl',fr:'Rugissement',power:null,acc:100,type:'normal',cls:'status'}]});
 const squirtle=makeFighter({id:7,name:'Carapuce',level:10,types:['water'],base:{hp:44,atk:48,def:65,spa:50,spd:64,spe:43},moves:[]});
