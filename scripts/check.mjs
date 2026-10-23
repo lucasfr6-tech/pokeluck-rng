@@ -250,7 +250,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,antidote,paralyze-heal,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,antidote,paralyze-heal,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band,water-stone') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -460,7 +460,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 { const A = await import('../dist/arena.js'); assert.deepEqual(A.ARENAS.map(a => A.arenaPrize(a, true)), [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000]); assert.equal(A.arenaPrize(A.ARENAS[1], false), 1000); console.log('OK : primes d’arène 5 000 à 40 000 ₽, revanche 10 %.'); }
 {
   const sh = await import('../dist/shop.js'), A = await import('../dist/arena.js');
-  const o = sh.shopById('ouest'); assert.equal(o.stock.length, 6); assert.equal(o.stock.filter(id => sh.ITEMS[id].kind === 'tm').length, 2); assert.ok(o.stock.includes('leftovers'));
+  const o = sh.shopById('ouest'); assert.equal(o.stock.length, 7); assert.equal(o.stock.filter(id => sh.ITEMS[id].kind === 'tm').length, 2); assert.ok(o.stock.includes('leftovers'));
   assert.ok(A.ZONE_ORDER.indexOf(o.after) === 11 && A.arenaById('safrania').n === 6, 'boutique juste avant l’arène de Morgane');
   const path = A.buildPath(sh.SHOPS.map(s => ({...s, open:true}))); const i = path.findIndex(n => n.kind === 'shop' && n.id === 'ouest');
   assert.equal(path[i + 1].id, 'safrania', 'la boutique précède l’arène de Morgane');
@@ -471,3 +471,11 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   console.log('OK : boutique des Îles Écume (6 objets, 2 CT, Restes) juste avant Morgane ; Restes en combat.');
 }
 { const sh = await import('../dist/shop.js'); const all = sh.SHOPS.flatMap(s => s.stock); assert.equal(new Set(all).size, all.length, 'aucun objet vendu dans deux boutiques'); console.log('OK : aucun objet en double entre les boutiques.'); }
+{
+  const sh = await import('../dist/shop.js'), P = await import('../dist/pokemon.js');
+  const stones = Object.values(sh.ITEMS).filter(i => i.kind === 'stone'); assert.equal(stones.length, 5);
+  for (const s of stones) for (const [from, to] of Object.entries(s.evolves)) assert.equal(P.evolvesFrom[to], +from, `${s.id} : ${from} → ${to} est une vraie évolution`);
+  assert.deepEqual(sh.stoneTargets(133).map(t => t.to).sort(), [134, 135, 136]); assert.equal(sh.stoneTargets(25)[0].to, 26); assert.equal(sh.stoneTargets(4).length, 0);
+  for (const s of stones) assert.ok(sh.SHOPS.some(x => x.stock.includes(s.id)), s.id + ' est en vente');
+  console.log('OK : 5 pierres d’évolution, évolutions valides, Évoli (3 pierres), boutiques.');
+}

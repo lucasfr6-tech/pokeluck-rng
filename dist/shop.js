@@ -30,6 +30,11 @@ export const ITEMS = {
   leftovers: {id:'leftovers', kind:'held', stack:true, name:'Restes', price:80000, sprite:SPRITE('leftovers'), effect:'Rend 1/16 des PV max à chaque tour', desc:'Comme dans les jeux : le porteur récupère un peu de PV à la fin de chaque tour de combat. Objet tenu, un seul par Pokémon.'},
   'ct-blizzard': {id:'ct-blizzard', kind:'tm', stack:true, move:'blizzard', name:'CT14 · Blizzard', price:90000, sprite:SPRITE('tm-ice'), effect:'Glace · Puissance 110 · Précision 70', desc:'Apprend Blizzard à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-doubleedge': {id:'ct-doubleedge', kind:'tm', stack:true, move:'double-edge', name:'CT10 · Damoclès', price:75000, sprite:SPRITE('tm-normal'), effect:'Normal · Puissance 120 · Précision 100 · contrecoup', desc:'Apprend Damoclès à un Pokémon compatible. Consommable : disparaît après usage.'},
+  'fire-stone': {id:'fire-stone', kind:'stone', stack:true, evolves:{37:38,58:59,133:136}, name:'Pierre Feu', price:60000, sprite:SPRITE('fire-stone'), effect:'Fait évoluer Goupix, Caninos, Évoli', desc:'Comme dans les jeux : fait évoluer certains Pokémon (Goupix, Caninos, Évoli). S’utilise depuis le profil du Pokémon, puis disparaît.'},
+  'water-stone': {id:'water-stone', kind:'stone', stack:true, evolves:{61:62,90:91,120:121,133:134}, name:'Pierre Eau', price:60000, sprite:SPRITE('water-stone'), effect:'Fait évoluer Têtarte, Kokiyas, Stari, Évoli', desc:'Comme dans les jeux : fait évoluer certains Pokémon (Têtarte, Kokiyas, Stari, Évoli). S’utilise depuis le profil du Pokémon, puis disparaît.'},
+  'thunder-stone': {id:'thunder-stone', kind:'stone', stack:true, evolves:{25:26,133:135}, name:'Pierre Foudre', price:70000, sprite:SPRITE('thunder-stone'), effect:'Fait évoluer Pikachu, Évoli', desc:'Comme dans les jeux : fait évoluer Pikachu ou Évoli. S’utilise depuis le profil du Pokémon, puis disparaît.'},
+  'leaf-stone': {id:'leaf-stone', kind:'stone', stack:true, evolves:{44:45,70:71,102:103}, name:'Pierre Plante', price:70000, sprite:SPRITE('leaf-stone'), effect:'Fait évoluer Ortide, Boustiflor, Noeunoeuf', desc:'Comme dans les jeux : fait évoluer certains Pokémon (Ortide, Boustiflor, Noeunoeuf). S’utilise depuis le profil du Pokémon, puis disparaît.'},
+  'moon-stone': {id:'moon-stone', kind:'stone', stack:true, evolves:{30:31,33:34,35:36,39:40}, name:'Pierre Lune', price:80000, sprite:SPRITE('moon-stone'), effect:'Fait évoluer Nidorina, Nidorino, Mélofée, Rondoudou', desc:'Comme dans les jeux : fait évoluer certains Pokémon (Nidorina, Nidorino, Mélofée, Rondoudou). S’utilise depuis le profil du Pokémon, puis disparaît.'},
   'ct-water': {id:'ct-water', kind:'tm', stack:true, move:'water-gun', name:'CT12 · Pistolet à O', price:3000,  sprite:SPRITE('tm-water'),    effect:'Eau · Puissance 40 · Précision 100', desc:'Apprend Pistolet à O à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-swift': {id:'ct-swift', kind:'tm', stack:true, move:'swift',     name:'CT39 · Météores',     price:4500,  sprite:SPRITE('tm-normal'),   effect:'Normal · Puissance 60 · Précision 100', desc:'Apprend Météores à un Pokémon compatible. Consommable : disparaît après usage.'},
   'ct-ice': {id:'ct-ice', kind:'tm', stack:true, move:'ice-beam', name:'CT13 · Laser Glace', price:60000, sprite:SPRITE('tm-ice'), effect:'Glace · Puissance 90 · Précision 100', desc:'Apprend Laser Glace à un Pokémon compatible. Consommable : disparaît après usage.'},
@@ -45,11 +50,14 @@ export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024
 // `after` : zone à explorer ; `at` : position (en % de la carte) du logo, entre `after` et la zone suivante.
 export const SHOPS = [
   {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','paralyze-heal','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
-  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'},
-  {id:'ouest', name:'Boutique des Îles Écume', after:'seafoam', before:'mansion', beforeLabel:'l’arène de Morgane', at:{x:50,y:50}, stock:['hyper-potion','max-potion','ice-heal','leftovers','ct-blizzard','ct-doubleedge'], hello:'Bienvenue ! Avant l’arène de Morgane, mieux vaut être bien équipé.'}
+  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band','water-stone'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'},
+  {id:'ouest', name:'Boutique des Îles Écume', after:'seafoam', before:'mansion', beforeLabel:'l’arène de Morgane', at:{x:50,y:50}, stock:['hyper-potion','max-potion','ice-heal','leftovers','ct-blizzard','ct-doubleedge','fire-stone'], hello:'Bienvenue ! Avant l’arène de Morgane, mieux vaut être bien équipé.'},
+  {id:'tour', name:'Boutique de la Tour Pokémon', after:'tower', before:'safari', at:{x:50,y:50}, stock:['thunder-stone','leaf-stone','moon-stone'], hello:'Bienvenue ! Des pierres rares pour faire évoluer vos Pokémon.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
 export const zoneName = id => zones.find(z => z.id === id)?.name || id;
+// Évolutions par pierre : renvoie [{stone, to}] pour une espèce.
+export const stoneTargets = id => Object.values(ITEMS).filter(i => i.kind === 'stone' && i.evolves[id]).map(i => ({stone:i.id, to:i.evolves[id]}));
 export const defaultInv = () => ({owned:{}, ball:'poke', stock:{}, held:{}});
 // Pokémon qui possèdent une méga-évolution (Gen. 1) : ils portent deux objets, les autres un seul.
 export const MEGA_SPECIES = [3, 6, 9, 15, 18, 65, 80, 94, 115, 127, 130, 142, 150];
@@ -158,7 +166,7 @@ export function mountShop(container, {getState, shopId, onChange}) {
     if (pick) {selected = pick.dataset.item; message = ''; render(); return;}
     if (e.target.closest('[data-buy]')) {
       const state = getState(), r = buyItem(state, selected);
-      if (r.ok) {message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'heal' ? 'ajoutée à ton sac. À utiliser en combat avec « Objets ».' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : 'déjà actif !'}`; onChange(selected);}
+      if (r.ok) {message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'heal' ? 'ajoutée à ton sac. À utiliser en combat avec « Objets ».' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'stone' ? 'ajoutée à ton sac. À utiliser depuis le profil du Pokémon à faire évoluer.' : 'déjà actif !'}`; onChange(selected);}
       else message = r.reason === 'money' ? `Il te manque ${fmtMoney(r.missing)}.` : 'Tu l’as déjà.';
       render();
     }
