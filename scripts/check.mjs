@@ -674,3 +674,22 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(b.ppOf({power:120}),5);assert.equal(b.ppOf({pp:35,power:40}),35);
   console.log('OK système de PP');
 }
+{
+  const D=await import('../dist/defis.js');
+  const {SLOT_MS,EPOCH,DEFI_TYPES,typeAtSlot,slotOf,foesFor,counters,defiEligible,defiReward,sanitizeDefis,claim,isClaimed,togglePick,teamOf,currentDefi}=D;
+  assert.ok(DEFI_TYPES.length>=12,'assez de types pour tourner');
+  // Chaque type apparaît une fois avant toute répétition, et jamais deux fois de suite.
+  const n=DEFI_TYPES.length;
+  for(let c=0;c<40;c++){const seen=new Set();for(let i=0;i<n;i++)seen.add(typeAtSlot(c*n+i));assert.equal(seen.size,n,'cycle complet '+c);}
+  for(let s=0;s<n*60;s++)assert.notEqual(typeAtSlot(s),typeAtSlot(s+1),'pas de répétition au slot '+s);
+  assert.equal(currentDefi(EPOCH+SLOT_MS*5+1).slot,5);assert.equal(slotOf(EPOCH+SLOT_MS-1),0);
+  // Équipes adverses : 3 Pokémon, niveau comptable, jamais légendaires, jamais contre le type, stables.
+  for(const t of DEFI_TYPES)for(let tier=0;tier<3;tier++){const f=foesFor(t,tier);assert.equal(f.length,3,t+tier);assert.deepEqual(f,foesFor(t,tier));assert.ok(f.every(id=>defiEligible(id)&&!counters(id,t)),t+' '+tier);assert.equal(new Set(f).size,3);}
+  for(const t of DEFI_TYPES){const p=tier=>foesFor(t,tier).reduce((s,id)=>s+powers[id-1],0);assert.ok(p(0)<=p(1)&&p(1)<=p(2),'paliers croissants '+t);}
+  assert.ok(defiReward(2,3)>defiReward(1,3)&&defiReward(1,3)>defiReward(0,3));
+  // Récompense : une seule fois par palier et par rotation, de nouveau possible à la rotation suivante.
+  const d=sanitizeDefis(null);assert.equal(claim(d,10,0),true);assert.equal(claim(d,10,0),false);assert.equal(isClaimed(d,10,0),true);assert.equal(claim(d,10,1),true);assert.equal(claim(d,11,0),true);assert.equal(isClaimed(d,10,1),false);
+  const counts={4:1,5:1,6:1,150:1};assert.equal(togglePick(d,'fire',4,counts),true);assert.equal(togglePick(d,'fire',150,counts),false);assert.equal(togglePick(d,'water',4,counts),false);
+  assert.deepEqual(teamOf(d,'fire',counts),[4]);assert.deepEqual(sanitizeDefis({picks:{fire:[4,4,150,'x',999]},slot:'a',claimed:{or:true,foo:true}}),{picks:{fire:[4]},slot:-1,claimed:{or:true}});
+  console.log('OK défis');
+}

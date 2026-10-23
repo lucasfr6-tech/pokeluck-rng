@@ -93,7 +93,7 @@ export function createFight(ctx) {
       const win = boss ? ctx.arenaWin?.(boss) : null, prize = boss ? (win?.money || 0) : (ctx.addMoney?.(bt.wild.id, wildLevel) || 0);
       const rows = [];
       const partIds = Array.from(resolvedBattle.participants), shareIds = ctx.xpShare?.() ? (ctx.team?.() || []).filter(i => !partIds.includes(i)) : [];
-      for (const id of [...partIds, ...shareIds]) {
+      for (const id of boss?.defi ? [] : [...partIds, ...shareIds]) {
         const shared = shareIds.includes(id);
         if(bt!==resolvedBattle)return;
         const foes = resolvedBattle.defeated.length ? resolvedBattle.defeated : [{id:resolvedBattle.wild.id, level:wildLevel}];
@@ -107,7 +107,7 @@ export function createFight(ctx) {
       }
       if(bt!==resolvedBattle)return;
       setCard(activeFighter(bt), activeFighter(bt).hp);
-      const bossHead = boss ? `<p>${esc(boss.leader)} est vaincu !</p>${boss.trainer === true ? '<p class="v-tm">Dresseur battu · plus d’argent et d’XP qu’un sauvage.</p>' : boss.rival ? (win?.first ? '<p class="v-badge">Rival battu ! Il reviendra plus fort après la prochaine arène.</p>' : '') : boss.elite ? `<p class="v-badge">${boss.champion ? 'Champion de la Ligue vaincu !' : `Membre ${boss.n} / 4 du Conseil vaincu`}</p>${win?.first ? '' : '<p>Revanche gagnée · prime réduite.</p>'}` : win?.first ? `<p class="v-badge"><img src="${boss.badgeSprite}" alt=""> ${esc(boss.badgeName)} obtenu !</p>` : '<p>Revanche gagnée · prime réduite.</p>'}${win?.note ? `<p class="v-tm">${esc(win.note)}</p>` : ''}${win?.tm ? `<p class="v-tm">CT reçue : ${esc(win.tm)}</p>` : ''}${win?.first && win.cap ? `<p class="v-tm">Plafond de niveau relevé : ${win.cap}</p>` : ''}` : '';
+      const bossHead = boss?.defi ? `<p class="v-badge">${esc(boss.title)} réussi !</p>${win?.note ? `<p class="v-tm">${esc(win.note)}</p>` : ''}<p>Les Pokémon passent au niveau 50 pendant les défis : aucune XP gagnée.</p>` : boss ? `<p>${esc(boss.leader)} est vaincu !</p>${boss.trainer === true ? '<p class="v-tm">Dresseur battu · plus d’argent et d’XP qu’un sauvage.</p>' : boss.rival ? (win?.first ? '<p class="v-badge">Rival battu ! Il reviendra plus fort après la prochaine arène.</p>' : '') : boss.elite ? `<p class="v-badge">${boss.champion ? 'Champion de la Ligue vaincu !' : `Membre ${boss.n} / 4 du Conseil vaincu`}</p>${win?.first ? '' : '<p>Revanche gagnée · prime réduite.</p>'}` : win?.first ? `<p class="v-badge"><img src="${boss.badgeSprite}" alt=""> ${esc(boss.badgeName)} obtenu !</p>` : '<p>Revanche gagnée · prime réduite.</p>'}${win?.note ? `<p class="v-tm">${esc(win.note)}</p>` : ''}${win?.tm ? `<p class="v-tm">CT reçue : ${esc(win.tm)}</p>` : ''}${win?.first && win.cap ? `<p class="v-tm">Plafond de niveau relevé : ${win.cap}</p>` : ''}` : '';
       html = `<div class="v-card" role="dialog" aria-label="Victoire"><h2>Victoire !</h2>${boss ? bossHead : `<p>${esc(bt.wild.name)} sauvage est K.O. · l’XP dépend de son niveau (${wildLevel})</p>`}${prize?`<p class="v-money">+${prize.toLocaleString('fr-FR')} ₽</p>`:''}<ul class="v-list">${rows.join('')}</ul><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     } else html = `<div class="v-card lost" role="dialog" aria-label="Défaite"><h2>Défaite…</h2><p>Toute ton équipe est K.O. Aucune pénalité : relance un tirage pour retenter ta chance.</p><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     await delay(500);
@@ -206,11 +206,11 @@ export function createFight(ctx) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; boss = arena;
       el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = ''; say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
       try {
-        const ids = ctx.team();
+        const ids = arena.defi ? arena.defi.team : ctx.team(), lv = id => arena.defi ? arena.defi.level : ctx.level(id);
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
         const [foes, mine] = await Promise.all([
           Promise.all(arena.team.map(([id, lvl]) => buildFighter(null, lvl, ctx.types(id), id, ctx.foeName?.(id) || String(id), createTraining()))),
-          Promise.all(ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id))))]);
+          Promise.all(ids.map(async id => buildFighter(null, lv(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id))))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), foes[0].fighter, undefined, foes.slice(1).map(f => f.fighter));
