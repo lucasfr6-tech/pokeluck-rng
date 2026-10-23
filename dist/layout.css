@@ -438,3 +438,8 @@ body.reduce-motion .money-pop span{animation:money-fade 1.3s linear forwards}
 @keyframes money-fade{0%,70%{opacity:1}100%{opacity:0}}
 .v-money{margin:6px 0 2px;font:700 22px var(--pixel);color:#8ad4ff}
 @media(max-width:700px){.banner .money{padding:2px 9px 2px 3px}.banner .money strong{font-size:14px}.money-coin{width:20px;height:20px;font-size:12px}}
+
+/* Badges d'arène à la place des médailles. */
+.badge-img{display:block;flex:none;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 0 #0008) drop-shadow(0 0 6px color-mix(in srgb,var(--pc,var(--rank-color,#fff)) 55%,transparent))}
+.rank-badge{display:block;margin-top:2px;font:600 12px var(--font,inherit);color:var(--cat-muted,#9fb8c8)}
+.rank-card .badge-img{width:48px;height:48px}.pf-power .badge-img{filter:drop-shadow(0 3px 0 #0008) drop-shadow(0 0 10px color-mix(in srgb,var(--pc,#fff) 70%,transparent))}
