@@ -152,9 +152,12 @@ body[data-theme=light] .badge-card{background:#dbeaf7;color:#35536b;border-color
 body[data-theme=light] .ach-card{background:#dbeaf7;color:#35536b;border-color:#a5c4de}body[data-theme=light] .ach-card b{color:#203e5a}
 
 /* Conseil des 4 */
-.map-spot.spot-elite .map-spot-dot{background:#7c3aed;border-color:#ede9fe;box-shadow:0 0 0 2px #4c1d95,0 0 8px #a78bfa}
-.map-spot.spot-elite.won .map-spot-dot{background:#f5c542;border-color:#fff7d1;box-shadow:0 0 0 2px #8a6a00,0 0 8px #f5c542}
-.map-spot.spot-elite.locked .map-spot-dot{filter:grayscale(.6) brightness(.75)}
+.map-spot.spot-elite{--sp:clamp(22px,8%,38px);z-index:3;border:3px solid #f1e6ff;background:radial-gradient(circle,#c4a3ff 0 35%,#7c3aed 36% 70%,#4c1d95 100%);box-shadow:0 0 0 3px #1a2e3fcc,0 0 14px 5px #a78bfacc;animation:eliteGlow 2.2s ease-in-out infinite}
+.map-spot.spot-elite .map-spot-dot{background:#fff;border-color:#4c1d95;width:36%;height:36%}
+.map-spot.spot-elite:after{content:"★";position:absolute;left:50%;top:-8px;transform:translateX(-50%);font-size:13px;line-height:1;color:#ffe27a;text-shadow:0 1px 2px #000}
+.map-spot.spot-elite.won{border-color:#fff3b0;background:radial-gradient(circle,#fff3b0 0 35%,#f5c542 36% 70%,#a77a00 100%);box-shadow:0 0 0 3px #1a2e3fcc,0 0 14px 5px #f5c542cc}
+.map-spot.spot-elite.locked{filter:grayscale(.55) brightness(.8);animation:none}
+@keyframes eliteGlow{50%{box-shadow:0 0 0 3px #1a2e3fcc,0 0 20px 8px #c4a3ffcc}}
 .elite-lineup{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
 .elite-mem{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;background:rgba(124,58,237,.14);border:1px solid rgba(167,139,250,.5);text-align:center}
 .elite-mem img{width:56px;height:56px;object-fit:contain;image-rendering:pixelated}
