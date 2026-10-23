@@ -15,3 +15,4 @@
 
 - Paramètres : rubriques Affichage, Performances, Audio, Compte et sauvegarde, Aide. Aucun import/export JSON. Connexions Google et Discord explicitement reportées par le créateur : ne pas annoncer de connexion ou de synchronisation active sans service configuré.
 - Préférences séparées de la progression dans pokeluck-preferences-v1. Préserver les seuils de puissance existants : bronze <100 k, argent <100 M, or <1 Md, diamant ensuite. Les effets des attaques ne doivent jamais modifier les dégâts.
+- Menus collection/index : conserver les choix « Équipe de champions » et « Carnet de raretés », implémentés dans catalog.js/css. Le palier 3 reste Rares ; seul Très rares est renommé Épiques au palier 4, à la demande explicite du créateur. Ne pas changer les probabilités en renommant.

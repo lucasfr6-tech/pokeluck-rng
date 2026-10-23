@@ -22,8 +22,8 @@ export const backgroundFor=id=>`assets/backgrounds/${backgrounds[id]||background
 export const powers=baseTotals.map(total=>Math.max(1,Math.round(375*(total/300)**5)));
 if(powers.length!==pool.length)throw new Error('Puissances et espèces désynchronisées');
 // Paliers de rareté (PROVISOIRES), selon les statistiques de base totales : 1 Communs (≤ 320), 2 Peu communs (≤ 420),
-// 3 Rares (≤ 485), 4 Très rares (au-delà), 5 Légendaires (liste fixe).
-export const TIER_NAMES=['','Communs','Peu communs','Rares','Très rares','Légendaires'];
+// 3 Rares (≤ 485), 4 Épiques (au-delà), 5 Légendaires (liste fixe).
+export const TIER_NAMES=['','Communs','Peu communs','Rares','Épiques','Légendaires'];
 const LEGENDARY=[144,145,146,150,151];
 export const tierOf=id=>LEGENDARY.includes(id)?5:(t=>t<=320?1:t<=420?2:t<=485?3:4)(baseTotals[id-1]);
 // Chaque zone répartit ses tirages entre les paliers (`shares`, du palier 1 au palier 5, total 100 %) :
@@ -53,4 +53,14 @@ export function teamAfterEquip(team,id){
   const at=team.findIndex(m=>sameLine(m,id));
   if(at>=0){const next=[...team];next[at]=id;return next;}
   return team.length<6?[...team,id]:team;
+}
+
+// Dépôt manuel dans une case : échange deux équipiers ou remplace la cible.
+// La collection conserve le Pokémon retiré ; une seule forme par lignée reste équipée.
+export function teamAfterDrop(team,id,index){
+ if(!Number.isInteger(index)||index<0||index>5)return [...team];
+ const next=[...team],from=next.indexOf(id),to=Math.min(index,next.length);
+ if(from>=0){if(to===next.length)return next;[next[from],next[to]]=[next[to],next[from]];return next;}
+ if(to<next.length)next[to]=id;else if(next.length<6)next.push(id);
+ return next.filter(member=>member===id||!sameLine(member,id));
 }

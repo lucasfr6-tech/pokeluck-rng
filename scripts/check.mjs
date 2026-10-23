@@ -137,3 +137,16 @@ for(const [w,h] of [[1200,800],[800,1200],[800,800]])for(const zoom of [1,2,4])f
 assert.deepEqual(cropRect(1200,800,1,-1,0),{sx:0,sy:0,side:800});
 assert.deepEqual(cropRect(1200,800,2,1,1),{sx:800,sy:400,side:400});
 console.log('OK : recadrage des photos en portrait, paysage et carré.');
+
+const {teamAfterDrop,TIER_NAMES}=await import('../dist/world.js');
+assert.deepEqual(teamAfterDrop([1,4,7],7,0),[7,4,1]);
+assert.deepEqual(teamAfterDrop([1,4,7],25,5),[1,4,7,25]);
+assert.deepEqual(teamAfterDrop([1,4,7,19,23,29],25,2),[1,4,25,19,23,29]);
+assert.deepEqual(teamAfterDrop([1,4,7,19,23,29],5,0),[5,7,19,23,29]);
+assert.deepEqual(teamAfterDrop([1,4],4,1),[1,4]);
+assert.deepEqual(teamAfterDrop([1,4],25,-1),[1,4]);
+assert.equal(TIER_NAMES[3],'Rares');
+assert.equal(TIER_NAMES[4],'Épiques');
+for(const id of [144,145,146,150,151])assert.ok(zonePool('power').some(p=>p.id===id&&p.tier===5));
+assert.deepEqual([...new Set(zonePool('power').map(p=>p.tier))].sort(),[1,2,3,4,5]);
+console.log('OK : dépôts, échanges, remplacement de lignée et cinq catégories à la Centrale.');

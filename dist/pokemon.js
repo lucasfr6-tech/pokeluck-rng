@@ -21,5 +21,5 @@ export const sameLine = (a,b) => a===b || ancestors(a).includes(b) || ancestors(
 
 export const sprite = id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 export function pick(random=Math.random()) { let cumulative=0; for(const p of pool){cumulative+=p.probability;if(random<cumulative)return p;} return pool.at(-1); }
-export const rarity = p => p.probability>=0.1?'Fréquent':p.probability>=0.01?'Peu commun':p.probability>=0.003?'Rare':'Ultra rare';
+export const rarity = p => p.probability>=0.1?'Fréquent':p.probability>=0.01?'Peu commun':p.probability>=0.003?'Rare':'Épique';
 export const odds = p => `1 sur ${new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(1/p.probability)}`;

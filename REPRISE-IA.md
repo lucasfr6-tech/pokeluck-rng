@@ -144,3 +144,8 @@ Cliquer sur la puissance de la bannière ouvre les quatre rangs actuels (Bronze,
 
 ## Photo de profil
 `avatar.js` ajoute l’import JPG/PNG/WebP (10 Mo), le déplacement souris/tactile, le zoom et deux positions accessibles au clavier. Le carré est confirmé ou annulé avant application. Une miniature JPEG 256×256 est stockée séparément sous `pokeluck-avatar-v1`, sans envoi réseau. Bouton pour revenir à Pikachu. La progression reste inchangée.
+
+## Collection et index : choix du créateur
+`catalog.js` / `catalog.css` : « Équipe de champions » (six grandes cartes en haut, autres espèces possédées en dessous, sprites agrandis, types, rareté, niveau/plafond, puissance, XP, exemplaires). Filtres, tri, pagination. Glisser-déposer sur une case pour équiper/remplacer/échanger ; poignée compatible tactile et alternative sélection puis clic. Les Pokémon retirés restent possédés ; une seule forme par lignée. `teamAfterDrop` dans world.js est testé.
+Index de zone : « Carnet de raretés », calculé à partir de zonePool, avec cinq colonnes et pagination par catégorie, recherche, type, rareté, statut de découverte et tri. Les légendaires sont accessibles dès la première page à la Centrale. Les espèces indisponibles dans une zone sont indiquées comme absentes.
+Correction explicite du créateur : « Très rares » devient « Épiques » (palier 4) ; « Rares » reste le palier 3. Les probabilités ne changent pas.
