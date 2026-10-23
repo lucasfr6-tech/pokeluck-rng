@@ -70,8 +70,9 @@ for(const p of pool){assert.ok(minLevel(p.id)>=5&&maxLevel(p.id)>=minLevel(p.id)
 // Une évolution commence là où le palier de sa forme précédente s'arrête.
 for(const [to,from] of Object.entries(evolvesFrom))assert.equal(minLevel(+to),maxLevel(from)+1,'Palier : '+names[to-1]);
 assert.equal(levelInfo(4,1).level,5);
-assert.deepEqual([levelInfo(4,5).level,levelInfo(4,6).level],[5,6]); // 5 points d'expérience : niveau 6
-assert.equal(levelInfo(4,20).level,8);assert.equal(levelInfo(4,20).xp,1);assert.equal(levelInfo(4,20).need,xpToNext(8));
+assert.deepEqual([levelInfo(4,xpToNext(5)).level,levelInfo(4,xpToNext(5)+1).level],[5,6]); // un niveau coûte xpToNext(5) points
+{const n=1+xpToNext(5)+xpToNext(6)+xpToNext(7)+1;assert.equal(levelInfo(4,n).level,8);assert.equal(levelInfo(4,n).xp,1);assert.equal(levelInfo(4,n).need,xpToNext(8));}
+assert.ok(xpToNext(68)>=500,'monter de niveau reste long à haut niveau');
 assert.equal(levelInfo(4,100000).level,15);assert.ok(levelInfo(4,100000).capped); // bloqué tant qu'on ne tire pas Reptincel
 assert.equal(levelInfo(6,1).level,36);
 assert.equal(powerAt(4,5),powers[3]);assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,15)>powerAt(4,10));
@@ -635,9 +636,17 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   console.log('OK evolution');
 }
 {
-  const {xpRoom,levelInfo}=await import('../dist/levels.js');
-  const room=xpRoom(25,1,0,10); // niveau 5 -> 10 : 5+6+7+8+9 = 35 XP utiles
-  if(room!==35)throw new Error('xpRoom '+room);
+  const {xpRoom,levelInfo,xpToNext,migrateXp}=await import('../dist/levels.js');
+  const room=xpRoom(25,1,0,10);
+  if(room!==[5,6,7,8,9].reduce((n,l)=>n+xpToNext(l),0))throw new Error('xpRoom '+room);
   if(levelInfo(25,1,room,10).level!==10||xpRoom(25,1,room,10)!==0)throw new Error('plafond atteint');
   console.log('OK plafond d’XP : plus d’accumulation au maximum.');
+}
+{
+  const {migrateXp,levelInfo}=await import('../dist/levels.js');
+  // Dracaufeu niveau 60 avec l'ancien barème (coût = niveau) reste niveau 60 après migration.
+  let old=0;for(let l=36;l<60;l++)old+=l;
+  const li=levelInfo(6,1,migrateXp(6,1,old,100),100);
+  assert.equal(li.level,60);
+  console.log('OK migration d’XP');
 }

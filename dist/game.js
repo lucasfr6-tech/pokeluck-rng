@@ -14,7 +14,7 @@ import {getPreferences,powerProgress,POWER_THRESHOLDS} from './preferences.js';
 import {powerRank} from './power.js';
 import {mountSettings} from './settings.js';
 import {updateAudio} from './audio.js';
-import {xpRoom,xpBonusMax,levelInfo,powerAt,wildLevel,wildLevelNear,wildLevelZone} from './levels.js';
+import {migrateXp,xpRoom,xpBonusMax,levelInfo,powerAt,wildLevel,wildLevelNear,wildLevelZone} from './levels.js';
 import {mapMarkup} from './map.js';
 import {ACHIEVEMENTS,TIERS as ACH_TIERS,progressOf,sanitizeAch,sanitizeStats,newlyDone,powerRankOf} from './achievements.js';
 import {ARENAS,ELITE,arenaById,eliteById,elitePrize,sanitizeElite,eliteCleared,eliteAccess,arenaPrize,zoneAccess,arenaAccess,sanitizeBadges,ZONE_ORDER,levelCap,badgeCount} from './arena.js';
@@ -380,4 +380,5 @@ cm.addEventListener('click',e=>{const b=e.target.closest('.cm-b');if(!b)return;e
 cm.addEventListener('pointerover',e=>{const b=e.target.closest('.cm-b');if(b&&!cm.className.includes('open-'))cmHint.textContent=b.querySelector('strong').textContent+' · '+b.querySelector('small').textContent;});
 $('#menu-drawer').addEventListener('close',cmClose);
 
+;(function migrateXpOnce(){try{if(localStorage.getItem('pokeluck-xpv')==='2')return;if(!Object.keys(state.counts).length){localStorage.setItem('pokeluck-xpv','2');return;}for(const id of Object.keys(state.counts)){const b=migrateXp(+id,state.counts[id]||1,state.xp[id]||0,levelCap(state.badges));if(b>0)state.xp[id]=b;else delete state.xp[id];}save();localStorage.setItem('pokeluck-xpv','2');}catch(e){console.error(e);}})();
 ;(function clampXp(){let ch=false;for(const id of Object.keys(state.xp)){const max=xpBonusMax(+id,state.counts[id]||1,levelCap(state.badges));if(state.xp[id]>max){state.xp[id]=max;ch=true;}if(state.xp[id]<=0)delete state.xp[id];}if(ch)save();})();

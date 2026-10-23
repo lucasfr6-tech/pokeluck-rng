@@ -22,7 +22,9 @@ for (const to of Object.keys(evolvesFrom)) {
   nextLevels[from] = Math.min(nextLevels[from] ?? Infinity, minLevel(+to));
 }
 export const maxLevel = id => nextLevels[id] ? nextLevels[id] - 1 : MAX_LEVEL;
-export const xpToNext = level => level;
+// Coût du niveau suivant (relevé : 4× plus long au départ, environ 10× au niveau 70). Ancien barème : `level`.
+export const xpToNext = level => Math.round(level * (3 + level / 10));
+const xpToNextOld = level => level;
 
 // Niveau, expérience et progression d'une espèce possédée en `count` exemplaires.
 // `ceiling` : plafond global fixé par les badges d'arène (voir arena.js) ; l'expérience reste en réserve et se débloque au badge suivant.
@@ -35,6 +37,15 @@ export function levelInfo(id, count = 1, bonus = 0, ceiling = MAX_LEVEL) {
   return {level, cap, min, capped, limited: capped && cap < stageCap, xp: capped ? 0 : xp, need: capped ? 0 : xpToNext(level), evolvesAt: nextLevels[id] ?? null};
 }
 
+// Migration de l'ancien barème : conserve le niveau (et la progression) actuel avec le nouveau coût par niveau.
+export function migrateXp(id, count = 1, bonus = 0, ceiling = MAX_LEVEL) {
+  const min = minLevel(id), cap = Math.min(maxLevel(id), ceiling), have = Math.max(0, Math.floor(count) - 1);
+  let xp = have + Math.max(0, Math.floor(bonus)), level = min;
+  while (level < cap && xp >= xpToNextOld(level)) { xp -= xpToNextOld(level); level++; }
+  let total = 0; for (let l = min; l < level; l++) total += xpToNext(l);
+  const prog = level < cap ? Math.round(xp / xpToNextOld(level) * xpToNext(level)) : 0;
+  return Math.max(0, total + prog - have);
+}
 // XP encore utile avant d'atteindre le plafond (stade d'évolution ou arènes) : au-delà, l'expérience ne s'accumule plus.
 export function xpRoom(id, count = 1, bonus = 0, ceiling = MAX_LEVEL) {
   const cap = Math.min(maxLevel(id), ceiling); let need = 0;
