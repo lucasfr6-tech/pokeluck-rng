@@ -32,6 +32,15 @@ export function createFight(ctx) {
   const say = text => { el.log.textContent = text; };
   const chips = s => s ? `${s.status ? `<i class="st-chip st-${s.status}">${STATUS_TAG[s.status]}</i>` : ''}${s.conf ? '<i class="st-chip st-conf">CONF</i>' : ''}` : '';
   const snapOf = f => ({status: f.status?.type || null, conf: f.confused > 0});
+  let foeDown = 0;
+  const renderFoeBalls = () => {
+    let box = document.getElementById('foe-balls');
+    if (!boss || boss.trainer !== true && !boss.team) { box?.remove(); return; }
+    if (!box) { box = document.createElement('span'); box.id = 'foe-balls'; box.className = 'foe-balls'; box.setAttribute('role', 'img'); el.hp.prepend(box); }
+    const n = boss.team.length, left = Math.max(0, n - foeDown);
+    box.setAttribute('aria-label', `${left} Pokémon restant${left > 1 ? 's' : ''} sur ${n}`);
+    box.innerHTML = Array.from({length: n}, (_, i) => `<img class="${i < foeDown ? 'down' : ''}" src="assets/balls/poke.png" alt="">`).join('');
+  };
   const setWild = (hp, s = snapOf(bt.wild), max = s?.maxHp ?? bt.wild.maxHp) => { el.hpSt.innerHTML = chips(s); el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(max)}`; bar(el.hpFill, hp, max); };
   const setCard = (f, hp = f.hp, s = snapOf(f)) => { el.cardSt.innerHTML = chips(s); const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
   function renderMoves(enabled = true) {
@@ -69,7 +78,7 @@ export function createFight(ctx) {
         say(`${boss?.leader || 'L’adversaire'} envoie ${e.name} !`); ctx.showFoe?.(e.id);
         el.hpName.textContent = `${e.name} · Niv. ${e.level}`; setWild(e.hp, e.snap); wildLevel = e.level; await sendOut({side: 'foe', img: $('#result img'), reduced: ctx.reduced()}); await delay(500);
       }
-      else if (e.type === 'faint') { say(`${e.name} est K.O. !`); const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
+      else if (e.type === 'faint') { say(`${e.name} est K.O. !`); if (e.side === 'wild' && boss) { foeDown++; renderFoeBalls(); } const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
       else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, e.hp, e.snap); say(`${e.name} entre au combat !`); if (boss) await sendOut({side: 'ally', img: el.cardImg, reduced: ctx.reduced()}); await delay(800); }
     }
   }
@@ -207,7 +216,7 @@ export function createFight(ctx) {
         bt = createBattle(mine.map(m => m.fighter), foes[0].fighter, undefined, foes.slice(1).map(f => f.fighter));
         this.wild = foes[0].fighter; wildLevel = foes[0].fighter.level;
         ctx.showFoe?.(foes[0].fighter.id);
-        el.hpName.textContent = `${foes[0].fighter.name} · Niv. ${wildLevel}`; setWild(foes[0].fighter.hp); el.hp.hidden = false;
+        el.hpName.textContent = `${foes[0].fighter.name} · Niv. ${wildLevel}`; setWild(foes[0].fighter.hp); el.hp.hidden = false; foeDown = 0; renderFoeBalls();
         setCard(activeFighter(bt)); el.cardImg.style.opacity = '0';
         say(`${arena.leader} veut se battre ! Il envoie ${foes[0].fighter.name} !`); await sendOut({side: 'foe', img: $('#result img'), reduced: ctx.reduced()}); if (my !== token) return;
         say(`À toi, ${activeFighter(bt).name} !`); await sendOut({side: 'ally', img: el.cardImg, reduced: ctx.reduced()}); await wait(ctx.reduced() ? 150 : 500);
@@ -227,7 +236,7 @@ export function createFight(ctx) {
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), wild.fighter); bt.weather = ctx.weather?.() || null;
         this.wild = wild.fighter;
-        el.hpName.textContent = `${p.name}${p.shiny?' ✦ Chromatique':''} · Niv. ${wildLevel}`; setWild(wild.fighter.hp); el.hp.hidden = false;
+        el.hpName.textContent = `${p.name}${p.shiny?' ✦ Chromatique':''} · Niv. ${wildLevel}`; setWild(wild.fighter.hp); el.hp.hidden = false; renderFoeBalls();
         setCard(activeFighter(bt)); setWild(wild.fighter.hp);
         if (bt.intro.length) { playing = true; await play(bt.intro); playing = false; if (my !== token) return; }
         renderMoves(true);
