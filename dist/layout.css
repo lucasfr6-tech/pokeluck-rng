@@ -155,6 +155,13 @@
 
 
 /* Cartes et équipe de six */
+.fighter .hp-track,.game .hp .hp-track{height:14px;margin-top:4px;border-radius:8px}
+.fighter .hp-track i,.game .hp .hp-track i{min-width:2px}
+.map-expand{flex:none;display:grid;place-items:center;width:30px;height:30px;padding:0;color:#2a1c00;background:var(--gold);border:1px solid #fff0b0;border-radius:8px;box-shadow:0 2px 0 #8e763d}
+.map-expand:hover,.map-expand:focus-visible{background:#ffd770;outline:none}
+.map-expand svg{width:16px;height:16px}
+.map-panel-head{gap:6px}.map-place{margin-left:auto;min-width:0}
+.large-map{max-width:min(720px,100%,calc(100dvh - 340px))}
 .game .bottom{grid-column:2;grid-row:3}
 .game .map-panel{border-radius:16px;border-color:var(--line);background:var(--frame-bg);box-shadow:none;padding:8px}
 .map-panel-head strong{font-size:18px}
