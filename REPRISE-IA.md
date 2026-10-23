@@ -171,3 +171,10 @@ Sauvegarde pokeluck-save-v1 : counts reste le total par espèce ; shinyCounts es
 Le profil permet de sélectionner une apparence possédée ; les cartes, miniatures et combats la reprennent. Le modèle d’un représentant par espèce est conservé : niveau, XP, puissance et IV/EV sont partagés entre les couleurs, sans bonus chromatique. Évolution toujours par RNG et une seule forme par lignée dans l’équipe.
 
 Index : sélecteur Normale / Chromatique à côté de À découvrir. Il se combine avec recherche, type, rareté, découverte et tri. Découverte et exemplaires sont propres à la couleur sélectionnée ; les chances affichées combinent espèce et couleur. Les cinq raretés restent visibles, y compris les légendaires à la Centrale. Le centrage couvre aussi les 302 sprites chromatiques face/dos.
+
+## Pension — Jardin des câlins (24 octobre 2026)
+- Maquette 1 choisie : grands parents illustrés autour d’un œuf interactif, cartes colorées, thèmes jour/nuit et format mobile.
+- Collection paginée (8), recherche et filtres conservés, tri numérique et alphabétique corrigé. IV hérités dépliables et probabilité chromatique incluant le bonus du Pokédex.
+- Choisir/Changer cible précisément A ou B. Annuler conserve le duo et sa progression ; confirmer un remplacement relance l’œuf. Retirer conserve le comportement existant.
+- Styles isolés dans dist/pension.css ; mécanique setParent dans dist/pension.js. Aucune modification des règles de reproduction ni du format de sauvegarde.
+- Validation : suite npm test, build, remplacement et éclosion réels dans une sauvegarde locale isolée, recherche, IV, thèmes jour/nuit et largeur 390 px sans débordement.

@@ -24,6 +24,13 @@ export function deposit(dc, id, wins) {
   return true;
 }
 export function withdraw(dc, id) { if (dc.a === id) dc.a = null; else if (dc.b === id) dc.b = null; else return false; dc.egg = null; return true; }
+// La sélection ne change rien ; seul le dépôt confirmé dans la case relance l'œuf.
+export function setParent(dc, slot, id, wins) {
+  if (!['a','b'].includes(slot) || !validId(id) || !Number.isFinite(wins) || wins < 0 || dc.a === id || dc.b === id) return false;
+  dc[slot] = id;
+  dc.egg = dc.a && dc.b ? {start:wins, need:EGG_NEED} : null;
+  return true;
+}
 export const eggProgress = (dc, wins) => dc.egg ? Math.max(0, Math.min(dc.egg.need, wins - dc.egg.start)) : 0;
 export const eggReady = (dc, wins) => !!dc.egg && eggProgress(dc, wins) >= dc.egg.need;
 export const hatchSpecies = (dc, rand = Math.random) => baseForm(rand() < .5 ? dc.a : dc.b);

@@ -593,7 +593,19 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(P.shinyMultiplier({a: 1, b: 2}, {}), 8); assert.equal(P.shinyMultiplier({a: 1, b: 2}, {1: 1}), 16); assert.equal(P.shinyMultiplier({a: 1, b: 2}, {1: 1, 2: 3}), 32);
   assert.equal(P.withdraw(dc, 25), true); assert.equal(dc.egg, null);
   assert.deepEqual(P.sanitizeDaycare({a: 4, b: 4, egg: {start: 1, need: 5}}), {a: 4, b: null, egg: null}); assert.equal(P.sanitizeDaycare({a: 4, b: 5, egg: {start: 1, need: 5}}).egg.need, 5);
-  console.log('OK : Pension (dépôt, œuf, progression, éclosion, IV hérités, chance de chromatique).');
+  const targeted = P.blankDaycare();
+  assert.equal(P.setParent(targeted, 'b', 134, 25), true);
+  assert.equal(targeted.egg, null);
+  assert.equal(P.setParent(targeted, 'a', 18, 25), true);
+  const before = structuredClone(targeted);
+  for (const args of [['b',18,30],['b',134,30],['c',25,30],['a',999,30],['a',25,-1]]) {
+    assert.equal(P.setParent(targeted,...args),false); assert.deepEqual(targeted,before);
+  }
+  assert.equal(P.setParent(targeted,'b',25,40),true);
+  assert.equal(targeted.a,18); assert.equal(targeted.b,25);
+  assert.equal(P.eggProgress(targeted,40),0);
+  assert.equal(P.eggReady(targeted,100),true);
+  console.log('OK : Pension (dépôt, remplacement ciblé, œuf, progression, éclosion, IV hérités, chance de chromatique).');
 }
 {
   const W = await import('../dist/wiki.js');
