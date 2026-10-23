@@ -1,5 +1,6 @@
+import {STAT_KEYS,normalizeEVs} from './training.js';
 // Moteur de combat (fonctions pures, sans réseau ni DOM). Règles PROVISOIRES, inspirées des jeux :
-// - stats = formule officielle sans IV/EV/nature, à partir des stats de base de PokéAPI ;
+// - stats = formule avec IV/EV modernes, nature neutre, à partir des stats de base de PokéAPI ;
 // - dégâts = formule officielle (STAB ×1,5, efficacité des types, aléa 85–100 %), sans coups critiques ;
 // - le plus rapide attaque en premier ; le Pokémon sauvage riposte avec une de ses attaques utilisables ;
 // - les attaques de statut ou à effet spécial (sans puissance) sont affichées mais pas encore utilisables ;
@@ -32,9 +33,12 @@ export const effectiveness = (moveType, defenderTypes) => defenderTypes.reduce((
 
 // Stats de base de PokéAPI → stats au niveau demandé.
 export const DEFAULT_BASE = {hp:45,atk:49,def:49,spa:49,spd:49,spe:45};
-export function computeStats(base, level) {
-  const core = b => Math.floor(2 * b * level / 100);
-  return {hp:core(base.hp)+level+10, atk:core(base.atk)+5, def:core(base.def)+5, spa:core(base.spa)+5, spd:core(base.spd)+5, spe:core(base.spe)+5};
+export function computeStats(base,level,training={}) {
+ const evs=normalizeEVs(training.evs),stats={};
+ for(const key of STAT_KEYS){const iv=Number.isInteger(training.ivs?.[key])?Math.max(0,Math.min(31,training.ivs[key])):0;
+ const core=Math.floor((2*base[key]+iv+Math.floor(evs[key]/4))*level/100);
+ stats[key]=key==='hp'?core+level+10:core+5;}
+ return stats;
 }
 
 // Attaques connues au niveau donné : les 4 dernières apprises, comme dans les jeux.
@@ -61,8 +65,8 @@ export function damage(attacker, defender, move, rand = Math.random) {
   return {hit:true, dmg, eff, stab};
 }
 
-export function makeFighter({id, name, level, types, base, moves}) {
-  const stats = computeStats(base, level);
+export function makeFighter({id, name, level, types, base, moves, training}) {
+  const stats = computeStats(base, level, training);
   return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp};
 }
 

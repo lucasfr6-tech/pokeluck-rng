@@ -75,3 +75,16 @@ Seulement les 151 premières espèces et Kanto sont jouables. Les autres région
 PokéAPI : https://pokeapi.co/docs/v2
 
 Les sprites sont chargés à distance depuis le dépôt PokeAPI/sprites ; les données API sont mises en cache localement. Pokémon appartient à ses ayants droit respectifs.
+
+## IV et EV
+Les six statistiques de combat utilisent les IV (0–31), les EV (0–252 par statistique, 510 au total) et le niveau, avec nature neutre. Formules : PV = floor((2×base + IV + floor(EV/4))×niveau/100) + niveau + 10 ; autres stats = même partie entière + 5.
+
+Le jeu conserve actuellement un représentant par espèce : ses IV sont tirés à la première capture et les doublons ne les relancent pas. Les formes capturées séparément ont leur propre fiche. Il n’y a pas de transfert implicite de l’entraînement entre espèces : l’évolution reste un tirage selon la règle existante. Les anciens Pokémon reçoivent une seule attribution d’IV, enregistrée avec la migration ; leurs EV commencent à zéro. Aucune ancienne victoire n’est reconstruite.
+
+À chaque victoire, les participants encore debout reçoivent le rendement EV de l’espèce vaincue, même au niveau maximal. Aucun EV en cas de fuite, de défaite ou pour un participant K.O. Les gains s’arrêtent aux plafonds et sont montrés dans la victoire. Le niveau et la puissance conservent leurs règles existantes ; les IV/EV agissent sur PV, Attaque, Défense, Att. Spé., Déf. Spé. et Vitesse.
+
+Dans le profil, les boutons IV et EV se trouvent à droite de l’évolution et remplacent le Pokémon central par un radar à six axes. Les valeurs, le jugement des IV, le total d’EV et le bonus effectif au niveau actuel sont lisibles sous le graphique. La croix restaure le Pokémon. Modes Nuit/Jour et petit écran pris en charge.
+
+Fichiers : training.js (règles pures), training-ui.js/css (profil), ev-yields.js (les 151 rendements en données locales). Sauvegarde : champ training de pokeluck-save-v1, sans changer counts, xp ou team. Le cache des espèces utilise désormais pokeluck-sp-v2-* ; parseSpecies expose aussi evYield.
+
+Références : [rendements EV PokéAPI](https://github.com/PokeAPI/pokeapi/blob/master/data/v2/csv/pokemon_stats.csv), [formules du jeu Émeraude](https://github.com/pret/pokeemerald/blob/master/src/pokemon.c), [validation moderne des limites](https://github.com/smogon/pokemon-showdown/blob/master/sim/team-validator.ts). Le plafond moderne de 252 est utilisé, et non l’ancien plafond de stockage de 255.

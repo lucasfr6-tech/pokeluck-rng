@@ -157,3 +157,27 @@ const bounds=opaqueBounds(pixels,10,8);assert.deepEqual(bounds,{left:6,top:1,wid
 assert.deepEqual(centeredOffset(bounds,10,8),{x:-2.5,y:1});assert.equal(opaqueBounds(new Uint8Array(16),2,2),null);
 for(const [w,h,strip,hp,card] of [[1766,495,110,60,110],[1280,400,118,60,96],[390,320,155,50,65],[740,230,100,45,65]])for(const p of Object.values(combatPositions(w,h,strip,hp,card))){assert.ok(p.left>=0&&p.top>=0&&p.size>=0);assert.ok(p.left+p.size<=w+.01);assert.ok(p.top+p.size<=h-strip+.01);}
 console.log('OK : centrage des pixels visibles et combattants contenus dans l’arène.');
+
+// IV/EV modernes : tirages, migration, plafonds et effets réels sur les stats.
+const training=await import('../dist/training.js');
+const zeroTraining=training.createTraining(()=>0),perfectTraining=training.createTraining(()=>.999999);
+assert.ok(training.STAT_KEYS.every(k=>zeroTraining.ivs[k]===0&&perfectTraining.ivs[k]===31));
+assert.equal(training.totalEVs(zeroTraining.evs),0);
+const migrated=training.migrateTraining({4:10,25:2},{4:{ivs:{hp:31,atk:0},evs:{hp:999,atk:252,def:252,spe:NaN}},999:{ivs:{}}},()=>.5);
+assert.deepEqual(Object.keys(migrated),['4','25']);assert.equal(migrated[4].ivs.hp,31);assert.equal(migrated[4].ivs.atk,0);assert.equal(migrated[4].ivs.def,16);
+assert.deepEqual(migrated[4].evs,{hp:252,atk:252,def:6,spa:0,spd:0,spe:0});
+assert.deepEqual(training.migrateTraining({4:10,25:2},JSON.parse(JSON.stringify(migrated)),()=>0),migrated);
+assert.equal(training.totalEVs(training.normalizeEVs({hp:-5,atk:Infinity,def:'252',spa:12.9,spd:NaN})),12);
+for(let id=1;id<=151;id++){const yieldStats=training.effortYield(id),sum=training.totalEVs(yieldStats);assert.ok(sum>=1&&sum<=3);}
+assert.equal(training.effortYield(19).spe,1);assert.equal(training.effortYield(4).spe,1);assert.equal(training.effortYield(1).spa,1);
+const baseTraining={ivs:{...perfectTraining.ivs},evs:{hp:252,atk:251,def:0,spa:0,spd:0,spe:6}};
+const award=training.gainEVs(baseTraining,{hp:1,atk:3,spe:2});assert.equal(award.record.evs.atk,252);assert.equal(award.gained.atk,1);assert.equal(award.gained.spe,0);assert.equal(training.totalEVs(award.record.evs),510);assert.deepEqual(award.record.ivs,baseTraining.ivs);assert.equal(baseTraining.evs.atk,251);
+let trained=training.createTraining(()=>0);for(let i=0;i<1000;i++)trained=training.gainEVs(trained,training.effortYield(19)).record;assert.equal(trained.evs.spe,252);assert.equal(training.totalEVs(trained.evs),252);
+const perfectEV={ivs:perfectTraining.ivs,evs:{hp:252,atk:252,def:6,spa:0,spd:0,spe:0}};
+const fullStats=computeStats(DEFAULT_BASE,100,perfectEV),plainStats=computeStats(DEFAULT_BASE,100,perfectTraining);
+assert.equal(fullStats.hp,294);assert.equal(fullStats.atk,197);assert.equal(fullStats.def,135);assert.equal(fullStats.spa,134);assert.equal(fullStats.hp-plainStats.hp,63);
+assert.equal(computeStats(DEFAULT_BASE,50,perfectEV).hp,152);assert.equal(computeStats(DEFAULT_BASE,50,perfectEV).atk,101);
+assert.equal(makeFighter({id:1,name:'IV test',level:100,types:['grass'],base:DEFAULT_BASE,moves:[],training:perfectEV}).maxHp,294);
+const parsedEffort=parseSpecies({id:4,stats:[{base_stat:65,effort:1,stat:{name:'speed'}}],moves:[]});assert.equal(parsedEffort.evYield.spe,1);
+const {radarMarkup}=await import('../dist/training-ui.js');assert.ok(radarMarkup(zeroTraining.evs,252,'ev').includes('0 / 252'));assert.ok(!radarMarkup(perfectTraining.ivs,31,'iv').includes('NaN'));
+console.log('OK : IV 0–31, migration stable, EV 252/510, gains des 151 espèces, stats et radar.');

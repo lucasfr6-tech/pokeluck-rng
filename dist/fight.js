@@ -1,3 +1,4 @@
+import {createTraining,effortYield,STAT_KEYS,STAT_NAMES} from './training.js';
 // Interface de combat dans la scène : barre de PV du Pokémon sauvage, carte du combattant, attaques et journal.
 import {effectiveness, createBattle, takeTurn, activeFighter, playerChoices, isUsable, makeFighter, knownMoves, xpReward, TYPE_FR, DEFAULT_BASE} from './battle.js';
 import {getSpecies, getMoves, getMove} from './battle-data.js';
@@ -10,10 +11,10 @@ export const typeColor = t => COLORS[t] || COLORS.normal;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = n => n.toLocaleString('fr-FR');
 
-export async function buildFighter(spec, level, types, id, name) {
+export async function buildFighter(spec, level, types, id, name, training) {
   const sp = await getSpecies(id);
   const moves = await getMoves(knownMoves(sp.learnset, level));
-  return {fighter: makeFighter({id, name, level, types, base: sp.stats || DEFAULT_BASE, moves}), learnset: sp.learnset};
+  return {fighter: makeFighter({id, name, level, types, base: sp.stats || DEFAULT_BASE, moves,training}), learnset: sp.learnset};
 }
 
 // ctx : {team(), level(id), name(id), types(id), backSprite(id), reduced(), addXp(id, amount) → {before, after}}
@@ -53,21 +54,26 @@ export function createFight(ctx) {
 
   async function finish() {
     el.moves.innerHTML = '';
+    const resolvedBattle=bt;
     const lost = bt.winner !== 'player';
     let html;
     if (!lost) {
       const rows = [];
-      for (const id of bt.participants) {
+      for (const id of resolvedBattle.participants) {
+        if(bt!==resolvedBattle)return;
+        const earned=resolvedBattle.team.find(f=>f.id===id)?.hp>0?ctx.addEVs?.(id,effortYield(resolvedBattle.wild.id)):null;
+        const evText=earned?STAT_KEYS.filter(key=>earned[key]).map(key=>'+'+earned[key]+' '+STAT_NAMES[key]).join(' · '):'';
         const gain = xpReward(wildLevel, ctx.level(id)), r = ctx.addXp(id, gain), name = esc(ctx.name(id)), up = r.after > r.before, inf = ctx.info(id);
         const fresh = (learnsets[id] || []).filter(([, at]) => at > r.before && at <= r.after), defs = await Promise.all(fresh.map(([mv]) => getMove(mv)));
         const moves = fresh.map(([, at], k) => `<span class="new-move">Nouvelle attaque disponible : ${esc(defs[k].fr)} (niv. ${at})</span>`).join('');
-        rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${moves}</li>`);
+        rows.push(`<li class="${up ? 'up' : ''}"><b>${name}</b><span class="gain">+${gain} XP</span><small>${esc(inf.text)}</small><span class="lvl">${up ? `Niv. ${r.before} → ${r.after}` : `Niv. ${r.after}`}</span>${evText?`<span class="ev-reward">EV : ${esc(evText)}</span>`:earned?'<span class="ev-reward">EV au plafond pour ces statistiques</span>':''}${moves}</li>`);
       }
+      if(bt!==resolvedBattle)return;
       setCard(activeFighter(bt), activeFighter(bt).hp);
       html = `<div class="v-card" role="dialog" aria-label="Victoire"><h2>Victoire !</h2><p>${esc(bt.wild.name)} sauvage est K.O. · l’XP dépend de son niveau (${wildLevel})</p><ul class="v-list">${rows.join('')}</ul><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     } else html = `<div class="v-card lost" role="dialog" aria-label="Défaite"><h2>Défaite…</h2><p>Toute ton équipe est K.O. Aucune pénalité : relance un tirage pour retenter ta chance.</p><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     await delay(500);
-    if (!bt) return;
+    if (bt!==resolvedBattle) return;
     el.victory.innerHTML = html; el.victory.hidden = false; el.battle.hidden = true;
     $('#v-continue').focus({preventScroll: true});
     $('#v-continue').onclick = () => ctx.onContinue();
@@ -123,13 +129,13 @@ export function createFight(ctx) {
   return {
     active: () => !!bt && !bt.over,
     cancel() { token++; bt = null; playing = false; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
-    async start(p, types) {
+    async start(p, types, encounterTraining=createTraining()) {
       this.cancel(); const my = token; wildLevel = ctx.wildLevel(p.id);
       el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
-        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name), ...ids.map(id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id)))]);
+        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name,encounterTraining), ...ids.map(id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id)))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), wild.fighter);

@@ -1,3 +1,4 @@
+import {effortYield} from './training.js';
 // Données de combat issues de PokéAPI : stats de base, attaques apprises par niveau (jeux Rouge/Bleu,
 // sinon Jaune) et détail des attaques (nom français, puissance, précision, type, catégorie).
 // Tout est mis en cache dans localStorage ; sans réseau, des valeurs par défaut prennent le relais.
@@ -23,8 +24,8 @@ export const FALLBACK_MOVE = {name:'tackle', fr:'Charge', power:40, acc:100, typ
 const fallbackSpecies = () => ({stats:{...DEFAULT_BASE}, learnset:[['tackle', 1]], fallback:true});
 
 export function parseSpecies(json) {
-  const stats = {...DEFAULT_BASE};
-  for (const s of json.stats || []) if (STAT[s.stat.name]) stats[STAT[s.stat.name]] = s.base_stat;
+  const stats = {...DEFAULT_BASE},evYield=effortYield(json.id);
+  for (const s of json.stats || []) if (STAT[s.stat.name]) {stats[STAT[s.stat.name]] = s.base_stat;if(Number.isInteger(s.effort))evYield[STAT[s.stat.name]]=Math.max(0,Math.min(3,s.effort));}
   let learnset = [];
   for (const group of GROUPS) {
     const list = [];
@@ -33,12 +34,12 @@ export function parseSpecies(json) {
     if (list.length) { learnset = list; break; }
   }
   learnset.sort((a, b) => a[1] - b[1]);
-  return {stats, learnset: learnset.length ? learnset : [['tackle', 1]]};
+  return {stats, evYield, learnset: learnset.length ? learnset : [['tackle', 1]]};
 }
 
 export function getSpecies(id) {
   return dedupe(spCache, id, async () => {
-    const cached = store.get('pokeluck-sp-v1-' + id);
+    const cached = store.get('pokeluck-sp-v2-' + id);
     if (cached) return cached;
     try { const sp = parseSpecies(await getJson(`${API}pokemon/${id}/`)); store.set('pokeluck-sp-v1-' + id, sp); return sp; }
     catch { return fallbackSpecies(); }
