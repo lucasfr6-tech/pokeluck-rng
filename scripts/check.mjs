@@ -470,3 +470,4 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.ok(ev.some(e => e.type === 'msg' && /Restes/.test(e.text)), 'Restes soignent à chaque tour');
   console.log('OK : boutique des Îles Écume (6 objets, 2 CT, Restes) juste avant Morgane ; Restes en combat.');
 }
+{ const sh = await import('../dist/shop.js'); const all = sh.SHOPS.flatMap(s => s.stock); assert.equal(new Set(all).size, all.length, 'aucun objet vendu dans deux boutiques'); console.log('OK : aucun objet en double entre les boutiques.'); }
