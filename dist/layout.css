@@ -383,3 +383,17 @@ body.team-dragging,body.team-dragging .team-card{cursor:grabbing!important}
 .map-num{position:absolute;right:-4px;top:-5px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#10283fee;border:1px solid #fff3a8;color:#fff3a8;font:700 10px/13px system-ui,sans-serif;text-align:center;pointer-events:none}
 .map-spot.current .map-num{background:var(--gold);color:#2a1c00;border-color:#fff}
 .large-map .map-num{min-width:20px;height:20px;font-size:13px;line-height:18px;border-radius:10px;right:-6px;top:-7px}
+
+/* ===== Puissance : médaille à paliers (bronze, argent, or, diamant) ===== */
+.banner .power{padding:0;background:none;border-radius:0;color:inherit;font-size:inherit}
+.pw{--pc:#c98a52;display:inline-flex;align-items:center;gap:10px;padding:4px 18px 4px 4px;border-radius:40px;background:linear-gradient(#10324f,#0a2338);border:2px solid var(--pc);box-shadow:0 0 14px color-mix(in srgb,var(--pc) 38%,transparent);color:#fff;line-height:1;white-space:nowrap;text-shadow:none}
+.pw .medal{flex:none;display:block}
+.pw-txt{display:block}.pw small{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--pc);margin-bottom:2px}
+.pw b{font:700 26px var(--pixel);color:#fff3c4}.pw i{font:700 14px var(--pixel);font-style:normal;margin-left:4px;color:var(--pc)}
+.pw-mini{gap:6px;padding:2px 12px 2px 2px;background:#0b1f33cc;box-shadow:none}.pw-mini small{display:none}.pw-mini b{font-size:clamp(15px,1.3vw,19px)}.pw-mini i{font-size:12px;margin-left:3px}
+.tc-types .team-power{display:flex;justify-content:flex-end;font-family:inherit}
+.pf-power{text-align:center}.pf-power .pfp{display:flex;align-items:center;justify-content:center;gap:10px;text-align:left}.pf-power small{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--pc)}
+.pf-power b{display:block;font:700 30px var(--pixel);color:#fff3c4;line-height:1.1}.pf-power b i{font:700 16px var(--pixel);font-style:normal;margin-left:4px;color:var(--pc)}.pf-power>span{display:block;margin-top:6px;font-size:11px;color:#b9d3e0}
+@media(max-width:700px){.banner .pw{padding:2px 10px 2px 2px;gap:6px}.banner .pw .medal{width:30px;height:30px}.banner .pw small{display:none}.banner .pw b{font-size:17px}.banner .pw i{font-size:11px}}
+.pf-card.pf-power>.pfp{display:flex;align-items:center;justify-content:center;gap:12px;text-align:left;font-size:inherit;color:inherit}
+.pf-card.pf-power>.pfp small{white-space:nowrap}
