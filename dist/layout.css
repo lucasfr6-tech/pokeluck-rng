@@ -426,3 +426,15 @@ dialog.learn::backdrop{background:#030b14cc;backdrop-filter:blur(2px)}
 .learn-skip:hover,.learn-skip:focus-visible{filter:brightness(1.08);outline:none}
 @media(max-width:520px){.learn-grid{grid-template-columns:1fr}}
 .learn-new .learn-move{width:100%;box-sizing:border-box}
+
+/* Pokédollars */
+.banner .money{position:relative;display:inline-flex;align-items:center;gap:7px;padding:4px 14px 4px 5px;border-radius:20px;background:#0b2238;border:2px solid #6ec1ff66;color:#eaf6ff;white-space:nowrap}
+.money-coin{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8ad4ff,#2f7fd0);color:#fff;font:700 14px var(--pixel);box-shadow:inset 0 -3px 0 #0003}
+.banner .money strong{font:700 17px var(--pixel)}
+.money-pop{position:absolute;left:calc(100% + 10px);top:2px;pointer-events:none}
+.money-pop span{position:absolute;left:0;top:0;font:700 18px var(--pixel);color:#8ad4ff;text-shadow:0 2px 0 #06121e,0 0 8px #000a;animation:money-up 1.8s ease-out forwards;white-space:nowrap}
+body.reduce-motion .money-pop span{animation:money-fade 1.3s linear forwards}
+@keyframes money-up{0%{opacity:0;transform:translateY(0) scale(.8)}15%{opacity:1;transform:translateY(-3px) scale(1.15)}100%{opacity:0;transform:translateY(-22px) scale(1)}}
+@keyframes money-fade{0%,70%{opacity:1}100%{opacity:0}}
+.v-money{margin:6px 0 2px;font:700 22px var(--pixel);color:#8ad4ff}
+@media(max-width:700px){.banner .money{padding:2px 9px 2px 3px}.banner .money strong{font-size:14px}.money-coin{width:20px;height:20px;font-size:12px}}

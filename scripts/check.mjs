@@ -211,4 +211,12 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   for (const k of Object.keys(b)) if (x[k] !== Math.floor(b[k] * 1.5)) throw new Error('boost chromatique ' + k);
   if (boostStats(b, 1) !== b) throw new Error('boost 1 doit rester neutre');
 }
+{
+  const {victoryMoney, captureMoney, FIRST_CATCH, SHINY_REWARD, sanitizeMoney} = await import('../dist/money.js');
+  if (victoryMoney(1, 5) !== 80 || victoryMoney(5, 100) !== 9900) throw new Error('gains de combat');
+  if (!(victoryMoney(2, 10) > victoryMoney(1, 10) && victoryMoney(4, 10) > victoryMoney(3, 10))) throw new Error('gains croissants selon la rareté');
+  if (captureMoney(3, true, false) !== FIRST_CATCH[3] || captureMoney(3, false, false) !== 0) throw new Error('prime de première capture');
+  if (captureMoney(1, false, true) !== SHINY_REWARD || captureMoney(1, true, true) !== FIRST_CATCH[1] + SHINY_REWARD) throw new Error('prime chromatique');
+  if (sanitizeMoney(-5) !== 0 || sanitizeMoney('x') !== 0 || sanitizeMoney(120) !== 120) throw new Error('sauvegarde de l’argent');
+}
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');
