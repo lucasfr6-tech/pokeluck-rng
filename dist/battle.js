@@ -120,9 +120,9 @@ export const SHINY_BOOST = 1.5;
 // `mult` : un nombre (toutes les stats) ou un objet {stat: multiplicateur} (objets tenus, chromatique).
 export const boostStats = (stats, mult) => mult === 1 ? stats : Object.fromEntries(Object.entries(stats).map(([k, v]) => [k, Math.floor(v * (typeof mult === 'number' ? mult : (mult?.[k] ?? 1)))]));
 
-export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false, berry = false, nature = null, ability = null}) {
+export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false, berry = false, nature = null, ability = null, leftovers = false}) {
   const stats = boostStats(computeStats(base, level, training, nature), boost);
-  return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp, sash, berry, ability, status:null, confused:0, flinched:false, stages:{atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}};
+  return {id, name, level, types, stats, moves, hp:stats.hp, maxHp:stats.hp, sash, berry, leftovers, ability, status:null, confused:0, flinched:false, stages:{atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}};
 }
 
 // Expérience gagnée par chaque participant en battant un Pokémon sauvage (provisoire).
@@ -360,7 +360,9 @@ function engine(b, events) {
     residual() {
       for (const side of ['player', 'wild']) {
         if (b.over) return;
-        const f = A(side); if (f.hp <= 0 || !f.status) continue;
+        const f = A(side);
+        if (f.leftovers && f.hp > 0 && f.hp < f.maxHp) { f.hp = Math.min(f.maxHp, f.hp + Math.max(1, Math.floor(f.maxHp / 16))); msg(`${f.name} récupère des PV grâce aux Restes !`, f, side); }
+        if (f.hp <= 0 || !f.status) continue;
         const t = f.status.type;
         if (f.ability === 'shed-skin' && rand() < .3) { f.status = null; msg(`Mue : ${f.name} est guéri !`, f, side); continue; }
         if (t === 'psn' || t === 'tox' || t === 'brn') {

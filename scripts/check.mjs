@@ -458,3 +458,15 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   console.log('OK : plafonds de niveau par badge (20, 30, 42… 100), compatibles avec zones et arènes.');
 }
 { const A = await import('../dist/arena.js'); assert.deepEqual(A.ARENAS.map(a => A.arenaPrize(a, true)), [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000]); assert.equal(A.arenaPrize(A.ARENAS[1], false), 1000); console.log('OK : primes d’arène 5 000 à 40 000 ₽, revanche 10 %.'); }
+{
+  const sh = await import('../dist/shop.js'), A = await import('../dist/arena.js');
+  const o = sh.shopById('ouest'); assert.equal(o.stock.length, 6); assert.equal(o.stock.filter(id => sh.ITEMS[id].kind === 'tm').length, 2); assert.ok(o.stock.includes('leftovers'));
+  assert.ok(A.ZONE_ORDER.indexOf(o.after) === 11 && A.arenaById('safrania').n === 6, 'boutique juste avant l’arène de Morgane');
+  const path = A.buildPath(sh.SHOPS.map(s => ({...s, open:true}))); const i = path.findIndex(n => n.kind === 'shop' && n.id === 'ouest');
+  assert.equal(path[i + 1].id, 'safrania', 'la boutique précède l’arène de Morgane');
+  const mk = (extra) => makeFighter({id:1, name:'a', level:50, types:['normal'], base:{hp:100, atk:50, def:50, spa:50, spd:50, spe:50}, moves:[{name:'tackle', fr:'Charge', type:'normal', power:40, acc:100, cat:'physical'}], ...extra});
+  const me = mk({leftovers:true}), foe = mk({}); me.stats.hp = me.maxHp = 400; me.hp = 300; foe.maxHp = foe.stats.hp = 500; foe.hp = 500;
+  const b = createBattle([me], foe, () => .99); const ev = takeTurn(b, me.moves[0]); 
+  assert.ok(ev.some(e => e.type === 'msg' && /Restes/.test(e.text)), 'Restes soignent à chaque tour');
+  console.log('OK : boutique des Îles Écume (6 objets, 2 CT, Restes) juste avant Morgane ; Restes en combat.');
+}

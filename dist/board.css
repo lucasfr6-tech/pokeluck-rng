@@ -125,3 +125,6 @@ body.boss-fight .scene>.flee{display:none!important}
 .reduce-motion .badge-card.has .badge-art img{animation:none}
 @media(max-width:620px){.badges-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 body[data-theme=light] .badge-card{background:#dbeaf7;color:#35536b;border-color:#a5c4de}body[data-theme=light] .badge-card b{color:#203e5a}
+/* Niveau cible max dans l'en-tête de la carte */
+.map-cap{flex:none;padding:2px 9px;border-radius:10px;background:#ffd27c22;border:1px solid #ffd27c88;color:#ffe27a;font:700 12px var(--pixel);white-space:nowrap}
+.map-panel-head{flex-wrap:wrap}
