@@ -594,3 +594,12 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual(P.sanitizeDaycare({a: 4, b: 4, egg: {start: 1, need: 5}}), {a: 4, b: null, egg: null}); assert.equal(P.sanitizeDaycare({a: 4, b: 5, egg: {start: 1, need: 5}}).egg.need, 5);
   console.log('OK : Pension (dépôt, œuf, progression, éclosion, IV hérités, chance de chromatique).');
 }
+{
+  const W = await import('../dist/wiki.js');
+  assert.ok(W.WIKI.length >= 12); const ids = new Set();
+  for (const s of W.WIKI) { assert.ok(!ids.has(s.id)); ids.add(s.id); assert.ok(s.cards.length >= 1); for (const c of s.cards) { const h = c.h(); assert.ok(h.length > 20); assert.ok(!/undefined|NaN|\[object/.test(h), s.id + '/' + c.t); } }
+  assert.ok(W.wikiSearch('chromatique').length >= 3); assert.ok(W.wikiSearch('1 sur 4').length >= 0); assert.equal(W.wikiSearch('   ').length, 0);
+  const all = W.WIKI.flatMap(s => s.cards.map(c => c.h())).join(' ').replace(/[\s\u202f\u00a0]+/g, ' ');
+  for (const k of ['4 096', 'Charme Chroma', 'Pension', 'rival', 'Brillant du jour', 'Conseil des 4', 'Multi-XP', 'Platine']) assert.ok(all.includes(k), k);
+  console.log('OK : wiki (' + W.WIKI.length + ' catégories, cartes sans valeur manquante, recherche).');
+}

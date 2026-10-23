@@ -78,3 +78,31 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .dc-note{opacity:.8;font-size:.9rem;margin:0}.dc-msg{margin:0;padding:10px;border-radius:10px;background:#ffd27c22;border:1px solid #ffd27c88}
 .dc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
 @media(max-width:560px){.dc-top{grid-template-columns:1fr 1fr}.dc-egg{grid-column:1/-1;order:3}}
+
+/* Bouton Wiki (colonne de gauche, sous Menu) */
+.rail .wiki-btn{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:4px 6px;border-radius:10px;border:2px solid var(--line);background:#0f2b4a;color:#d4f3f0;font:700 12px/1 inherit;cursor:pointer}
+.rail .wiki-btn svg{width:18px;height:18px;flex:none}
+.rail .wiki-btn:hover,.rail .wiki-btn:focus-visible{background:#18406a;border-color:#6fb7dc}
+@media(max-width:900px){.rail .wiki-btn{flex:1 1 0;min-height:44px}}
+
+/* Wiki */
+#content-dialog.wiki-mode{width:min(1100px,96vw)}
+.wk{display:grid;gap:12px}
+.wk-search{width:100%;padding:12px 14px;border-radius:12px;border:2px solid #3b6280;background:#0c1c2acc;color:#fff;font:inherit;font-size:1rem}
+.wk-body{display:grid;grid-template-columns:230px 1fr;gap:14px;align-items:start}
+.wk-nav{display:flex;flex-direction:column;gap:6px;position:sticky;top:0}
+.wk-nav button{text-align:left;padding:10px 12px;border-radius:12px;border:2px solid #284a66;background:#10283f;color:#cfe2f3;font:700 .95rem inherit;cursor:pointer}
+.wk-nav button[aria-current=true]{background:#ffd27c;border-color:#ffd27c;color:#3a2800}
+.wk-main{display:grid;gap:12px;min-width:0;outline:none}
+.wk-title{margin:0;font-size:1.4rem}
+.wk-from{opacity:.7;margin-top:4px}
+.wk-card{padding:14px 16px;border-radius:14px;border:2px solid #284a66;background:#10283f;line-height:1.55}
+.wk-card h4{margin:0 0 6px;color:#ffd27c;font-size:1.05rem}
+.wk-card p{margin:0 0 8px}.wk-card ul{margin:0 0 8px;padding-left:20px}.wk-card li{margin:3px 0}
+.wk-tip{padding:8px 10px;border-radius:10px;background:#ffd27c22;border:1px solid #ffd27c66}
+.wk-empty{opacity:.8}
+.wk-tablewrap{overflow-x:auto;margin:6px 0}
+.wk-table{border-collapse:collapse;width:100%;font-size:.9rem}
+.wk-table th{text-align:left;padding:6px 8px;color:#b8e2fb;border-bottom:2px solid #3b6280;white-space:nowrap}
+.wk-table td{padding:6px 8px;border-bottom:1px solid #284a66}
+@media(max-width:760px){.wk-body{grid-template-columns:1fr}.wk-nav{flex-direction:row;flex-wrap:wrap;position:static}.wk-nav button{padding:8px 10px}}
