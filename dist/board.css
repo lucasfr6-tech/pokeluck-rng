@@ -233,3 +233,9 @@ body.reduce-motion .wx-fx,body.reduce-motion .wx-pill{animation:none!important}
 .map-rival .map-tooltip{display:none}
 .map-rival:hover .map-tooltip,.map-rival:focus-visible .map-tooltip{display:block}
 .large-map .map-rival{height:56px}
+/* Aura du rival : halo doux pulsant autour du personnage, zone de clic élargie */
+.map-rival{padding:6px 8px;margin:-6px -8px}
+.map-rival:before{content:"";position:absolute;left:50%;top:50%;width:190%;height:150%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,#fff3c8ee,#ff7a86cc 45%,#ff5a6e00);z-index:-1;animation:rival-aura 1.6s ease-in-out infinite;pointer-events:none}
+.map-rival img{filter:drop-shadow(0 0 2px #ffe9b8) drop-shadow(0 0 4px #ff5a6e) drop-shadow(0 1px 0 #0008)}
+@keyframes rival-aura{50%{opacity:.55;transform:translate(-50%,-50%) scale(1.15)}}
+.reduce-motion .map-rival:before{animation:none}
