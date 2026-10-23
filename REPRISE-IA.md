@@ -1,3 +1,11 @@
+# Mise à jour 0.5 — Quatre cadres, fonds par zone, vie en fond, équipe
+
+Le créateur a demandé de refaire l'ergonomie (croquis : 1 scène, 2 bannière, 3 menu, 4 carte). Fait : fonds du pack dungeons associés aux zones (Route 1 beauplains, Route 2 wildplains, Route 3 skyblueplains, Route 4 ravagedfield, Forêt de Jade overgrownforest, Mont Sélénite echocave, Centrale powerplant) ; ronds lumineux cliquables sur la carte (la Centrale a un rond près du pont, position choisie par l'assistant) ; bannière avec les six Pokémon d'équipe ; cadre Menu seul ; équipe de six en grandes cartes à droite de la carte ; petits Pokémon qui se promènent en fond (face, dos, côtés en miroir, diagonales) à la place des GIF animés ; barre de vie sous le Pokémon rencontré ; rechargement automatique de la page après publication.
+
+À décider avec le créateur : règles de combat et de points de vie (la barre actuelle vaut 10 × puissance, purement indicative et toujours pleine), ce que devient un Pokémon rencontré (capture, victoire), sprites de profil véritables si le créateur en fournit. Aucun changement des chances ni de la sauvegarde `pokeluck-save-v1`.
+
+---
+
 # Mise à jour 0.4 — Carte illustrée interactive
 
 Nouvelle disposition demandée par le créateur : bannière en haut à gauche avec toutes les espèces possédées en petit (plus de vignettes à droite) ; bloc Menu / Pokédex / Carte juste dessous ; image fournie en carte interactive en bas à gauche. L’ancienne barre de destinations et ses deux raccourcis ont été supprimés. La grotte en haut à gauche correspond au Mont Sélénite ; la forêt en bas à droite à la Forêt de Jade ; les sentiers accèdent aux routes. Les zones cliquables sont définies dans map.js avec des coordonnées proportionnelles, des labels accessibles et des noms révélés au survol/focus. La navigation reste la même dans la carte agrandie. De légères animations CSS animent la carte, désactivées en réduction des mouvements. La puissance reste calculée sur l’équipe équipée ; la bannière montre la collection, pas seulement les six équipés. Pas de modification des chances ni des sauvegardes.

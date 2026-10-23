@@ -18,9 +18,10 @@ Les sources du jeu se trouvent uniquement dans `dist/` :
 - `game.js` : interactions, collection, équipe, sauvegarde, appels PokéAPI.
 - `pokemon.js` : les 31 espèces du prototype et les probabilités de base.
 - `world.js` : zones, parcours de Kanto, types, poids de rencontre et puissances provisoires.
-- `scenery.js` : paysages pixel art, dessinés dans un canvas plein navigateur.
-- `map.js` : zones cliquables de la carte illustrée (positions en pourcentage), marqueur de destination et noms au survol.
-- `map-layout.css` : disposition de la bannière, du bloc de navigation et de la carte.
+- `wander.js` : petits Pokémon qui se promènent dans la scène.
+- `update.js` : rechargement automatique après une nouvelle publication.
+- `map.js` : ronds lumineux cliquables de la carte illustrée (positions en pourcentage) et noms au survol.
+- `layout.css` : mise en page des quatre cadres, barre de vie, équipe et carte.
 - `assets/` : illustrations fournies par le créateur.
 
 `npm test` vérifie les tirages pondérés des zones. `npm run build` génère `public/`, avec une version des fichiers CSS/JS pour éviter qu'une nouvelle publication conserve les anciens scripts en cache. Ne pas modifier `public/` directement.
@@ -35,9 +36,15 @@ La sauvegarde est locale au navigateur et à l'adresse du jeu. Pour la déplacer
 
 Le total de puissance correspond aux six espèces équipées au maximum. Les valeurs sont provisoires ; les doublons ne gonflent pas ce total. Une ancienne sauvegarde du prototype est reprise automatiquement.
 
-## Interface 0.4
+## Interface 0.5
 
-La bannière regroupe le profil, la puissance de l’équipe et les vignettes des espèces possédées. La carte illustrée fournie par le créateur occupe le coin inférieur gauche. Grotte → Mont Sélénite ; forêt en bas à droite → Forêt de Jade ; les sentiers accèdent aux routes. Les noms apparaissent au survol ou au focus clavier ; aucun bouton de route permanent ne recouvre l’image. Un repère indique le lieu actuel, avec de légères animations de l’eau et des points lumineux. La carte est une représentation artistique de voyage, pas une carte géographique officielle de Kanto. Le bloc Menu / Pokédex / Carte est à gauche ; les raccourcis Probabilités et Carte de l’ancienne barre du bas ont été retirés. Les probabilités restent consultables dans Menu. Les animations de carte respectent la réduction des mouvements.
+Quatre cadres, selon le croquis du créateur :
+1. **Scène** (centre) : lieu d'apparition des Pokémon, Pokéball au centre, arrière-plan propre à la zone (`world.js` → `backgrounds`, images dans `assets/backgrounds/`, mises à l'échelle du cadre sans être modifiées). Une petite vie en fond (`wander.js`) : des Pokémon de la zone se promènent, y compris en diagonale, vus de face, de dos ou de côté (miroir de la face, PokéAPI n'a pas de sprites de profil). Après un tirage, le Pokémon apparaît au milieu avec une barre de vie.
+2. **Bannière** (en haut) : nom, puissance et les six Pokémon de l'équipe.
+3. **Menu** (à gauche) : un seul cadre qui ouvre le menu coulissant.
+4. **Carte** (en bas à gauche) : carte illustrée avec des ronds lumineux cliquables (`map.js`). L'**équipe de six** (grandes cartes avec nom et puissance) est à droite de la carte.
+
+La barre de vie est provisoire : `maxHp(power)` dans `world.js` (10 × puissance), à décider avec le créateur ; il n'y a pas encore de mécanique de combat. La page se recharge automatiquement quand une nouvelle version est publiée (`update.js`, `version.json` écrit par le build).
 
 ## Historique : interface 0.3
 
