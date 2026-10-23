@@ -70,3 +70,6 @@ body.boss-fight .scene>.flee{display:none!important}
 .fx-ball{position:absolute;left:0;top:0;z-index:20;border-radius:50%;border:2px solid #111;background:linear-gradient(#e5483c 0 46%,#111 46% 54%,#fff 54%);pointer-events:none;box-shadow:0 2px 0 #0005}
 .fx-ball-core{position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;background:#fff;border:2px solid #111}
 .fx-flash{position:absolute;z-index:19;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,#fff 0 35%,#ffe9a066 65%,transparent 72%);pointer-events:none}
+/* L'infobulle n'apparaît qu'au survol ou au focus (plus en permanence sur la zone actuelle) */
+.map-spot.current .map-tooltip{display:none}
+.map-spot.current:hover .map-tooltip,.map-spot.current:focus-visible .map-tooltip{display:block}
