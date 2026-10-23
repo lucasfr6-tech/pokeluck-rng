@@ -80,6 +80,8 @@ export function createFight(ctx) {
     const lost = bt.winner !== 'player';
     let html;
     if (!lost) {
+      // La récompense (badge, argent) est attribuée tout de suite, avant les attentes réseau de l'écran d'XP : rien ne doit pouvoir la perdre.
+      const win = boss ? ctx.arenaWin?.(boss) : null, prize = boss ? (win?.money || 0) : (ctx.addMoney?.(bt.wild.id, wildLevel) || 0);
       const rows = [];
       const partIds = Array.from(resolvedBattle.participants), shareIds = ctx.xpShare?.() ? (ctx.team?.() || []).filter(i => !partIds.includes(i)) : [];
       for (const id of [...partIds, ...shareIds]) {
@@ -96,8 +98,7 @@ export function createFight(ctx) {
       }
       if(bt!==resolvedBattle)return;
       setCard(activeFighter(bt), activeFighter(bt).hp);
-      const win = boss ? ctx.arenaWin?.(boss) : null, prize = boss ? (win?.money || 0) : (ctx.addMoney?.(bt.wild.id, wildLevel) || 0);
-      const bossHead = boss ? `<p>${esc(boss.leader)} est vaincu !</p>${boss.trainer ? '<p class="v-tm">Dresseur battu · plus d’argent et d’XP qu’un sauvage.</p>' : boss.rival ? (win?.first ? '<p class="v-badge">Rival battu ! Il reviendra plus fort après la prochaine arène.</p>' : '') : boss.elite ? `<p class="v-badge">${boss.champion ? 'Champion de la Ligue vaincu !' : `Membre ${boss.n} / 4 du Conseil vaincu`}</p>${win?.first ? '' : '<p>Revanche gagnée · prime réduite.</p>'}` : win?.first ? `<p class="v-badge"><img src="${boss.badgeSprite}" alt=""> ${esc(boss.badgeName)} obtenu !</p>` : '<p>Revanche gagnée · prime réduite.</p>'}${win?.note ? `<p class="v-tm">${esc(win.note)}</p>` : ''}${win?.tm ? `<p class="v-tm">CT reçue : ${esc(win.tm)}</p>` : ''}${win?.first && win.cap ? `<p class="v-tm">Plafond de niveau relevé : ${win.cap}</p>` : ''}` : '';
+      const bossHead = boss ? `<p>${esc(boss.leader)} est vaincu !</p>${boss.trainer === true ? '<p class="v-tm">Dresseur battu · plus d’argent et d’XP qu’un sauvage.</p>' : boss.rival ? (win?.first ? '<p class="v-badge">Rival battu ! Il reviendra plus fort après la prochaine arène.</p>' : '') : boss.elite ? `<p class="v-badge">${boss.champion ? 'Champion de la Ligue vaincu !' : `Membre ${boss.n} / 4 du Conseil vaincu`}</p>${win?.first ? '' : '<p>Revanche gagnée · prime réduite.</p>'}` : win?.first ? `<p class="v-badge"><img src="${boss.badgeSprite}" alt=""> ${esc(boss.badgeName)} obtenu !</p>` : '<p>Revanche gagnée · prime réduite.</p>'}${win?.note ? `<p class="v-tm">${esc(win.note)}</p>` : ''}${win?.tm ? `<p class="v-tm">CT reçue : ${esc(win.tm)}</p>` : ''}${win?.first && win.cap ? `<p class="v-tm">Plafond de niveau relevé : ${win.cap}</p>` : ''}` : '';
       html = `<div class="v-card" role="dialog" aria-label="Victoire"><h2>Victoire !</h2>${boss ? bossHead : `<p>${esc(bt.wild.name)} sauvage est K.O. · l’XP dépend de son niveau (${wildLevel})</p>`}${prize?`<p class="v-money">+${prize.toLocaleString('fr-FR')} ₽</p>`:''}<ul class="v-list">${rows.join('')}</ul><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     } else html = `<div class="v-card lost" role="dialog" aria-label="Défaite"><h2>Défaite…</h2><p>Toute ton équipe est K.O. Aucune pénalité : relance un tirage pour retenter ta chance.</p><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     await delay(500);

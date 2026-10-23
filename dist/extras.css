@@ -257,3 +257,52 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .cm-hint{position:absolute;left:0;right:0;bottom:0;padding:11px 14px;border-radius:10px;border:2px solid var(--menu-line);background:var(--menu-soft);font-size:12px;color:var(--menu-muted)}
 .cm .cm-b.has-ready:after{content:"!";position:absolute;top:0;right:22px;width:22px;height:22px;border-radius:50%;background:#ff4a64;color:#fff;font:700 13px/22px sans-serif;box-shadow:0 0 0 2px #0d2035,0 0 10px #ff4a64;animation:readyPulse 1.6s ease-in-out infinite}
 @media(max-width:660px){#menu-drawer.compass-menu{width:calc(100vw - 16px)}.cm{transform:scale(.62);transform-origin:top center;height:360px;margin:8px auto;width:600px;max-width:none;left:50%;margin-left:-300px}}
+/* Éclosion */
+.hx{position:fixed;inset:0;z-index:210;background:rgba(3,10,18,.9);display:grid;place-items:center;padding:12px;overflow:auto}
+.hx-box{display:flex;gap:20px;align-items:stretch;flex-wrap:wrap;justify-content:center}
+.hx-left{width:300px;display:flex;flex-direction:column;gap:12px}
+.hx-stage{position:relative;height:300px;border-radius:20px;border:2px solid #284a66;background:radial-gradient(circle at 50% 45%,#1c4565,#0b1a28 75%);display:grid;place-items:center;overflow:hidden}
+.hx-stage>*{grid-area:1/1}
+.hx-egg{width:96px;height:156px;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 8px 0 #0006);transform-origin:50% 90%}
+.hx-mon{width:160px;height:160px;image-rendering:pixelated;object-fit:contain;opacity:0;transform:scale(.3);filter:drop-shadow(0 6px 0 #0006)}
+.hx-shadow{align-self:end;justify-self:center;margin-bottom:52px;width:110px;height:14px;border-radius:50%;background:#0007}
+.hx-glow{width:240px;height:240px;border-radius:50%;background:radial-gradient(#ffe9a8aa,transparent 65%);opacity:0}
+.hx-rays{width:290px;height:290px;border-radius:50%;opacity:0;background:repeating-conic-gradient(from 0deg,#ffffff55 0 6deg,transparent 6deg 20deg);-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.hx-steps{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.hx-steps li{padding:7px 10px;border-radius:10px;border:2px solid #284a66;background:#10283f;color:#6f8ba3;font:700 12px system-ui}
+.hx[data-step="1"] li[data-s="1"],.hx[data-step="2"] li[data-s="2"],.hx[data-step="3"] li[data-s="3"],.hx[data-step="4"] li[data-s="4"]{border-color:#ffd27c;color:#ffe9b8;background:#3a3016}
+.hx[data-step="1"] .hx-egg{animation:hxWobble .7s ease-in-out infinite}
+.hx[data-step="2"] .hx-egg{animation:hxShake .25s linear infinite;filter:drop-shadow(0 0 14px #ffe9a8) drop-shadow(0 8px 0 #0006)}
+.hx[data-step="2"] .hx-glow{opacity:1;animation:hxPulse .5s ease-in-out infinite alternate}
+.hx[data-step="3"] .hx-egg{animation:hxBurst .6s ease-in forwards}
+.hx[data-step="3"] .hx-rays,.hx[data-step="4"] .hx-rays{opacity:1}
+.hx[data-step="3"] .hx-flash{animation:hxFlash .6s ease-out forwards}
+.hx[data-step="4"] .hx-egg{display:none}
+.hx[data-step="4"] .hx-mon{opacity:1;transform:scale(1);transition:transform .45s cubic-bezier(.2,1.4,.4,1),opacity .3s}
+.hx[data-step="4"] .hx-glow{opacity:1}
+.hx.shiny[data-step="4"] .hx-rays{background:repeating-conic-gradient(from 0deg,#ffd27c88 0 6deg,transparent 6deg 20deg);animation:hxSpin 12s linear infinite}
+.hx.shiny[data-step="4"] .hx-stage{border-color:#ffd27c;box-shadow:0 0 34px #ffd27c66}
+.hx.shiny .hx-mon{filter:drop-shadow(0 0 10px #ffd27c) drop-shadow(0 6px 0 #0006)}
+.hx-flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none}
+.hx-card{width:360px;display:none;flex-direction:column;align-items:center;gap:10px;padding:20px 22px;border-radius:22px;border:2px solid #6ec0ff;background:radial-gradient(circle at 50% 12%,#1c4565,#0b1a28 70%);color:#8fd0ff}
+.hx.shiny .hx-card{border-color:#ffd27c;background:radial-gradient(circle at 50% 12%,#4a4018,#0b1a28 70%);color:#ffd27c;box-shadow:0 0 36px #ffd27c55}
+.hx[data-step="4"] .hx-card{display:flex;animation:hxIn .5s ease-out both}
+.hx-name{font:800 1.5rem system-ui;color:#eef6ff}
+.hx-tag{padding:4px 16px;border-radius:999px;border:2px solid currentColor;font:800 .75rem system-ui;letter-spacing:.1em}
+.hx.shiny .hx-tag{background:#ffd27c;color:#3a2800}
+.hx-poly{fill:currentColor;fill-opacity:.3;stroke:currentColor}
+.hx-lab text{font:700 11px system-ui;fill:currentColor}
+.hx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.hx-grid div{display:flex;flex-direction:column;gap:2px;padding:7px 9px;border-radius:12px;border:2px solid #284a66;background:#10283f}
+.hx-grid small{font:700 .6rem system-ui;letter-spacing:.1em;color:#b6cede}.hx-grid b{font:800 1.3rem system-ui;color:#eef6ff}.hx-grid em{font:700 .66rem system-ui;font-style:normal;color:#7fe3a1}.hx-grid .up{border-color:#7fe3a1}
+.hx-ok{margin-top:4px;padding:9px 26px;border-radius:12px;border:2px solid #ffd27c;background:transparent;color:#ffe9b8;font:800 .9rem system-ui;cursor:pointer}
+.hx.calm *{animation:none!important}
+@keyframes hxWobble{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes hxShake{0%{transform:translateX(-3px) rotate(-4deg)}50%{transform:translateX(3px) rotate(4deg)}100%{transform:translateX(-3px) rotate(-4deg)}}
+@keyframes hxPulse{from{transform:scale(.8)}to{transform:scale(1.1)}}
+@keyframes hxBurst{0%{transform:scale(1)}100%{transform:scale(1.5);opacity:0}}
+@keyframes hxFlash{0%{opacity:0}30%{opacity:.95}100%{opacity:0}}
+@keyframes hxSpin{to{transform:rotate(360deg)}}
+@keyframes hxIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.hx-stage:after{content:"";grid-area:1/1;width:96px;height:156px;pointer-events:none;opacity:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20' shape-rendering='crispEdges'%3E%3Cpath d='M8 3v2H6v2h2v2H7v2h2v2H8v2h1v2' fill='none' stroke='%23fff3b0' stroke-width='.7'/%3E%3Cpath d='M8 3v2H6v2h2v2H7v2h2v2H8v2h1v2' fill='none' stroke='%233a2a1a' stroke-width='.35' transform='translate(-.3 0)'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.hx[data-step="2"] .hx-stage:after{opacity:1;animation:hxShake .25s linear infinite}
