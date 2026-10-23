@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {pool,evolvesFrom,ancestors,sameLine,names} from '../dist/pokemon.js';
+import {baseTotals} from '../dist/pokemon.js';
 import {tierOf,zones,zonePool,draw,types,powers,itinerary,backgroundFor,backgrounds,dedupeLines,teamAfterCapture,teamAfterEquip,maxHp} from '../dist/world.js';
 import {chooseAiMove,effectiveness,computeStats,knownMoves,nextMove,damage,makeFighter,createBattle,takeTurn,xpReward,LUTTE,isUsable,DEFAULT_BASE} from '../dist/battle.js';
 import {parseSpecies,parseMove} from '../dist/battle-data.js';
@@ -33,7 +34,10 @@ assert.ok(zonePool('route').length<zonePool('route2').length&&zonePool('cave').l
 assert.ok(!zonePool('route').some(p=>[150,151,144,6,101].includes(p.id)),'Pas de rare ni de légendaire sur la Route 1');
 assert.ok([150,151,144,145,146].every(id=>zonePool('power').some(p=>p.id===id)&&!zonePool('route4').some(p=>p.id===id)),'Légendaires uniquement à la Centrale');
 assert.equal(zones.find(z=>z.id==='power').tier,5);assert.equal(Math.max(...zones.map(z=>z.tier)),5);
-assert.equal(tierOf(25),2);assert.equal(tierOf(4),1);assert.equal(tierOf(29),1);
+assert.equal(tierOf(25),1);assert.equal(tierOf(4),1);assert.equal(tierOf(29),1);assert.equal(tierOf(6),4);assert.equal(tierOf(9),4);assert.equal(tierOf(150),5);
+// Les chances dépendent des statistiques de base : Pikachu bien plus fréquent que Dracaufeu, Tortank ≈ Dracaufeu.
+assert.ok(pool[24].probability>20*pool[5].probability);assert.ok(Math.abs(pool[8].probability/pool[5].probability-1)<0.1);
+for(let i=1;i<151;i++)if(baseTotals[i]>baseTotals[i-1]+70)assert.ok(pool[i].probability<pool[i-1].probability);
 for(const step of itinerary.filter(s=>s.zone))assert.ok(zones.some(z=>z.id===step.zone));
 assert.deepEqual(itinerary.filter(s=>s.zone).map(s=>s.zone),['route','route2','forest','route3','cave','route4']);
 for(const id of ['route','forest','cave','power'])assert.ok(zones.some(z=>z.id===id),'Ancienne zone préservée : '+id);

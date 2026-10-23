@@ -1,4 +1,4 @@
-import {pool,ancestors,sameLine,baseWeights} from './pokemon.js';
+import {pool,ancestors,sameLine,baseTotals} from './pokemon.js';
 const typeRows=['grass poison','grass poison','grass poison','fire','fire','fire flying','water','water','water','bug','bug','bug flying','bug poison','bug poison','bug poison','normal flying','normal flying','normal flying','normal','normal','normal flying','normal flying','poison','poison','electric','electric','ground','ground','poison','poison','poison ground',
  'poison','poison','poison ground','normal','normal','fire','fire','normal','normal','poison flying','poison flying','grass poison','grass poison','grass poison','bug grass','bug grass','bug poison','bug poison','ground','ground','normal','normal','water','water','fighting','fighting','fire','fire','water','water','water fighting','psychic','psychic','psychic','fighting','fighting','fighting','grass poison','grass poison','grass poison','water poison','water poison','rock ground','rock ground','rock ground','fire','fire','water psychic','water psychic','electric','electric','normal flying','normal flying','normal flying','water','water ice','poison','poison','water','water ice','ghost poison','ghost poison','ghost poison','rock ground','psychic','psychic','water','water','electric','electric','grass psychic','grass psychic','ground','ground','fighting','fighting','normal','poison','poison','ground rock','ground rock','normal','grass','normal','water','water','water','water','water','water psychic','psychic','bug flying','ice psychic','electric','fire','bug','normal','water','water flying','water ice','normal','normal','water','electric','fire','normal','rock water','rock water','rock water','rock water','rock flying','normal','ice flying','electric flying','fire flying','dragon','dragon','dragon flying','psychic','psychic'];
 if(typeRows.length!==pool.length)throw new Error('Types et espèces désynchronisés');
@@ -21,11 +21,11 @@ export const powers=[12,48,180,14,54,210,13,50,195,2,8,35,2,8,38,4,46,125,3,25,5
  // Espèces 32 à 151 : puissance PROVISOIRE déduite des statistiques de base (≈ 12 × (total/300)^5).
  ...([273,365,505,323,483,299,505,270,435,245,455,320,395,490,285,405,305,450,265,425,290,440,320,500,305,455,350,555,300,385,510,310,400,500,305,405,505,300,390,490,335,515,300,390,495,410,500,315,490,325,465,377,310,470,325,475,325,500,305,525,310,405,500,385,328,483,325,475,330,490,325,530,320,425,455,455,385,340,490,345,485,450,435,490,295,440,320,450,340,520,460,500,455,490,495,500,490,200,540,535,288,325,525,525,525,395,355,495,355,495,515,540,580,580,580,300,420,600,680,600]).map(total=>Math.max(1,Math.round(12*(total/300)**5)))];
 if(powers.length!==pool.length)throw new Error('Puissances et espèces désynchronisées');
-// Paliers de rareté (PROVISOIRES) : 1 Communs, 2 Peu communs, 3 Rares, 4 Très rares, 5 Légendaires.
-// Déduits du poids de base de l'espèce ; Salamèche et Nidoran♀ (chances fixes du prototype) sont Communs.
+// Paliers de rareté (PROVISOIRES), selon les statistiques de base totales : 1 Communs (≤ 320), 2 Peu communs (≤ 420),
+// 3 Rares (≤ 485), 4 Très rares (au-delà), 5 Légendaires (liste fixe).
 export const TIER_NAMES=['','Communs','Peu communs','Rares','Très rares','Légendaires'];
 const LEGENDARY=[144,145,146,150,151];
-export const tierOf=id=>LEGENDARY.includes(id)?5:(id===4||id===29)?1:(w=>w>=8?1:w>=3?2:w>=1?3:4)(baseWeights[id-1]);
+export const tierOf=id=>LEGENDARY.includes(id)?5:(t=>t<=320?1:t<=420?2:t<=485?3:4)(baseTotals[id-1]);
 // Chaque zone répartit ses tirages entre les paliers (`shares`, du palier 1 au palier 5, total 100 %) :
 // la Route 1 ne donne que des Communs, puis chaque zone laisse une place plus grande aux paliers suivants.
 // Dans un palier, les espèces se départagent selon leurs poids de base, avec le bonus de type ×3 de la zone.
