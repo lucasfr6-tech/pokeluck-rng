@@ -408,3 +408,21 @@ body.team-dragging,body.team-dragging .team-card{cursor:grabbing!important}
 
 /* Menu : grand rectangle en haut du rail, Réglages conservé en bas. */
 @media(min-width:701px) and (min-height:601px){.game .rail>.menu-frame{flex:0 1 clamp(140px,calc((var(--rail-w) - 20px)*2.4),220px);min-height:100px;font-size:16px;gap:10px}.game .rail>.menu-frame svg{width:42px;height:42px}}
+
+/* ===== Nouvelle attaque : choisir laquelle oublier (au milieu de l'écran) ===== */
+dialog.learn{width:min(620px,calc(100% - 24px));padding:0;border:2px solid var(--gold);border-radius:18px;background:#0a2036;color:#f2f8fb;box-shadow:0 20px 60px #000c;overflow:auto;max-height:calc(100dvh - 20px)}
+dialog.learn::backdrop{background:#030b14cc;backdrop-filter:blur(2px)}
+.learn-box{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 18px 18px;text-align:center}
+.learn-box img{width:84px;height:84px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 6px 4px #0008)}
+.learn-box h2{margin:0;font:700 clamp(18px,3.4vw,24px) var(--pixel);color:#ffe27a}
+.learn-box p{margin:0;font-size:14px;color:#cfe3ee}
+.learn-new{width:100%}.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.learn-move{display:flex;flex-direction:column;gap:4px;align-items:stretch;text-align:left;padding:10px 12px;font:inherit;color:#fff;cursor:pointer;background:#10304d;border:2px solid var(--tc,#789);border-radius:12px;transition:transform .12s,background .12s}
+.learn-move:hover:not(:disabled),.learn-move:focus-visible{transform:translateY(-2px);background:#17426a;outline:none;box-shadow:0 0 0 3px #ffffff55}
+.learn-move.is-new{cursor:default;background:linear-gradient(100deg,#1d4c3a,#10304d);border-width:3px;box-shadow:0 0 14px color-mix(in srgb,var(--tc) 50%,transparent);opacity:1}
+.learn-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.learn-top b{font:700 17px var(--pixel)}.learn-top .type-badge{margin:0}
+.learn-move small{font-size:12px;color:#b9d3e0}.learn-move small b{color:#fff}.learn-move em{font-style:normal;font-size:12px;color:#ffb0a8;font-weight:700}
+.learn-skip{width:100%;min-height:44px;margin-top:2px;font:700 14px 'Trebuchet MS',Arial,sans-serif;color:#2a1c00;background:linear-gradient(#ffd66b,#ffb62e);border:2px solid #fff1bd;border-radius:12px;cursor:pointer}
+.learn-skip:hover,.learn-skip:focus-visible{filter:brightness(1.08);outline:none}
+@media(max-width:520px){.learn-grid{grid-template-columns:1fr}}
+.learn-new .learn-move{width:100%;box-sizing:border-box}
