@@ -17,6 +17,10 @@ export const ARENAS = [
   def(7, {id:'cramoisile', city:'Cramois’Île', leader:'Auguste', title:'Champion d’arène de Cramois’Île', type:'feu', badgeName:'Badge Volcan', trainer:'blaine', ace:88, need:84, tm:'ct-fireblast', real:[[58, 42], [77, 40], [78, 42], [59, 47]], quote:'Prépare-toi à te brûler les ailes !'}),
   def(8, {id:'jadielle', city:'Jadielle', leader:'Giovanni', title:'Maître de l’arène de Jadielle', type:'sol', badgeName:'Badge Terre', trainer:'giovanni', ace:100, need:96, tm:'ct-earthquake', real:[[111, 45], [51, 42], [31, 44], [34, 45], [112, 50]], quote:'Ceci est ma dernière arène. Et ta dernière chance.'})
 ];
+// Plafond de niveau de tes Pokémon selon les badges (dans l'ordre) : 0 badge → 20 (avant Pierre), 1 → 30 (avant Ondine), etc.
+export const LEVEL_CAPS = [20, 30, 42, 54, 66, 78, 90, 100, 100];
+export function badgeCount(badges) { let n = 0; while (n < ARENAS.length && badges?.[ARENAS[n].id]) n++; return n; }
+export const levelCap = badges => LEVEL_CAPS[badgeCount(badges)];
 export const arenaById = id => ARENAS.find(a => a.id === id);
 export const arenaIds = ARENAS.map(a => a.id);
 // Récompenses : prime en Pokédollars la première fois (puis 10 % en revanche), plus la CT du champion.

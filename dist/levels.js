@@ -25,12 +25,14 @@ export const maxLevel = id => nextLevels[id] ? nextLevels[id] - 1 : MAX_LEVEL;
 export const xpToNext = level => level;
 
 // Niveau, expérience et progression d'une espèce possédée en `count` exemplaires.
-export function levelInfo(id, count = 1, bonus = 0) {
-  const min = minLevel(id), cap = maxLevel(id);
+// `ceiling` : plafond global fixé par les badges d'arène (voir arena.js) ; l'expérience reste en réserve et se débloque au badge suivant.
+export function levelInfo(id, count = 1, bonus = 0, ceiling = MAX_LEVEL) {
+  const min = minLevel(id), stageCap = maxLevel(id), cap = Math.min(stageCap, ceiling);
   let xp = Math.max(0, Math.floor(count) - 1) + Math.max(0, Math.floor(bonus)), level = min;
   while (level < cap && xp >= xpToNext(level)) { xp -= xpToNext(level); level++; }
+  level = Math.min(level, cap);
   const capped = level >= cap;
-  return {level, cap, min, capped, xp: capped ? 0 : xp, need: capped ? 0 : xpToNext(level), evolvesAt: nextLevels[id] ?? null};
+  return {level, cap, min, capped, limited: capped && cap < stageCap, xp: capped ? 0 : xp, need: capped ? 0 : xpToNext(level), evolvesAt: nextLevels[id] ?? null};
 }
 
 // Puissance : valeur de référence de l'espèce (niveau 5) multipliée par (niveau / 5)^3,7.

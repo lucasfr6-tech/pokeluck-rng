@@ -444,3 +444,16 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   console.log('OK : 8 arènes, 16 zones, niveaux minimaux, accès par badge, champion niveau 100, parcours de 24 étapes.');
 }
 { const sh = await import('../dist/shop.js'); for (const s of sh.SHOPS) assert.ok(s.stock.length <= 9, 'boutique : 9 objets maximum'); console.log('OK : 9 objets maximum par boutique.'); }
+{
+  const A = await import('../dist/arena.js'), L = await import('../dist/levels.js');
+  assert.equal(A.levelCap({}), 20); assert.equal(A.levelCap({argenta:true}), 30); assert.equal(A.levelCap({azuria:true}), 20, 'badges dans l\u2019ordre');
+  assert.equal(A.levelCap(Object.fromEntries(A.ARENAS.map(a => [a.id, true]))), 100);
+  A.LEVEL_CAPS.forEach((c, i) => { if (i) assert.ok(c >= A.LEVEL_CAPS[i - 1]); });
+  A.ARENAS.forEach((a, i) => assert.ok(A.LEVEL_CAPS[i] >= a.need, 'le plafond permet d\u2019atteindre le niveau requis de l\u2019arène'));
+  zones.forEach(z => { const gate = Math.floor(zones.indexOf(z) / 2); assert.ok(A.LEVEL_CAPS[gate] >= z.min, 'plafond \u2265 niveau minimum de la zone ' + z.id); });
+  const big = L.levelInfo(134, 5000, 0), capped = L.levelInfo(134, 5000, 0, 20);
+  assert.ok(big.level > 20); assert.equal(capped.level, 20); assert.equal(capped.limited, true); assert.equal(L.levelInfo(134, 5000, 0, 20).xp, 0);
+  assert.equal(L.levelInfo(4, 5000, 0, 20).limited, false, 'plafond de stade, pas de badge');
+  assert.equal(L.levelInfo(6, 1, 0, 20).level, 20, 'une forme évoluée ne dépasse pas le plafond');
+  console.log('OK : plafonds de niveau par badge (20, 30, 42… 100), compatibles avec zones et arènes.');
+}
