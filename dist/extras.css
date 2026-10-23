@@ -226,3 +226,4 @@ body.reduce-motion .has-ready:after{animation:none!important}
 @keyframes evoGlow{0%{opacity:0;transform:scale(.4)}60%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1.6)}}
 .evo-ok{justify-self:center;padding:8px 20px;border-radius:10px;border:2px solid #ffd27c;background:transparent;color:#ffe9b8;font:700 14px system-ui;cursor:pointer}
 .evo-screen.calm .evo-from,.evo-screen.calm .evo-glow{animation:none;opacity:0}.evo-screen.calm .evo-to{animation:none;opacity:1}
+.pf-move.swap{cursor:pointer;transition:border-color .15s,transform .15s}.pf-move.swap:hover,.pf-move.swap:focus-visible{border-color:#ffd27c;transform:translateY(-2px);outline:none}
