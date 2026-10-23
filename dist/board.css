@@ -97,3 +97,31 @@ body.boss-fight .scene>.flee{display:none!important}
 @keyframes here-bob{0%,100%{transform:translateY(-3px)}50%{transform:translateY(2px)}}
 .reduce-motion .map-spot.current::before{animation:none}
 .large-map .map-spot.current::before{margin-left:-9px;border-width:9px;border-top-width:14px;border-bottom:0}
+/* Boutons Objets / Badges empilés dans la bannière */
+.banner-btns{display:flex;flex-direction:column;gap:4px}
+@media(min-width:701px){
+  .banner-btns .items-button{min-height:28px;padding-top:0;padding-bottom:0;font-size:13px;justify-content:flex-start}
+  .banner-btns .items-icon{width:22px;height:22px;margin:-2px 0}
+}
+.badges-button .items-count{background:#ffd27c;color:#2a1c00}
+/* Fenêtre des badges */
+.badges{display:flex;flex-direction:column;gap:16px;max-width:760px;margin:0 auto}
+.badges-head{display:grid;gap:8px;padding:14px 18px;border-radius:16px;background:linear-gradient(120deg,#12385c,#0e4a58);border:1px solid #3b86ad}
+.badges-head>div:first-child{display:flex;align-items:baseline;gap:10px}.badges-head b{font:700 30px var(--pixel);color:#ffe27a}.badges-head span{color:#cfe6f1;text-transform:uppercase;letter-spacing:.1em;font-size:12px}
+.badges-bar{height:10px;border-radius:6px;background:#07131f;overflow:hidden;border:1px solid #ffffff22}.badges-bar i{display:block;height:100%;background:linear-gradient(90deg,#ffe27a,#ff9e3a);border-radius:6px;transition:width .4s}
+.badges-head p{margin:0;font-size:13px;color:#cfe6f1}.badges-head p b{font:700 14px var(--pixel);color:#fff}
+.badges-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.badge-card{display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 8px 10px;border-radius:16px;background:#0d2a42;border:2px solid #2c5f86;color:#9fb8c8;font:inherit;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s}
+.badge-card:hover,.badge-card:focus-visible{transform:translateY(-3px);border-color:#8ad4ff;outline:none}
+.badge-art{display:grid;place-items:center;width:84px;height:84px;border-radius:50%;background:radial-gradient(circle,#1a3d5a,#0a1c2e);border:2px solid #20405a}
+.badge-art img{width:62px;height:62px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) opacity(.85)}
+.badge-card b{font:700 14px var(--pixel);color:#c3d5e2}.badge-card small{font-size:12px;opacity:.85}.badge-card em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:.04em;margin-top:2px;color:#7da0b8}
+.badge-card.next{border-color:#ff7a8a}.badge-card.next em{color:#ffb3bd}
+.badge-card.has{background:linear-gradient(#17466a,#0f2f4c);border-color:#ffd27c;color:#e8f6ff;box-shadow:0 0 16px #ffd27c33}
+.badge-card.has .badge-art{background:radial-gradient(circle,#ffe9a8aa,#1a3d5a 70%);border-color:#ffd27c;box-shadow:0 0 18px #ffd27c88}
+.badge-card.has .badge-art img{filter:drop-shadow(0 0 5px #ffd27c);animation:badge-shine 3s ease-in-out infinite}
+.badge-card.has b{color:#ffe27a}.badge-card.has em{color:#9be8a8}
+@keyframes badge-shine{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.reduce-motion .badge-card.has .badge-art img{animation:none}
+@media(max-width:620px){.badges-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body[data-theme=light] .badge-card{background:#dbeaf7;color:#35536b;border-color:#a5c4de}body[data-theme=light] .badge-card b{color:#203e5a}
