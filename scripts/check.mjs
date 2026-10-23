@@ -457,3 +457,4 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(L.levelInfo(6, 1, 0, 20).level, 20, 'une forme évoluée ne dépasse pas le plafond');
   console.log('OK : plafonds de niveau par badge (20, 30, 42… 100), compatibles avec zones et arènes.');
 }
+{ const A = await import('../dist/arena.js'); assert.deepEqual(A.ARENAS.map(a => A.arenaPrize(a, true)), [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000]); assert.equal(A.arenaPrize(A.ARENAS[1], false), 1000); console.log('OK : primes d’arène 5 000 à 40 000 ₽, revanche 10 %.'); }

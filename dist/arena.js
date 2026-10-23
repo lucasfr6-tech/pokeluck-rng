@@ -24,7 +24,8 @@ export const levelCap = badges => LEVEL_CAPS[badgeCount(badges)];
 export const arenaById = id => ARENAS.find(a => a.id === id);
 export const arenaIds = ARENAS.map(a => a.id);
 // Récompenses : prime en Pokédollars la première fois (puis 10 % en revanche), plus la CT du champion.
-export const arenaPrize = (arena, first) => Math.round(arena.ace * 1000 * arena.n * (first ? 1 : .1));
+// Prime : 5 000 ₽ × n° de l'arène (Pierre 5 000, Ondine 10 000 … Giovanni 40 000) ; revanche = 10 %.
+export const arenaPrize = (arena, first) => Math.round(5000 * arena.n * (first ? 1 : .1));
 // Zone d'après l'arène k (1..8) : il faut le badge k pour y entrer.
 export const zoneGate = id => Math.floor(ZONE_ORDER.indexOf(id) / 2);
 export function zoneAccess(id, leadLevel, badges) {
