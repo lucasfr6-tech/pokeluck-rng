@@ -603,3 +603,12 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   for (const k of ['4 096', 'Charme Chroma', 'Pension', 'rival', 'Brillant du jour', 'Conseil des 4', 'Multi-XP', 'Platine']) assert.ok(all.includes(k), k);
   console.log('OK : wiki (' + W.WIKI.length + ' catégories, cartes sans valeur manquante, recherche).');
 }
+{
+  const bt = await import('../dist/battle.js');
+  const mv = (name, type, power, acc = 100) => ({name, fr: name, type, power, acc, cls: 'special', pp: 10});
+  const mk = (types, moves) => bt.makeFighter({id: 5, name: 'x', level: 50, types, base: bt.DEFAULT_BASE, moves, training: {}});
+  const me = mk(['water'], [mv('hydro-pump', 'water', 110, 80), mv('bite', 'dark', 60)]), foe = mk(['grass', 'poison'], []);
+  assert.equal(bt.chooseAiMove(me, foe, () => 0).name, 'bite');
+  const foe2 = mk(['fire'], []); assert.equal(bt.chooseAiMove(me, foe2, () => 0).name, 'hydro-pump');
+  console.log('OK : l’IA évite l’attaque peu efficace quand une attaque normale fait presque autant.');
+}

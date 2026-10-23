@@ -189,7 +189,9 @@ export function chooseAiMove(attacker, defender, rand = Math.random) {
   const kos = scored.filter(x => x.ko), useful = statuses.filter(m => statusUseful(attacker, defender, m));
   if (!kos.length && useful.length && (!scored.length || rand() < .33)) return useful[Math.floor(rand() * useful.length)];
   if (!scored.length) return statuses[0] || LUTTE;
-  const pool = kos.length ? kos : scored;
+  let pool = kos.length ? kos : scored;
+  // Sans KO : on évite les attaques « peu efficaces » dès qu'une attaque normale ou super efficace fait au moins 55 % des dégâts de la meilleure.
+  if (!kos.length) { const top0 = Math.max(...scored.map(x => x.e)), ok = scored.filter(x => x.e > 0 && effectiveness(x.m.type, defender.types) >= 1 && x.e >= top0 * .55); if (ok.length && effectiveness(scored.find(x => x.e === top0)?.m.type, defender.types) < 1) pool = ok; }
   const best = Math.max(...pool.map(x => kos.length ? (x.m.acc ?? 100) : x.e));
   const top = pool.filter(x => (kos.length ? (x.m.acc ?? 100) : x.e) >= best - 1e-9);
   return top[Math.floor(rand() * top.length)].m;
