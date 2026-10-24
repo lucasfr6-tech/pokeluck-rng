@@ -431,7 +431,7 @@ body:not([data-theme=light]) #content-dialog>.modal-head h2{background:linear-gr
 .dcgarden .pg-pokemon{border:3px solid var(--pokemon-color,#7c3aed)!important;border-radius:18px!important;background:repeating-linear-gradient(115deg,#ffffff12 0 12px,transparent 12px 24px),linear-gradient(165deg,color-mix(in srgb,var(--pokemon-color,#7c3aed) 42%,#120d22),#140f26 95%)!important}
 @media(max-width:900px){.pg-scene{padding:6px!important}.pg-medal,.pg-parent-placeholder{width:170px;height:170px}.pg-medal .pg-parent-art{width:130px!important;height:130px!important}.pg-ring{width:240px;height:240px}.pg-ring:before{-webkit-mask:radial-gradient(circle,transparent 0 96px,#000 97px);mask:radial-gradient(circle,transparent 0 96px,#000 97px)}.pg-ring .pg-egg{width:150px;height:180px}}
 body.reduce-motion .pg-medal,body.reduce-motion .pg-parent-art,body.reduce-motion .pg-rate,body.reduce-motion .pg-title{animation:none!important}
-.pg-ring .pg-egg:disabled{opacity:.8!important}.pg-ring .pg-shell{transform:scale(1.35)}
+.pg-ring .pg-egg:disabled{opacity:.8!important}
 
 /* Quêtes : deux colonnes colorées */
 .quests-view{gap:16px;min-height:calc(100dvh - 190px);align-content:start}
@@ -533,4 +533,6 @@ body.reduce-motion .df-cd b,body.reduce-motion .df-hero-s .df-spr{animation:none
 /* Œuf Chance en pixel art à la place de l'œuf CSS */
 span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:112px!important;border:0!important;border-radius:0!important;background:url(assets/oeuf-chance.png) center/contain no-repeat!important;image-rendering:pixelated;box-shadow:none!important;filter:drop-shadow(0 8px 0 rgba(0,0,0,.35))}
 .cm-egg{width:52px!important;height:52px!important}
-.pg-ring .pg-shell{transform:scale(1.9)}
+.pg-shell{transform-origin:center!important;margin:0!important;background-position:center!important}
+.pg-ring .pg-shell{width:190px!important;height:190px!important}
+.cm span.pg-shell.cm-egg{width:64px!important;height:64px!important;margin:0!important}
