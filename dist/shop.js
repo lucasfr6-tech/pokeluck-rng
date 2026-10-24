@@ -55,8 +55,8 @@ export const SHOPS = [
   {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','paralyze-heal','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
   {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band','water-stone'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'},
   {id:'ouest', name:'Boutique des Îles Écume', after:'seafoam', before:'mansion', beforeLabel:'l’arène de Morgane', at:{x:50,y:50}, stock:['hyper-potion','max-potion','ice-heal','leftovers','ct-blizzard','ct-doubleedge','fire-stone'], hello:'Bienvenue ! Avant l’arène de Morgane, mieux vaut être bien équipé.'},
-  {id:'ligue', name:'Boutique du Champion', after:'league', needElite:'blue', needLabel:'Bats le Champion Blue', at:{x:50,y:50}, stock:['turbo'], hello:'Bienvenue, Champion ! Le Turbo ×2 fait filer tes combats deux fois plus vite, à prix d’ami.'},
-  {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['safari','rune','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
+  {id:'ligue', name:'Boutique du Champion', after:'league', needElite:'blue', needLabel:'Bats le Champion Blue', at:{x:50,y:50}, stock:['turbo','rune'], hello:'Bienvenue, Champion ! Le Turbo ×2 et la Pièce Rune pour les vrais vainqueurs.'},
+  {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['safari','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
 export const zoneName = id => zones.find(z => z.id === id)?.name || id;
