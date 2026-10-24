@@ -1,7 +1,7 @@
 // Boutiques posées sur la carte, objets achetables et effets actifs.
 import {zones} from './world.js';
 import {fmtMoney} from './money.js';
-import {addTypeEgg} from './type-eggs.js';
+import {addTypeEgg, TYPE_COL} from './type-eggs.js';
 const SPRITE = n => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${n}.png`;
 export const CLERK_SPRITE = 'https://play.pokemonshowdown.com/sprites/trainers/clerk.png';
 // Prix PROVISOIRES, calés sur le temps de farm visé (Super Ball ≈ 15 min, Multi-XP ≈ 45 min, Hyper Ball ≈ 1 h, Pièce Rune ≈ 3 h).
@@ -183,7 +183,7 @@ export const statMultipliers = (inv, pid) => heldList(inv, pid).reduce((m, id) =
 export const powerMultiplier = (inv, pid) => heldList(inv, pid).reduce((m, id) => m * (ITEMS[id]?.power || 1), 1);
 export const activeItems = inv => Object.values(ITEMS).filter(i => i.kind === 'passive' && inv.owned[i.id]);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const icon = (item, size = 64) => `<img class="shop-icon" src="${item.sprite}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px">`;
+const icon = (item, size = 64) => item.kind === 'typeegg' ? `<span class="te-egg shop-egg" style="--c:${TYPE_COL[item.etype]};width:${Math.round(size*.5)}px;height:${Math.round(size*.58)}px;margin:auto"><img class="shop-icon" src="${item.sprite}" alt=""><i></i></span>` : `<img class="shop-icon" src="${item.sprite}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px">`;
 
 export function mountShop(container, {getState, shopId, onChange, wins = () => 0}) {
   const shop = shopById(shopId);

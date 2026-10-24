@@ -891,3 +891,4 @@ body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-
 @keyframes teWob{0%,100%{transform:rotate(0)}25%{transform:rotate(-2deg)}75%{transform:rotate(2deg)}}
 @media(max-width:700px){.te-grid{grid-template-columns:1fr}}
 .miss-box{width:100%;box-sizing:border-box;align-self:stretch}.learn.pick .learn-box{max-width:min(94vw,720px)}
+.te-egg.shop-egg img{width:100%;height:100%}.te-egg.shop-egg i{inset:0}
