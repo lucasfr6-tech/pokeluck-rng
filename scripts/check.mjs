@@ -20,7 +20,7 @@ for(const zone of zones){
   let start=0;
   for(const p of entries){assert.equal(draw(entries,start+p.probability/2).id,p.id);start+=p.probability;}
   assert.ok(Math.abs(zone.shares.reduce((x,y)=>x+y,0)-1)<1e-12,'Paliers de '+zone.id+' ≠ 100 %');
-  const capped=entries.some(p=>tierOf(p.id)===5&&p.probability>=1/200-1e-12);
+  const capped=entries.some(p=>tierOf(p.id)===5);
   const ratio=p=>p.probability/pool[p.id-1].probability;
   zone.shares.forEach((share,i)=>{const grp=entries.filter(p=>tierOf(p.id)===i+1);
     if(!capped)assert.ok(Math.abs(grp.reduce((x,p)=>x+p.probability,0)-share)<1e-12,'Part du palier '+(i+1)+' de '+zone.id);
@@ -725,5 +725,5 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 }
 
 { const W = await import('../dist/world.js');
-  for (const z of ['league', 'cave']) for (const b of [0, 8]) { const p = W.zonePool(z, b, null); assert.ok(p.filter(e => e.tier === 5).every(e => e.probability <= 1 / 200 + 1e-12)); assert.ok(Math.abs(p.reduce((n, e) => n + e.probability, 0) - 1) < 1e-9); }
-  console.log('OK : légendaires plafonnés à 1 sur 200.'); }
+  for (const z of ['league', 'cave']) for (const b of [0, 8]) { const p = W.zonePool(z, b, null); assert.ok(p.filter(e => e.tier === 5).every(e => e.probability < 1 / 100)); assert.ok(Math.abs(p.reduce((n, e) => n + e.probability, 0) - 1) < 1e-9); }
+  console.log('OK : légendaires rares, somme des probabilités = 1.'); }

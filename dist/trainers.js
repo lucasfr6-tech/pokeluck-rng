@@ -14,7 +14,7 @@ export const TRAINER_CLASSES = [
   {id: 'sage', name: 'Sage', names: ['Maître Oku', 'Maître Jin', 'Maître Sho'], file: 'sage'},
   {id: 'bugs', name: 'Pêcheur de bugs', names: ['Rémi', 'Sam', 'Doug'], file: 'bugs'}
 ];
-export const TRAINER_CHANCE = 0.1;
+export const TRAINER_CHANCE = 0.05;
 export const TRAINER_MONEY = 2.5;
 export const TRAINER_XP = 1.5;
 
