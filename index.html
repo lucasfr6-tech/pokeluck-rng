@@ -1889,7 +1889,7 @@ function computeTeamMods(G) {
 const passiveV = (t, kind) => t ? towerPassives(t).filter(p => p.kind === kind).reduce((a, p) => a + p.v, 0) : 0;
 function costOf(G, k) { const d = TDEF[k]; return d.starter ? 0 : Math.round(d.cost * (1 - (G.discount || 0)) / 5) * 5; }
 
-const SLOT_UNLOCK = [1, 1, 3, 5, 7, 9];
+const SLOT_UNLOCK = [1, 1, 1, 1, 1, 1]; // tous les Pokémon de l'équipe sont posables dès la vague 1
 const TEAM_SIZE = 6;
 const DEFAULT_TEAM = [19, 16, 20, 17, 18];
 // 7 niveaux d'amélioration (0 à 6) ; les tableaux d'évolution (ids, cibles, zone…) s'arrêtent au 4e palier
@@ -2275,7 +2275,7 @@ function newGame(starterKey, cfg) {
   };
 }
 function nextWaveNo(G) { return G.phase === 'build' ? G.wave + 1 : G.wave; }
-function unlockWave(G, k) { const si = G.cfg.team ? G.cfg.team.indexOf(k) : -1; const u = si >= 0 ? SLOT_UNLOCK[si] : TDEF[k].unlock; return G.cfg.mode === 'sandbox' ? 1 : G.cfg.mode === 'boss' ? Math.ceil(u/2) : G.cfg.waves ? Math.max(1, Math.ceil((u - 1) * G.totalWaves / 15) + 1) : u; }
+function unlockWave(G, k) { return 1; } // plus aucune attente : n'importe quel Pokémon à n'importe quelle vague
 function unlocked(G, k) { const d = TDEF[k]; return d.starter ? k === G.starter : nextWaveNo(G) >= unlockWave(G, k); }
 function canPlace(G, c, r) {
   if (c<0||r<0||c>=COLS||r>=ROWS) return false;
@@ -2527,7 +2527,7 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-170119';
+const BUILD_ID = '20261024-171015';
 (function autoUpdate() {
   if (!/github\.io$/.test(location.hostname)) return;
   let shown = false;
@@ -3277,7 +3277,7 @@ function renderPrep() {
   $('#prepTeam').innerHTML = SAVE.team.map((id, i) => { const k = keys[i], d = TDEF[k], r = rarityOf(id), tr = SAVE.traits[id] ? TRAITS[SAVE.traits[id]] : null, lim = placeLimit({traits: SAVE.traits}, k);
     const bad = cfg.mono && !monoAllowed(id, cfg.mono), veil = cfg.night && r < NIGHT_MIN_R;
     return `<button class="pcard r${r} ${prepSlot === i ? 'sel' : ''} ${bad ? 'banned' : ''} ${veil ? 'veiled' : ''}" data-nav data-s="${i}" aria-label="Emplacement ${i + 1} : ${name(id)}, remplacer">${bad ? `<span class="banmk">✕ Pas ${TYPE_FR[cfg.mono]}</span>` : veil ? '<span class="banmk veil">☾ Voile : 35 % des dégâts</span>' : ''}
-      <span class="pstage" style="background:var(--st-${d.type})"><span class="pnum">${i + 1}</span><span class="pwave">${SLOT_UNLOCK[i] === 1 ? 'Vague 1' : `Vague ${SLOT_UNLOCK[i]}`}</span>
+      <span class="pstage" style="background:var(--st-${d.type})"><span class="pnum">${i + 1}</span>
         <img class="px" src="${DEX[id].img}" alt="" style="height:${Math.min(92, DEX[id].h * 1.45)}px"></span>
       <span class="pbody"><b>${name(id)}</b><span class="pchips">${rpill(r)}<span class="domi dom-${d.domain}" title="${DOMAINS[d.domain].label}">${DOMAINS[d.domain].icon}</span>${typeBadge(d.type)}</span>
         ${tr ? `<span class="trc tt${tr.tier}">${tr.name}</span>` : '<span class="ptr">Sans trait</span>'}
@@ -3320,7 +3320,7 @@ function renderPrepAdvice() {
     <ul class="tips"><li>Ennemis : ${R.threats.map(typeBadge).join(' ')}</li>
       <li class="${air < 2 ? 'warn' : ''}">☁ ${air} Pokémon Air ou Hybride${air > 1 ? 's' : ''}${air < 2 ? ' : pense aux volants !' : ''}</li>
       <li>☁ Les Pokémon Air se posent uniquement sur les plateformes aériennes, les Pokémon Sol sur l’herbe. Les Hybrides vont partout.</li>
-      <li>Les emplacements 1 et 2 sont prêts dès la vague 1, les suivants arrivent aux vagues ${SLOT_UNLOCK.slice(2).join(', ')}.</li></ul>`;
+      <li>Les 6 Pokémon de l’équipe sont posables dès la vague 1.</li></ul>`;
   $('#prepBest').onclick = () => { if (!R.mine.length) return; SAVE.team = cfg.mono && R.mine.length < TEAM_SIZE ? [...R.mine, ...SAVE.team.filter(id => !R.mine.includes(id))].slice(0, TEAM_SIZE) : [...R.mine]; persist(); prepSlot = null; renderPrep(); $('#prepGo').focus(); };
 }
 $('#prepGo').onclick = () => { persist(); pokeWipe(() => startGame(prepCfg)); };
@@ -4299,7 +4299,7 @@ RENDERERS.team = () => {
   $('#teamSlots').innerHTML = SAVE.team.map((id, i) => { const r = rarityOf(id), key = ensureTower(id, awakenOf(id));
     return `<button class="slot r${r} ${teamSlot === i ? 'sel' : ''}" data-nav data-s="${i}"><span class="sn">${i + 1}</span>
       <span class="simg">${img(id, Math.min(56, DEX[id].h), 'alt=""')}</span><b>${name(id)}</b><span>${rpill(r)} <span class="domi dom-${domainOf(id)}" title="${DOMAINS[domainOf(id)].label}">${DOMAINS[domainOf(id)].icon}</span></span>
-      <small>${SLOT_UNLOCK[i] === 1 ? 'Dès la vague 1' : `Vague ${SLOT_UNLOCK[i]}`} · ${TDEF[key].cost} ₽</small></button>`; }).join('');
+      <small>${TDEF[key].cost} ₽</small></button>`; }).join('');
   $$('#teamSlots .slot').forEach(b => b.onclick = () => { teamSlot = +b.dataset.s; teamSel = SAVE.team[teamSlot]; RENDERERS.team(); $(`#teamSlots [data-s="${teamSlot}"]`).focus(); });
   $('#teamTabs').innerHTML = [['all', 'Tous'], ...RARITIES.map((R, r) => [String(r), R.label])].map(([k, l]) => `<button data-nav data-f="${k}" class="${teamFilter === k ? 'on' : ''}">${l}</button>`).join('');
   $$('#teamTabs button').forEach(b => b.onclick = () => { teamFilter = b.dataset.f; RENDERERS.team(); });
@@ -4332,7 +4332,7 @@ function teamSide() {
       ${POWER ? `<div class="kv"><span>Puissance</span><b>${fmt(POWER[id])}</b></div>` : ''}
     </div>
     <button class="btn go big" id="equipBtn" data-nav ${SAVE.team[teamSlot] === id ? 'disabled' : ''}>${SAVE.team[teamSlot] === id ? `Déjà dans l’emplacement ${teamSlot + 1}` : `Placer dans l’emplacement ${teamSlot + 1}`}</button>
-    <p class="note">Les emplacements 1 et 2 sont disponibles dès la première vague, les suivants aux vagues ${SLOT_UNLOCK.slice(2).join(', ')}. Ton équipe se modifie aussi juste avant chaque combat.</p>`;
+    <p class="note">Les 6 Pokémon de l’équipe sont posables dès la première vague. Ton équipe se modifie aussi juste avant chaque combat.</p>`;
   $('#equipBtn').onclick = () => equip(id);
 }
 
