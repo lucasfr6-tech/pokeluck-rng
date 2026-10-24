@@ -1,6 +1,7 @@
 // Boutiques posées sur la carte, objets achetables et effets actifs.
 import {zones} from './world.js';
 import {fmtMoney} from './money.js';
+import {addTypeEgg} from './type-eggs.js';
 const SPRITE = n => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${n}.png`;
 export const CLERK_SPRITE = 'https://play.pokemonshowdown.com/sprites/trainers/clerk.png';
 // Prix PROVISOIRES, calés sur le temps de farm visé (Super Ball ≈ 15 min, Multi-XP ≈ 45 min, Hyper Ball ≈ 1 h, Pièce Rune ≈ 3 h).
@@ -43,6 +44,21 @@ export const ITEMS = {
   'ct-thunder': {id:'ct-thunder', kind:'tm', stack:true, move:'thunderbolt', name:'CT24 · Tonnerre', price:60000, sprite:SPRITE('tm-electric'), effect:'Électrik · Puissance 90 · Précision 100', desc:'Apprend Tonnerre à un Pokémon compatible. Consommable : disparaît après usage.'},
   band:   {id:'band',   kind:'held', stack:true, name:'Ceinture Force', price:20000, sprite:SPRITE('focus-sash'), effect:'Survit à un coup fatal avec 1 PV (si PV pleins) · usage unique', desc:'Comme dans les jeux : si le porteur a tous ses PV et reçoit une attaque qui devrait le mettre K.O., il tient avec 1 PV. La ceinture est alors consommée.'},
   auto:   {id:'auto',   kind:'passive', name:'Mode Auto',  price:30000,  sprite:SPRITE('vs-seeker'), effect:'Combats automatiques (bouton AUTO)', desc:'Débloque le bouton AUTO sous la zone : une fois activé, les rencontres se lancent seules et ton Pokémon choisit l’attaque la plus efficace contre l’adversaire. Tu l’actives ou le coupes quand tu veux.'},
+  'egg-grass': {id:'egg-grass', kind:'typeegg', etype:'grass', name:'Œuf Plante', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Plante', desc:'Un Pokémon aléatoire de type Plante de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-fire': {id:'egg-fire', kind:'typeegg', etype:'fire', name:'Œuf Feu', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Feu', desc:'Un Pokémon aléatoire de type Feu de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-water': {id:'egg-water', kind:'typeegg', etype:'water', name:'Œuf Eau', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Eau', desc:'Un Pokémon aléatoire de type Eau de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-electric': {id:'egg-electric', kind:'typeegg', etype:'electric', name:'Œuf Électrik', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Électrik', desc:'Un Pokémon aléatoire de type Électrik de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-normal': {id:'egg-normal', kind:'typeegg', etype:'normal', name:'Œuf Normal', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Normal', desc:'Un Pokémon aléatoire de type Normal de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-bug': {id:'egg-bug', kind:'typeegg', etype:'bug', name:'Œuf Insecte', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Insecte', desc:'Un Pokémon aléatoire de type Insecte de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-poison': {id:'egg-poison', kind:'typeegg', etype:'poison', name:'Œuf Poison', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Poison', desc:'Un Pokémon aléatoire de type Poison de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-ground': {id:'egg-ground', kind:'typeegg', etype:'ground', name:'Œuf Sol', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Sol', desc:'Un Pokémon aléatoire de type Sol de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-flying': {id:'egg-flying', kind:'typeegg', etype:'flying', name:'Œuf Vol', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Vol', desc:'Un Pokémon aléatoire de type Vol de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-fighting': {id:'egg-fighting', kind:'typeegg', etype:'fighting', name:'Œuf Combat', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Combat', desc:'Un Pokémon aléatoire de type Combat de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-psychic': {id:'egg-psychic', kind:'typeegg', etype:'psychic', name:'Œuf Psy', price:90000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Psy', desc:'Un Pokémon aléatoire de type Psy de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-rock': {id:'egg-rock', kind:'typeegg', etype:'rock', name:'Œuf Roche', price:40000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Roche', desc:'Un Pokémon aléatoire de type Roche de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-ice': {id:'egg-ice', kind:'typeegg', etype:'ice', name:'Œuf Glace', price:90000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Glace', desc:'Un Pokémon aléatoire de type Glace de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-ghost': {id:'egg-ghost', kind:'typeegg', etype:'ghost', name:'Œuf Spectre', price:90000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Spectre', desc:'Un Pokémon aléatoire de type Spectre de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
+  'egg-dragon': {id:'egg-dragon', kind:'typeegg', etype:'dragon', name:'Œuf Dragon', price:90000, sprite:'assets/egg.png', effect:'Éclôt après 50 victoires · Pokémon de type Dragon', desc:'Un Pokémon aléatoire de type Dragon de la région, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'},
   egg:    {id:'egg',    kind:'held', stack:true, name:'Œuf Chance', price:12000, sprite:SPRITE('lucky-egg'), xp:1.5, effect:'XP gagnée +50 % pour le porteur', desc:'Comme dans les jeux : le Pokémon qui le porte gagne 50 % d’XP en plus après chaque combat. Parfait pour faire monter ton Pokémon préféré au début de l’aventure.'},
   incense:{id:'incense',kind:'incense',stack:true,name:'Encens Chance',price:25000,sprite:SPRITE('luck-incense'),effect:'Pendant 5 min : raretés +50 %',desc:'À allumer depuis le sac : pendant 5 minutes, les raretés supérieures sortent plus souvent, comme avec une Hyper Ball presque aussi puissante. Se cumule avec ta Ball et ta série de victoires. Un seul encens à la fois.'},
   turbo:  {id:'turbo',  kind:'passive', name:'Turbo ×2', price:500000, sprite:SPRITE('quick-claw'), effect:'Combats ×2 : attaques, animations et Pokéball deux fois plus rapides', desc:'Actif dès l’achat : un bouton ×2 apparaît sous la zone. Une fois enclenché, les combats, les attaques, les animations et la rotation de la Pokéball vont deux fois plus vite. Tu peux le couper à tout moment.'},
@@ -52,11 +68,11 @@ export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024
 // La Pièce Rune est vendue à la Boutique du Plateau ; le Charme Chroma n'est pas en vente pour l'instant (prévu dans la 2e région).
 // `after` : zone à explorer ; `at` : position (en % de la carte) du logo, entre `after` et la zone suivante.
 export const SHOPS = [
-  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','paralyze-heal','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
-  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band','water-stone'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'},
-  {id:'ouest', name:'Boutique des Îles Écume', after:'seafoam', before:'mansion', beforeLabel:'l’arène de Morgane', at:{x:50,y:50}, stock:['hyper-potion','max-potion','ice-heal','leftovers','ct-blizzard','ct-doubleedge','fire-stone'], hello:'Bienvenue ! Avant l’arène de Morgane, mieux vaut être bien équipé.'},
+  {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','egg-grass','egg-fire','egg-water','egg-normal','egg-bug','auto','potion','antidote','paralyze-heal','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
+  {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','egg-electric','egg-poison','egg-ground','egg-rock','egg-fighting','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band','water-stone'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'},
+  {id:'ouest', name:'Boutique des Îles Écume', after:'seafoam', before:'mansion', beforeLabel:'l’arène de Morgane', at:{x:50,y:50}, stock:['egg-flying','egg-ice','egg-ghost','hyper-potion','max-potion','ice-heal','leftovers','ct-blizzard','ct-doubleedge','fire-stone'], hello:'Bienvenue ! Avant l’arène de Morgane, mieux vaut être bien équipé.'},
   {id:'ligue', name:'Boutique du Champion', after:'league', needElite:'blue', needLabel:'Bats le Champion Blue', at:{x:50,y:50}, stock:['turbo','rune'], hello:'Bienvenue, Champion ! Le Turbo ×2 et la Pièce Rune pour les vrais vainqueurs.'},
-  {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['safari','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
+  {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['safari','egg-psychic','egg-dragon','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
 export const zoneName = id => zones.find(z => z.id === id)?.name || id;
@@ -112,9 +128,14 @@ let eliteSrc = () => ({});
 export const setEliteSource = f => { eliteSrc = f; };
 export const shopKills = (kills, shop) => shop.needElite ? (eliteSrc()?.[shop.needElite] ? KILLS_TO_UNLOCK : 0) : Math.min(KILLS_TO_UNLOCK, kills[shop.after] || 0);
 export const shopOpen = (kills, shop) => shopKills(kills, shop) >= KILLS_TO_UNLOCK;
-export function buyItem(state, id) {
+export function buyItem(state, id, wins = 0) {
   const item = ITEMS[id];
   if (!item || id === 'poke') return {ok:false, reason:'unknown'};
+  if (item.kind === 'typeegg') {
+    if (state.money < item.price) return {ok:false, reason:'money', missing:item.price - state.money};
+    if (!addTypeEgg(state, item.etype, wins)) return {ok:false, reason:'full'};
+    state.money -= item.price; return {ok:true};
+  }
   if (!isStack(id) && owns(state.inv, id)) return {ok:false, reason:'owned'};
   if (state.money < item.price) return {ok:false, reason:'money', missing:item.price - state.money};
   state.money -= item.price;
@@ -164,7 +185,7 @@ export const activeItems = inv => Object.values(ITEMS).filter(i => i.kind === 'p
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const icon = (item, size = 64) => `<img class="shop-icon" src="${item.sprite}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px">`;
 
-export function mountShop(container, {getState, shopId, onChange}) {
+export function mountShop(container, {getState, shopId, onChange, wins = () => 0}) {
   const shop = shopById(shopId);
   let selected = shop.stock[0], message = '';
   container.innerHTML = '<div class="shop"></div>';
@@ -181,9 +202,9 @@ export function mountShop(container, {getState, shopId, onChange}) {
     const pick = e.target.closest('[data-item]');
     if (pick) {selected = pick.dataset.item; message = ''; render(); return;}
     if (e.target.closest('[data-buy]')) {
-      const state = getState(), r = buyItem(state, selected);
-      if (r.ok) {const st = (state.stats = state.stats || {}); st.purchases = (st.purchases || 0) + 1; message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'heal' ? 'ajoutée à ton sac. À utiliser en combat avec « Objets ».' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'stone' ? 'ajoutée à ton sac. À utiliser depuis le profil du Pokémon à faire évoluer.' : 'déjà actif !'}`; onChange(selected);}
-      else message = r.reason === 'money' ? `Il te manque ${fmtMoney(r.missing)}.` : 'Tu l’as déjà.';
+      const state = getState(), r = buyItem(state, selected, wins());
+      if (r.ok) {const st = (state.stats = state.stats || {}); st.purchases = (st.purchases || 0) + 1; message = `Merci ! ${ITEMS[selected].name} : ${ITEMS[selected].kind === 'ball' ? 'équipée sur ta Pokéball.' : ITEMS[selected].kind === 'tm' ? 'ajoutée à ton sac. À utiliser depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'heal' ? 'ajoutée à ton sac. À utiliser en combat avec « Objets ».' : ITEMS[selected].kind === 'held' ? 'ajoutée à ton sac. À faire porter depuis le profil d’un Pokémon.' : ITEMS[selected].kind === 'typeegg' ? 'placé dans ta couveuse (menu Pension). Il éclôt après 50 victoires.' : ITEMS[selected].kind === 'stone' ? 'ajoutée à ton sac. À utiliser depuis le profil du Pokémon à faire évoluer.' : 'déjà actif !'}`; onChange(selected);}
+      else message = r.reason === 'money' ? `Il te manque ${fmtMoney(r.missing)}.` : r.reason === 'full' ? 'Ta couveuse est pleine (3 œufs). Fais éclore un œuf d’abord.' : 'Tu l’as déjà.';
       render();
     }
   };

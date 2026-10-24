@@ -252,7 +252,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,auto,potion,antidote,paralyze-heal,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band,water-stone') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,egg-grass,egg-fire,egg-water,egg-normal,egg-bug,auto,potion,antidote,paralyze-heal,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,egg-electric,egg-poison,egg-ground,egg-rock,egg-fighting,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band,water-stone') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
@@ -456,7 +456,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.ok(A.arenaPrize(A.ARENAS[0], true) > A.arenaPrize(A.ARENAS[0], false));
   console.log('OK : 8 arènes, 16 zones, niveaux minimaux, accès par badge, champion niveau 100, parcours de 24 étapes.');
 }
-{ const sh = await import('../dist/shop.js'); for (const s of sh.SHOPS) assert.ok(s.stock.length <= 9, 'boutique : 9 objets maximum'); console.log('OK : 9 objets maximum par boutique.'); }
+{ const sh = await import('../dist/shop.js'); for (const s of sh.SHOPS) assert.ok(s.stock.length <= 15, 'boutique : 15 objets maximum'); console.log('OK : 15 objets maximum par boutique.'); }
 {
   const A = await import('../dist/arena.js'), L = await import('../dist/levels.js');
   assert.equal(A.levelCap({}), 20); assert.equal(A.levelCap({argenta:true}), 30); assert.equal(A.levelCap({azuria:true}), 20, 'badges dans l\u2019ordre');
@@ -473,7 +473,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 { const A = await import('../dist/arena.js'); assert.deepEqual(A.ARENAS.map(a => A.arenaPrize(a, true)), [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000]); assert.equal(A.arenaPrize(A.ARENAS[1], false), 1000); console.log('OK : primes d’arène 5 000 à 40 000 ₽, revanche 10 %.'); }
 {
   const sh = await import('../dist/shop.js'), A = await import('../dist/arena.js');
-  const o = sh.shopById('ouest'); assert.equal(o.stock.length, 7); assert.equal(o.stock.filter(id => sh.ITEMS[id].kind === 'tm').length, 2); assert.ok(o.stock.includes('leftovers'));
+  const o = sh.shopById('ouest'); assert.equal(o.stock.filter(id => !id.startsWith('egg-')).length, 7); assert.equal(o.stock.filter(id => sh.ITEMS[id].kind === 'tm').length, 2); assert.ok(o.stock.includes('leftovers'));
   assert.ok(A.ZONE_ORDER.indexOf(o.after) === 11 && A.arenaById('safrania').n === 6, 'boutique juste avant l’arène de Morgane');
   const path = A.buildPath(sh.SHOPS.map(s => ({...s, open:true}))); const i = path.findIndex(n => n.kind === 'shop' && n.id === 'ouest');
   assert.equal(path[i + 1].id, 'safrania', 'la boutique précède l’arène de Morgane');
@@ -727,3 +727,22 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 { const W = await import('../dist/world.js');
   for (const z of ['league', 'cave']) for (const b of [0, 8]) { const p = W.zonePool(z, b, null); assert.ok(p.filter(e => e.tier === 5).every(e => e.probability < 1 / 100)); assert.ok(Math.abs(p.reduce((n, e) => n + e.probability, 0) - 1) < 1e-9); }
   console.log('OK : légendaires rares, somme des probabilités = 1.'); }
+
+// ---- Œufs de type ----
+{
+  const te = await import('../dist/type-eggs.js');
+  const {types: T} = await import('../dist/world.js');
+  for (const t of te.EGG_TYPES) {
+    const ids = te.eggPool(t); if (!ids.length) { console.error('ÉCHEC : œuf sans Pokémon', t); process.exit(1); }
+    const sum = te.eggOdds(t).reduce((n, o) => n + o.probability, 0);
+    if (Math.abs(sum - 1) > 1e-9) { console.error('ÉCHEC : probabilités œuf ≠ 1', t, sum); process.exit(1); }
+    for (let i = 0; i < 40; i++) { const id = te.hatchPick(t, .3); if (!T[id].includes(t)) { console.error('ÉCHEC : mauvais type', t, id); process.exit(1); } }
+  }
+  const mean = (b) => te.eggOdds('water', b).reduce((n, o) => n + o.probability * o.tier, 0);
+  if (!(mean(.6) > mean(0))) { console.error('ÉCHEC : le bonus de Ball doit améliorer les œufs'); process.exit(1); }
+  const st = {typeEggs: [], money: 1e6, inv: {owned: {}, stock: {}}}, {buyItem} = await import('../dist/shop.js');
+  for (let i = 0; i < 3; i++) if (!buyItem(st, 'egg-grass', 10).ok) { console.error('ÉCHEC : achat œuf'); process.exit(1); }
+  if (buyItem(st, 'egg-grass', 10).reason !== 'full' || st.money !== 1e6 - 3 * 40000) { console.error('ÉCHEC : couveuse pleine'); process.exit(1); }
+  if (te.typeEggReady(st.typeEggs[0], 59) || !te.typeEggReady(st.typeEggs[0], 60)) { console.error('ÉCHEC : 50 victoires'); process.exit(1); }
+  console.log('OK : œufs de type (types, probabilités, bonus, couveuse, 50 victoires)');
+}
