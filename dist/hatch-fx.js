@@ -16,7 +16,10 @@ export function playHatch({name, shiny = false, isNew = false, ivs = {}, improve
   const el = document.createElement('div'); el.className = 'hx' + (shiny ? ' shiny' : '') + (reduced ? ' calm' : ''); el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Éclosion');
   el.innerHTML = `<div class="hx-box"><div class="hx-left"><div class="hx-stage"><span class="hx-glow"></span><span class="hx-rays"></span><span class="hx-shadow"></span><img class="hx-egg" src="${eggSrc}" alt="Œuf"><img class="hx-mon" src="${spriteSrc}" alt="${esc(name)}"></div><ol class="hx-steps"><li data-s="1">L’œuf bouge</li><li data-s="2">Il se fissure</li><li data-s="3">Flash</li><li data-s="4">${esc(name)} est né</li></ol></div>
   <div class="hx-card"><b class="hx-name">${esc(name)}</b><span class="hx-tag">${shiny ? 'CHROMATIQUE' : 'FORME NORMALE'}${isNew ? ' · NOUVEAU' : ''}</span><svg viewBox="0 0 260 260" width="230" height="230" role="img" aria-label="Radar des IV"><g fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1.5"><polygon points="${ring(130, 130, 100)}"/><polygon points="${ring(130, 130, 50)}"/></g><polygon class="hx-poly" points="${pts}" stroke-width="3"/><g class="hx-lab" text-anchor="middle">${labels}</g></svg><div class="hx-grid">${grid}</div><button class="hx-ok" type="button">Continuer</button></div></div><div class="hx-flash"></div>`;
-  document.body.appendChild(el);
+  // Dans la couche supérieure : visible même quand la fenêtre Pension (dialogue modal) est ouverte.
+  const host = [...document.querySelectorAll('dialog[open]')].pop() || document.body;
+  host.appendChild(el);
+  try { el.setAttribute('popover', 'manual'); el.showPopover(); } catch { el.style.zIndex = 9999; }
   const setStep = n => { el.dataset.step = n; };
   const close = () => el.remove();
   el.querySelector('.hx-ok').onclick = close; el.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });

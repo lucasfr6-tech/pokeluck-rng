@@ -733,3 +733,5 @@ button.map-time{cursor:pointer;font-family:var(--pixel)}button.map-time:hover,bu
 [data-terrain=electric] .terrain-fx i{width:calc(34px*var(--s));height:calc(46px*var(--s))}
 [data-terrain=grass] .terrain-fx i,[data-terrain=psychic] .terrain-fx i{width:calc(20px*var(--s));height:calc(20px*var(--s))}
 [data-terrain=misty] .terrain-fx i{width:calc(46px*var(--s));height:calc(46px*var(--s))}
+
+.hx[popover]{inset:0;margin:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;color:inherit;overflow:auto}
