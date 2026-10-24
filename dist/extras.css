@@ -638,3 +638,8 @@ span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:
 .illustrated-map .map-spot.locked .bld-art,.illustrated-map .map-spot.locked .bld-mon{filter:grayscale(.55) brightness(.85)}
 .bld-art.tower{inset:-28% 0 0 0}
 .bld-art.tall{inset:-12% 0 0 0}
+
+.bld-art.wide{inset:-10% -45% 0 -45%}
+.bld-art.mid{inset:-5% -22% 0 -22%}
+.bld-art.pagoda{inset:-40% 12% 0 12%}
+.map-spot .bld-art.mid,.map-spot .bld-art.wide{filter:drop-shadow(0 .3cqw .2cqw #0009)}

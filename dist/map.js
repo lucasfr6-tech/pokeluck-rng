@@ -1,5 +1,4 @@
 import {zones} from './world.js';
-import {buildingSvg} from './buildings.js';
 import {spriteBW} from './pokemon.js';
 import {ARENAS,ELITE,arenaById,eliteById,buildPath} from './arena.js';
 
@@ -7,7 +6,9 @@ import {ARENAS,ELITE,arenaById,eliteById,buildPath} from './arena.js';
 // 8 par rangée, reliés par un trait fléché. Les arènes sont d'une autre couleur (rouge), le champion est plus grand.
 // Aucun texte sur la carte : le nom apparaît au survol. Coordonnées en % de la largeur (x) et de la hauteur (y).
 const SHOP_ICON='<svg viewBox="0 0 40 40" aria-hidden="true"><path class="sh-roof" d="M4 16 L8 6 H32 L36 16 Z"/><path class="sh-stripe" d="M12 6 L11 16 M20 6 V16 M28 6 L29 16"/><rect class="sh-wall" x="6" y="16" width="28" height="18"/><rect class="sh-door" x="16" y="22" width="8" height="12"/><rect class="sh-win" x="8" y="20" width="6" height="6"/><rect class="sh-win" x="26" y="20" width="6" height="6"/></svg>';
-const ZONE_ART={route:'hut',route2:'hut',route3:'hut',route4:'hut',forest:'cabin',cave:'cave',rocktunnel:'cave',ceruleancave:'cave',bridge:'bridge',tower:'tower',safari:'tent',power:'plant',seafoam:'ice',mansion:'mansion',victory:'gate',league:'palace'};
+const ZONE_IMG={route:['hut-a'],route2:['hut-b'],route3:['hut-c'],route4:['hut-d'],forest:['forest'],cave:['cave','filter:grayscale(.5) brightness(1.2)'],rocktunnel:['cave'],ceruleancave:['cave','filter:hue-rotate(190deg) saturate(1.3) brightness(1.2)'],seafoam:['cave','filter:hue-rotate(175deg) saturate(.6) brightness(1.7)'],bridge:['bridge',' wide'],tower:['tower',' pagoda'],safari:['safari',' wide'],power:['power',' mid'],mansion:['mansion',' mid'],victory:['gate',' wide'],league:['league',' wide']};
+const zoneArt=id=>{const[f,x='']=ZONE_IMG[id]||['hut-a'];return `<img src="assets/bld/${f}.png" alt=""${x.startsWith('filter')?` style="${x}"`:''}>`};
+const zoneCls=id=>{const x=(ZONE_IMG[id]||[])[1]||'';return x.startsWith('filter')?'':x};
 const ZONE_MON={route:19,route2:16,forest:12,route3:21,cave:35,route4:27,bridge:129,rocktunnel:74,tower:92,safari:111,power:100,seafoam:87,mansion:58,ceruleancave:150,victory:67,league:142};
 const ELITE_MON={olga:131,aldo:106,agatha:94,peter:149,blue:18};
 const ARENA_IMG=['arena-a','arena-b','arena-c','arena-d','arena-e','arena-f','arena-c','arena-a'];
@@ -42,7 +43,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
     if(n.kind==='zone'){
       const z=zones.find(z=>z.id===n.id),acc=info.zones?.[n.id]||{ok:true},cur=n.id===selected;
       const need=acc.ok?`niveau ${z.min}+`:acc.reason==='badge'?`badge n°${acc.arena.n} requis (${acc.arena.leader})`:`niveau ${acc.need} requis`;
-      html+=`<button class="map-spot${cur?' current':''}${acc.ok?'':' locked'}${side(p)}" data-zone="${n.id}" aria-label="${esc(z.name)} (${need})" aria-pressed="${cur}" ${busy?'disabled':''} style="${style}">${bld(z.id==='league'?'<img src="assets/bld/league.png" alt="">':buildingSvg(ZONE_ART[z.id]),ZONE_MON[z.id],z.name,cur?'TU ES ICI':'',z.id==='league'?' photo wide':ZONE_ART[z.id]==='x'?'':'')}<span class="map-tooltip">${i+1} · ${esc(z.name)}<small>${acc.ok?'Niv. '+z.min+'+':'🔒 '+esc(need)}</small></span></button>`;
+      html+=`<button class="map-spot${cur?' current':''}${acc.ok?'':' locked'}${side(p)}" data-zone="${n.id}" aria-label="${esc(z.name)} (${need})" aria-pressed="${cur}" ${busy?'disabled':''} style="${style}">${bld(zoneArt(z.id),ZONE_MON[z.id],z.name,cur?'TU ES ICI':'',zoneCls(z.id))}<span class="map-tooltip">${i+1} · ${esc(z.name)}<small>${acc.ok?'Niv. '+z.min+'+':'🔒 '+esc(need)}</small></span></button>`;
     }else if(n.kind==='elite'){
       const m=eliteById(n.id),ac=info.elite||{},done=!!ac.members?.[m.id];
       html+=`<button class="map-spot spot-elite${m.champion?' champion':''}${done?' won':''}${ac.ok||ac.done?'':' locked'}${side(p)}" data-elite="${m.id}" aria-label="Conseil des 4 : ${esc(m.leader)}${done?' (battu)':''}" style="${style}">${bld(`<img src="assets/bld/${m.champion?'palais':'tour'}.png" alt="" style="${m.champion?'':'filter:hue-rotate('+[0,-50,60,110][Math.max(0,ELITE.indexOf(m))%4]+'deg)'}">`,ELITE_MON[m.id]||ELITE_MON[String(m.leader).toLowerCase()],m.leader+(m.champion?' · Champion':''),m.champion?'CHAMPION':'CONSEIL',m.champion?' tall':' tower')}<span class="map-tooltip">${m.champion?'Champion':'Conseil des 4'} · ${esc(m.leader)}<small>${done?'Vaincu ✓':'Niv. '+m.ace+(ac.ok?'':' · 🔒')}</small></span></button>`;
