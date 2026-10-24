@@ -2074,8 +2074,9 @@ const STORY_HP = {easy: .9, normal: 1.2, hard: 1.6, expert: 2.2};
 function advCfg(loc, ch, diff, cleared = 0) {
   const z = ZONES.findIndex(x => x.k === ADV_LOCS[loc]), zone = ZONES[z];
   // chapitres plus longs (12 à 25 vagues) ; en Facile/Normal la courbe de PV est étalée, en Difficile/Expert elle reste aussi raide (calibré par simulation)
-  const oldW = 6 + Math.round(ch * 9 / 14), nw = 12 + Math.round(ch * 13 / 14);
-  return {mode: 'story', diff, mods: [], loc, chapter: ch, zone: z, waves: nw, waveScale: {easy: oldW / nw, normal: (oldW / nw + 1) / 2}[diff] || 1, offset: loc * .45 + ch * .12,
+  // Route 1 : 8 vagues pour tous les niveaux (courbe de PV calibrée par simulation : l'Expert reste au niveau voulu)
+  const oldW = 6 + Math.round(ch * 9 / 14), nw = loc === 0 ? 8 : 12 + Math.round(ch * 13 / 14);
+  return {mode: 'story', diff, mods: [], loc, chapter: ch, zone: z, waves: nw, waveScale: loc === 0 ? Math.min(1, oldW / nw) : {easy: oldW / nw, normal: (oldW / nw + 1) / 2}[diff] || 1, offset: loc * .45 + ch * .12,
     tier: Math.floor(ch / 2), final: ch === ADV_CHAPTERS - 1, giant: ch === 4 || ch === 9, sky: ch % 5 === 2,
     layout: 1000 + loc * 100 + ch, seed: loc * 53 + ch * 11 + 5, biome: zone.biome, dmgBonus: 1 + .05 * cleared, hpMult: STORY_HP[diff] || 1,
     jetMult: +(({easy: 1, normal: 1.3, hard: 1.7, expert: 2.3}[diff] || 1) * (1 + .1 * loc)).toFixed(2), noAir: diff === 'easy',
@@ -2530,7 +2531,7 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-172217';
+const BUILD_ID = '20261024-172538';
 let UPDATE_PENDING = false;
 // en plein niveau (partie en cours, pas encore l'écran de fin) : on attend la fin avant de recharger
 const inLevel = () => { try { return !!G && current === 'game' && $('#endScreen').hidden; } catch (e) { return false; } };
