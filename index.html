@@ -468,6 +468,21 @@ body:not([data-skin="light"]) .credit { color: #8094ad; }
 
 /* ---------- superpositions ---------- */
 [hidden] { display: none !important; }
+.authwrap { min-height: 100%; display: grid; place-items: center; padding: 24px 16px; }
+.authbox { width: min(440px, 100%); padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+.authhead { display: flex; gap: 12px; align-items: center; } .authhead h2 { margin: 0; font-family: var(--font-display); font-size: 1.8rem; } .authhead .ball { width: 38px; height: 38px; }
+.authtabs { display: grid; grid-template-columns: 1fr 1fr; }
+#authForm { display: flex; flex-direction: column; gap: 10px; }
+.afield { display: flex; flex-direction: column; gap: 4px; font-weight: 800; font-size: .8rem; color: var(--ink-soft); } .afield input { width: 100%; box-sizing: border-box; font-size: 1rem; }
+.aerr { margin: 0; min-height: 1.1em; color: #ff7a7a; font-weight: 800; font-size: .82rem; }
+.aor { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: .78rem; font-weight: 800; } .aor::before, .aor::after { content: ""; flex: 1; height: 1px; background: var(--glass-brd); }
+.aoauth { display: grid; gap: 8px; } .oauth { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 900; }
+.oauth b { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: .8rem; }
+.btn.oauth.google { background: #fff; color: #1f1f1f; border-color: #fff; } .oauth.google b { background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0); color: #fff; }
+.btn.oauth.discord { background: #5865f2; color: #fff; border-color: #5865f2; } .oauth.discord b { background: rgba(255,255,255,.2); }
+.aguest { opacity: .9; } .anote { margin: 0; text-align: center; font-size: .74rem; }
+.btn.wide { width: 100%; }
+.acct { display: inline-flex; align-items: center; gap: 6px; }
 .autonext { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; background: rgba(125,243,255,.08); border: 1px solid rgba(125,243,255,.35); cursor: pointer; text-align: left; margin-top: 8px; }
 .autonext input { width: 20px; height: 20px; accent-color: #7df3ff; flex: none; cursor: pointer; } .autonext span { display: flex; flex-direction: column; flex: 1; min-width: 0; } .autonext b { font-size: .86rem; } .autonext small { font-size: .7rem; font-weight: 700; color: var(--ink-soft); }
 .autonext em { font-style: normal; font-weight: 900; font-size: .8rem; color: #7df3ff; white-space: nowrap; } .prepauto { padding: 0 16px 10px; } .prepauto .autonext { margin-top: 0; }
@@ -1248,6 +1263,27 @@ body[data-skin="light"] .chip, body[data-skin="light"] .wavechip { background: r
     </div>
   </div>
   <p class="title-foot"><b>v0.3</b> · Sprites de l’équipe : ton pack perso · Pokémon sauvages et données : PokéAPI</p>
+</section>
+
+<!-- ================= COMPTE ================= -->
+<section class="screen" data-screen="auth" hidden>
+  <div class="authwrap">
+    <div class="box authbox">
+      <div class="authhead"><span class="ball" aria-hidden="true"></span><div><div class="eyebrow">Défense de Bourg Palette</div><h2 id="authTitle">Connexion</h2></div></div>
+      <div class="seg authtabs" id="authTabs"><button data-nav data-m="login" class="on">Se connecter</button><button data-nav data-m="signup">Créer un compte</button></div>
+      <form id="authForm" autocomplete="on">
+        <label class="afield"><span>Pseudo</span><input id="aPseudo" class="namein" data-nav maxlength="16" autocomplete="username" placeholder="Ton pseudo de dresseur"></label>
+        <label class="afield"><span>Mot de passe</span><input id="aPass" class="namein" data-nav type="password" maxlength="64" autocomplete="current-password" placeholder="6 caractères minimum"></label>
+        <label class="afield" id="aPass2Row" hidden><span>Confirme le mot de passe</span><input id="aPass2" class="namein" data-nav type="password" maxlength="64" autocomplete="new-password"></label>
+        <p class="aerr" id="aErr" role="alert"></p>
+        <button class="btn go big wide" data-nav id="aSubmit" type="submit">Se connecter</button>
+      </form>
+      <div class="aor"><span>ou</span></div>
+      <div class="aoauth"><button class="btn oauth google" data-nav id="aGoogle" type="button"><b>G</b> Continuer avec Google</button><button class="btn oauth discord" data-nav id="aDiscord" type="button"><b>D</b> Continuer avec Discord</button></div>
+      <button class="btn wide aguest" data-nav id="aGuest" type="button">Jouer en invité</button>
+      <p class="note anote" id="aNote">En invité, ta progression reste sur cet appareil. Tu pourras créer un compte plus tard et la garder.</p>
+    </div>
+  </div>
 </section>
 
 <!-- ================= MENU PRINCIPAL ================= -->
@@ -2532,7 +2568,7 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-183006';
+const BUILD_ID = '20261024-192201';
 let UPDATE_PENDING = false;
 // en plein niveau (partie en cours, pas encore l'écran de fin) : on attend la fin avant de recharger
 const inLevel = () => { try { return !!G && current === 'game' && $('#endScreen').hidden; } catch (e) { return false; } };
@@ -2563,7 +2599,7 @@ let SAVE = DEFAULT_SAVE();
 try { const raw = localStorage.getItem(SAVE_KEY); if (raw) { const p = JSON.parse(raw); SAVE = Object.assign(DEFAULT_SAVE(), p); SAVE.opts = Object.assign(DEFAULT_SAVE().opts, p.opts || {}); } } catch (e) {}
 function applyTheme() { document.body.dataset.skin = SAVE.opts.theme === 'light' ? 'light' : 'dark'; }
 applyTheme();
-function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
+function persist() { SAVE.savedAt = Date.now(); try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} try { cloudQueue(); } catch (e) {} }
 const TEAM_IDS = [1,4,7,16,19,17,18,20];
 function dexEntry(id) { return SAVE.dex[id] || (SAVE.dex[id] = {seen: 0, ko: 0}); }
 function isSeen(id) { return TEAM_IDS.includes(+id) || (SAVE.dex[id] && SAVE.dex[id].seen > 0); }
@@ -2653,7 +2689,8 @@ $$('.bar .ico[data-icon]').forEach(el => { const id = el.dataset.icon; el.innerH
 RENDERERS.title = () => {
   $('#titleTrio').innerHTML = [1, 4, 7].map(id => img(id, null, 'alt=""')).join('');
 };
-const enterGame = () => { if (SAVE.partner) { go('home'); if (SAVE.farmRoll == null || !SAVE.gift10) setTimeout(() => farmRollOverlay(() => gift10Overlay(() => go('home', {replace: true}))), 400); } else go('lab', {cfg: {welcome: true, mode: 'story', diff: 'easy', mods: []}}); };
+const enterGame = async () => { if (SB_ON && !SAVE.guest) { await sbSession(); if (!SB_USER) { go('auth'); return; } if (SAVE.owner !== SB_USER.id) { go('auth'); afterLogin(); return; } } enterGameNow(); };
+const enterGameNow = () => { if (SAVE.partner) { go('home'); if (SAVE.farmRoll == null || !SAVE.gift10) setTimeout(() => farmRollOverlay(() => gift10Overlay(() => go('home', {replace: true}))), 400); } else go('lab', {cfg: {welcome: true, mode: 'story', diff: 'easy', mods: []}}); };
 $('#bPress').onclick = enterGame;
 
 // ======================================================================
@@ -2948,7 +2985,8 @@ RENDERERS.options = () => {
     <div class="ogroup">Apparence</div>
     <div class="orow"><div><div class="on-t">Thème de l’interface</div><div class="on-d">Sombre par défaut. Le terrain de jeu garde ses couleurs.</div></div><div class="themes">${themeCard('dark', 'Sombre', '#18212d', '#33435a', '#2c394b')}${themeCard('light', 'Clair', '#fbfaf3', '#d9e0e8', '#e1e6da')}</div></div>
     <div class="ogroup">Dresseur</div>
-    <div class="orow"><div><div class="on-t">Nom du dresseur</div><div class="on-d">Affiché sur ta carte de dresseur.</div></div><input class="namein" id="optName" data-nav maxlength="12" value="${escapeHtml(SAVE.name)}" aria-label="Nom du dresseur"></div>
+    ${SB_ON ? `<div class="orow"><div><div class="on-t">Compte</div><div class="on-d">${lbAccount() ? `Connecté en tant que <b>${escapeHtml(SB_PROFILE ? SB_PROFILE.pseudo : SAVE.name)}</b> : ta progression est sauvegardée en ligne.` : 'Tu joues en invité : ta progression reste sur cet appareil.'}</div></div>${lbAccount() ? '<button class="btn" data-nav id="optLogout">Se déconnecter</button>' : '<button class="btn go" data-nav id="optLogin">Créer un compte / Se connecter</button>'}</div>` : ''}
+    ${lbAccount() ? '' : `<div class="orow"><div><div class="on-t">Nom du dresseur</div><div class="on-d">Affiché sur ta carte de dresseur.</div></div><input class="namein" id="optName" data-nav maxlength="12" value="${escapeHtml(SAVE.name)}" aria-label="Nom du dresseur"></div>`}
     <div class="ogroup">Partie</div>
     <div class="orow"><div><div class="on-t">Vitesse au lancement</div><div class="on-d">Vitesse de jeu au début de chaque partie.</div></div><div class="seg" id="optSpeed">${[1,2,3].map(v => `<button data-nav data-v="${v}" class="${o.speed === v ? 'on' : ''}" ${v > speedMax() ? 'disabled' : ''}>${v > speedMax() ? '🔒 ' : ''}×${v}</button>`).join('')}</div></div>
     <div class="orow"><div><div class="on-t">Boutique de vitesse</div><div class="on-d">Achète les vitesses ×2 puis ×3 avec tes jetons ◆ (tu en as ${fmt(SAVE.jetons)}).</div></div>
@@ -2960,7 +2998,9 @@ RENDERERS.options = () => {
     <div class="orow"><div><div class="on-t danger">Réinitialiser la progression</div><div class="on-d">Efface les étoiles, records, Pokédex et statistiques.</div></div>
       <div class="confirm">${resetArmed ? `Tout effacer ? <button class="btn small" data-nav id="resNo">Annuler</button><button class="btn small go" data-nav id="resYes">Oui, effacer</button>` : `<button class="btn small" data-nav id="resArm">Réinitialiser…</button>`}</div></div>`;
   $$('#optsBox .theme').forEach(b => b.onclick = () => { SAVE.opts.theme = b.dataset.th; persist(); applyTheme(); RENDERERS.options(); $(`#optsBox .theme[data-th="${b.dataset.th}"]`).focus(); });
-  $('#optName').oninput = e => { SAVE.name = e.target.value.trim() || 'Red'; persist(); };
+  if ($('#optLogout')) $('#optLogout').onclick = () => sbLogout();
+  if ($('#optLogin')) $('#optLogin').onclick = () => { SAVE.guest = 0; persist(); authMode = 'signup'; go('auth'); authSetMode('signup'); };
+  if ($('#optName')) $('#optName').oninput = e => { SAVE.name = e.target.value.trim() || 'Red'; persist(); };
   $$('.spshop [data-buy]').forEach(b => b.onclick = () => { const v = +b.dataset.buy; if (SAVE.jetons < SPEED_PRICE[v] || v !== speedMax() + 1) return; SAVE.jetons -= SPEED_PRICE[v]; SAVE.speedMax = v; SAVE.opts.speed = v; persist(); RENDERERS.options(); });
   $$('#optSpeed button').forEach(b => b.onclick = () => { SAVE.opts.speed = +b.dataset.v; persist(); RENDERERS.options(); $(`#optSpeed [data-v="${b.dataset.v}"]`).focus(); });
   $$('#optsBox .toggle').forEach(b => b.onclick = () => { const k = b.dataset.o; SAVE.opts[k] = !SAVE.opts[k]; persist(); b.setAttribute('aria-checked', SAVE.opts[k]); });
@@ -3122,6 +3162,93 @@ function nightSide() {
     <button class="btn go big" id="nightGo" data-nav ${open ? '' : 'disabled'}>${open ? 'Entrer dans le Cauchemar ▶' : nightZoneOpen(z) ? `Réussis d’abord le niveau ${l}` : `Réussis ${NIGHT_UNLOCK} niveaux du Rêve précédent`}</button>`;
   $('#nightGo').onclick = () => go('prep', {cfg: nightCfg(z, l)});
 }
+// ======================================================================
+//  COMPTES (Supabase) : pseudo + mot de passe, Google, Discord ; sauvegarde en ligne
+// ======================================================================
+// clé publique (anon) : faite pour être dans le jeu ; la sécurité est assurée par les règles RLS côté Supabase
+const SB_URL = 'https://nbiwqfgchamobfyzclas.supabase.co', SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5iaXdxZmdjaGFtb2JmeXpjbGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NTY2NjksImV4cCI6MjEwODQzMjY2OX0.jTZEA90Bixvqf9OeeXN5DShBZvisvEi19wKrfb-LA1Q';
+const SB_ON = !!(SB_URL && SB_KEY) && !/claude|anthropic/.test(location.hostname) && location.protocol !== 'file:';
+const PSEUDO_DOMAIN = 'joueurs.xn--pokdfense-d4ab.com';
+let SB = null, SB_USER = null, SB_PROFILE = null, cloudTimer = null, authMode = 'login';
+const pseudoOk = p => /^[A-Za-z0-9_\-À-ÿ]{3,16}$/.test(p);
+const pseudoMail = p => encodeURIComponent(p.toLowerCase()).replace(/%/g, 'x') + '@' + PSEUDO_DOMAIN;
+async function sbInit() {
+  if (!SB_ON) return null; if (SB) return SB;
+  try { const m = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm'); SB = m.createClient(SB_URL, SB_KEY, {auth: {persistSession: true, detectSessionInUrl: true, flowType: 'implicit'}}); } catch (e) { SB = null; }
+  return SB;
+}
+async function sbSession() { const sb = await sbInit(); if (!sb) return null; try { const {data} = await sb.auth.getSession(); SB_USER = data.session ? data.session.user : null; } catch (e) { SB_USER = null; } return SB_USER; }
+async function sbProfile() { if (!SB_USER) return null; const {data} = await SB.from('profiles').select('pseudo').eq('id', SB_USER.id).maybeSingle(); SB_PROFILE = data || null; return SB_PROFILE; }
+// la sauvegarde la plus récente gagne ; une progression d'invité est gardée quand on crée son compte
+async function cloudPull() {
+  const {data} = await SB.from('saves').select('data, updated_at').eq('user_id', SB_USER.id).maybeSingle();
+  const cloud = data && data.data, localAt = SAVE.savedAt || 0, cloudAt = cloud ? (cloud.savedAt || Date.parse(data.updated_at) || 0) : 0;
+  const localOwner = SAVE.owner || null;
+  if (cloud && (cloudAt >= localAt || (localOwner && localOwner !== SB_USER.id))) {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(Object.assign({}, cloud, {owner: SB_USER.id}))); } catch (e) {}
+    try { sessionStorage.setItem('bp-auth-go', '1'); } catch (e) {}
+    location.reload(); return 'reload';
+  }
+  SAVE.owner = SB_USER.id; if (SB_PROFILE) SAVE.name = SB_PROFILE.pseudo; persist(); await cloudPush(); return 'local';
+}
+function cloudQueue() { if (!SB || !SB_USER || SAVE.owner !== SB_USER.id) return; clearTimeout(cloudTimer); cloudTimer = setTimeout(cloudPush, 2500); }
+async function cloudPush() { if (!SB || !SB_USER) return; try { await SB.from('saves').upsert({user_id: SB_USER.id, data: SAVE, updated_at: new Date().toISOString()}); } catch (e) {} }
+function authErr(msg) { $('#aErr').textContent = msg || ''; }
+function authSetMode(m) {
+  authMode = m; $$('#authTabs button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('#authTitle').textContent = m === 'signup' ? 'Créer un compte' : m === 'pseudo' ? 'Choisis ton pseudo' : 'Connexion';
+  $('#aPass2Row').hidden = m !== 'signup'; $('#aPass').closest('.afield').hidden = m === 'pseudo'; $('#authTabs').hidden = m === 'pseudo';
+  $('.aoauth').hidden = m === 'pseudo'; $('.aor').hidden = m === 'pseudo'; $('#aGuest').hidden = m === 'pseudo';
+  $('#aPass').autocomplete = m === 'signup' ? 'new-password' : 'current-password';
+  $('#aSubmit').textContent = m === 'signup' ? 'Créer mon compte' : m === 'pseudo' ? 'Valider ce pseudo' : 'Se connecter';
+  $('#aNote').textContent = m === 'pseudo' ? 'Ce pseudo sera ton nom dans le leaderboard.' : m === 'signup' ? 'Pas besoin d’e-mail : retiens bien ton pseudo et ton mot de passe, ils te serviront sur tous tes appareils.' : 'En invité, ta progression reste sur cet appareil. Tu pourras créer un compte plus tard et la garder.';
+  authErr('');
+}
+async function pseudoFree(p) { const {data} = await SB.from('profiles').select('id').ilike('pseudo', p).maybeSingle(); return !data || (SB_USER && data.id === SB_USER.id); }
+async function afterLogin() {
+  await sbProfile();
+  if (!SB_PROFILE) { authSetMode('pseudo'); const meta = (SB_USER.user_metadata || {}); $('#aPseudo').value = String(meta.preferred_username || meta.user_name || meta.full_name || meta.name || '').replace(/[^A-Za-z0-9_\-À-ÿ]/g, '').slice(0, 16); $('#aPseudo').focus(); return; }
+  if (await cloudPull() === 'reload') return;
+  SAVE.guest = 0; persist(); enterGameNow();
+}
+async function authSubmit(ev) {
+  ev.preventDefault(); authErr(''); const btn = $('#aSubmit'); btn.disabled = true;
+  try {
+    const p = $('#aPseudo').value.trim(), pw = $('#aPass').value;
+    if (!pseudoOk(p)) return authErr('Pseudo : 3 à 16 caractères (lettres, chiffres, - et _).');
+    if (authMode === 'pseudo') { if (!(await pseudoFree(p))) return authErr('Ce pseudo est déjà pris.'); const {error} = await SB.from('profiles').upsert({id: SB_USER.id, pseudo: p}); if (error) return authErr('Ce pseudo est déjà pris.'); return afterLogin(); }
+    if (pw.length < 6) return authErr('Mot de passe : 6 caractères minimum.');
+    if (authMode === 'signup') {
+      if (pw !== $('#aPass2').value) return authErr('Les deux mots de passe ne sont pas identiques.');
+      if (!(await pseudoFree(p))) return authErr('Ce pseudo est déjà pris.');
+      const {data, error} = await SB.auth.signUp({email: pseudoMail(p), password: pw, options: {data: {pseudo: p}}});
+      if (error) return authErr(/registered|exists/i.test(error.message) ? 'Ce pseudo est déjà pris.' : 'Impossible de créer le compte : ' + error.message);
+      SB_USER = data.user; if (!data.session) return authErr('Compte créé, mais la connexion a échoué. Réessaie dans « Se connecter ».');
+      await SB.from('profiles').upsert({id: SB_USER.id, pseudo: p}); return afterLogin();
+    }
+    const {data, error} = await SB.auth.signInWithPassword({email: pseudoMail(p), password: pw});
+    if (error) return authErr('Pseudo ou mot de passe incorrect.');
+    SB_USER = data.user; return afterLogin();
+  } catch (e) { authErr('Connexion impossible pour le moment. Vérifie ta connexion internet.'); }
+  finally { btn.disabled = false; }
+}
+async function authOAuth(provider) { authErr(''); try { await SB.auth.signInWithOAuth({provider, options: {redirectTo: location.origin + location.pathname}}); } catch (e) { authErr('Connexion ' + provider + ' impossible pour le moment.'); } }
+async function sbLogout() { try { if (SB) await SB.auth.signOut(); } catch (e) {} SB_USER = null; SB_PROFILE = null; try { localStorage.removeItem(SAVE_KEY); } catch (e) {} location.reload(); }
+RENDERERS.auth = () => { authSetMode(authMode === 'pseudo' ? 'pseudo' : 'login'); setTimeout(() => $('#aPseudo').focus(), 50); };
+$('#authForm').onsubmit = authSubmit;
+$$('#authTabs button').forEach(b => b.onclick = () => authSetMode(b.dataset.m));
+$('#aGoogle').onclick = () => authOAuth('google'); $('#aDiscord').onclick = () => authOAuth('discord');
+$('#aGuest').onclick = () => { SAVE.guest = 1; persist(); enterGameNow(); };
+// au chargement : retour d'une connexion Google/Discord, ou session déjà ouverte
+(async () => {
+  if (!SB_ON) return; await sbSession();
+  let flag = false; try { flag = sessionStorage.getItem('bp-auth-go') === '1'; sessionStorage.removeItem('bp-auth-go'); } catch (e) {}
+  const back = /access_token|code=/.test(location.hash + location.search);
+  if (SB_USER) { await sbProfile(); if (SB_PROFILE && SAVE.owner === SB_USER.id) { SAVE.name = SB_PROFILE.pseudo; if (flag || back) enterGameNow(); }
+    else if (back || flag) { go('auth'); afterLogin(); } }
+  if (back) try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  SB.auth.onAuthStateChange((ev, s) => { SB_USER = s ? s.user : null; });
+})();
 // ---------- Bonus de bienvenue : 50 % de chance d'avoir le Pokémon Farmer ----------
 function farmRollOverlay(after) {
   const ov = $('#summonOv');
@@ -3159,11 +3286,15 @@ function lbMine() {
     night: {lv: (N.c || []).reduce((a, b) => a + (b || 0), 0), oni: ONI_ALL.filter(id => SAVE.owned[id]).length},
     coll: Object.keys(SAVE.owned || {}).filter(id => DEX[uid(id)]).length, mega: MONO_TEMPLES.filter(t => SAVE.owned[t.mega]).length};
 }
-async function lbFetch() { const r = await fetch(LB_URL + '?t=' + Date.now(), {cache: 'no-store'}); if (!r.ok) throw new Error(r.status); const j = await r.json(); return j && j.players ? j : {v: 1, players: {}}; }
+const lbMe = () => (SB_ON && SB_USER) ? SB_USER.id : lbPid();
+const lbAccount = () => SB_ON && SB_USER && SAVE.owner === SB_USER.id;
+async function lbFetchSB() { const {data, error} = await SB.from('leaderboard').select('user_id, name, entry').limit(2000); if (error) throw error; const players = {}; (data || []).forEach(r => { players[r.user_id] = Object.assign({}, r.entry, {name: r.name}); }); return {v: 2, players}; }
+async function lbFetch() { if (SB_ON && await sbInit()) return lbFetchSB(); const r = await fetch(LB_URL + '?t=' + Date.now(), {cache: 'no-store'}); if (!r.ok) throw new Error(r.status); const j = await r.json(); return j && j.players ? j : {v: 1, players: {}}; }
 async function lbSync(force) {
   if (lbBusy || (!force && Date.now() - lbLast < 8000)) return; lbBusy = true; lbLast = Date.now();
-  try { const data = await lbFetch(); data.players[lbPid()] = lbMine();
-    const r = await fetch(LB_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)}); if (!r.ok) throw new Error(r.status);
+  try { const data = await lbFetch();
+    if (SB_ON) { if (lbAccount()) { const mine = lbMine(), nm = SB_PROFILE ? SB_PROFILE.pseudo : mine.name; mine.name = nm; await SB.from('leaderboard').upsert({user_id: SB_USER.id, name: nm, entry: mine, updated_at: new Date().toISOString()}); data.players[SB_USER.id] = mine; } }
+    else { data.players[lbPid()] = lbMine(); const r = await fetch(LB_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)}); if (!r.ok) throw new Error(r.status); }
     LB_DATA = data; LB_ERR = false; } catch (e) { LB_ERR = true; }
   lbBusy = false; if (current === 'leaders') renderLeaders(); refreshRaidBoards();
 }
@@ -3191,7 +3322,7 @@ const LB_TABS = {
 };
 RENDERERS.leaders = () => { renderLeaders(); lbSync(true); };
 function renderLeaders() {
-  const me = lbPid(), P = LB_DATA ? Object.entries(LB_DATA.players).map(([pid, p]) => Object.assign({pid}, p)) : [];
+  const me = lbMe(), P = LB_DATA ? Object.entries(LB_DATA.players).map(([pid, p]) => Object.assign({pid}, p)) : [];
   $('#lbStats').innerHTML = `<span class="pill">${P.length} dresseur${P.length > 1 ? 's' : ''}</span>`;
   $('#lbTabs').innerHTML = Object.entries(LB_TABS).map(([k, t]) => `<button data-nav data-t="${k}" class="${lbTab === k ? 'on' : ''}"><span>${t.label}</span></button>`).join('');
   $$('#lbTabs button').forEach(b => b.onclick = () => { lbTab = b.dataset.t; renderLeaders(); $(`#lbTabs button[data-t="${lbTab}"]`).focus(); });
@@ -3205,7 +3336,7 @@ function renderLeaders() {
         <span class="who"><b>${escapeHtml(String(p.name || 'Dresseur'))}${p.pid === me ? ' (toi)' : ''}</b><small>${tb.sub(p)}</small></span><span class="val">${tb.val(p)}</span></li>`; }).join('')}</ol>${myI >= 50 ? `<p class="note">Ta place : <b>${myI + 1}</b></p>` : ''}`
       : '<p class="note">Personne n’est encore classé ici. Sois le premier !</p>'; }
   $('#lbBody').innerHTML = `<p class="lbdesc">${desc}</p>${body}`;
-  $('#lbNote').textContent = 'Mis à jour à chaque fin de partie. Ton nom de dresseur se change dans les Options.';
+  $('#lbNote').textContent = SB_ON && !lbAccount() ? 'Tu joues en invité : crée un compte (Options → Compte) pour apparaître dans le leaderboard.' : 'Mis à jour à chaque fin de partie.';
   $('#lbPower').onclick = () => go('ranking');
 }
 // ---------- Cadeau : 10 invocations offertes à chaque joueur (une fois) ----------
@@ -3239,7 +3370,7 @@ function raidBoardHtml() {
   const key = raidCfg().bossKey, mine = (SAVE.raidBest || {})[key] || 0;
   if (!RDB) { const P = LB_DATA ? Object.entries(LB_DATA.players).map(([pid, p]) => Object.assign({pid}, p)) : null, rows = P ? LB_TABS.raid.rows(P) : null;
     if (!rows || !rows.length) return `<div class="rbhead"><b>🏆 Classement de la semaine</b></div><p class="note">${rows ? 'Personne n’a encore attaqué ce boss cette semaine.' : 'Chargement du classement…'} Ton record : <b>${fmtBig(mine)}</b> dégâts.</p>`;
-    return `<div class="rbhead"><b>🏆 Classement de la semaine</b><span>${rows.length} dresseur${rows.length > 1 ? 's' : ''}</span></div><ol class="rblist">${rows.slice(0, 10).map((p, i) => `<li class="${p.pid === SAVE.pid ? 'me' : ''}"><span class="rk">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span><span class="rn">${escapeHtml(String(p.name || 'Dresseur'))}</span><span></span><b>${fmtBig(p.raid.dmg)}</b></li>`).join('')}</ol>`; }
+    return `<div class="rbhead"><b>🏆 Classement de la semaine</b><span>${rows.length} dresseur${rows.length > 1 ? 's' : ''}</span></div><ol class="rblist">${rows.slice(0, 10).map((p, i) => `<li class="${p.pid === lbMe() ? 'me' : ''}"><span class="rk">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span><span class="rn">${escapeHtml(String(p.name || 'Dresseur'))}</span><span></span><b>${fmtBig(p.raid.dmg)}</b></li>`).join('')}</ol>`; }
   if (!RAID_BOARD) return `<div class="rbhead"><b>🏆 Classement de la semaine</b></div><p class="note">Chargement…</p>`;
   const rows = RAID_BOARD.slice(0, 10), myRank = RAID_ME ? RAID_BOARD.findIndex(r => r.uid === RAID_ME) : -1;
   return `<div class="rbhead"><b>🏆 Classement de la semaine</b><span>${RAID_BOARD.length} dresseur${RAID_BOARD.length > 1 ? 's' : ''}</span></div>
