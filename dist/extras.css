@@ -848,3 +848,11 @@ body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-
 .map-johto.open{border-color:#ffd25a;background:#3a2a05dd;color:#ffd25a;box-shadow:0 0 14px #ffd25a;animation:johtoGlow 1.2s ease-in-out infinite}
 .map-johto.done{border-color:#7fe3a1;color:#7fe3a1;background:#0b2a1acc}
 @keyframes johtoGlow{50%{box-shadow:0 0 26px #ffd25a}}
+/* ---- Index : tuiles de rareté ---- */
+.catalog-section-head{flex-wrap:wrap;gap:12px}
+.zi-rar{display:flex;gap:8px;flex:1 1 380px;justify-content:center;flex-wrap:wrap}
+.zi-rt{--rc:#9ddd83;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:92px;padding:8px 12px;border-radius:14px;border:3px solid var(--rc);background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 28%,#0b1a28),#0b1a28);color:#eef6ff;cursor:pointer;font:inherit;box-shadow:inset 0 -4px 0 #0006,0 2px 0 #0008;transition:transform .12s}
+.zi-rt b{font:900 13px system-ui;color:var(--rc);text-shadow:0 1px 0 #000a}.zi-rt small{font:800 12px system-ui;color:#cfe3f5}
+.zi-rt:hover:not(:disabled){transform:translateY(-2px)}.zi-rt[aria-pressed=true]{background:var(--rc);box-shadow:0 0 14px var(--rc)}.zi-rt[aria-pressed=true] b,.zi-rt[aria-pressed=true] small{color:#10283f;text-shadow:none}.zi-rt:disabled{opacity:.35;cursor:not-allowed}
+.zi-rar{flex-wrap:nowrap;gap:6px;flex:0 1 auto}.zi-rt{min-width:0;padding:6px 10px}.zi-rt b{font-size:12px}
+@media(max-width:1100px){.zi-rar{flex-wrap:wrap;flex:1 1 100%}}
