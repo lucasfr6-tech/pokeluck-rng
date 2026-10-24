@@ -194,16 +194,87 @@ const stackList = inv => {
   });
   return rows.length ? rows.join('') : '<p class="bag-empty">Ton sac est vide. Les boutiques vendent des potions, des CT et des objets à faire porter à tes Pokémon.</p>';
 };
-export function mountItems(container, {getState, onChange}) {
-  container.innerHTML = '<div class="bag"></div>';
-  const root = container.querySelector('.bag');
-  function render() {
-    const state = getState(), inv = state.inv, balls = Object.values(ITEMS).filter(i => i.kind === 'ball' && owns(inv, i.id)), passives = activeItems(inv);
-    root.innerHTML = `<section><h3>Ball du milieu</h3><div class="bag-balls">${balls.map(b => `<button type="button" class="bag-ball${inv.ball === b.id ? ' on' : ''}" data-ball="${b.id}" aria-pressed="${inv.ball === b.id}">${icon(b, 64)}<span><b>${esc(b.name)}</b><small>${esc(b.effect)}</small></span>${inv.ball === b.id ? '<em>ÉQUIPÉE</em>' : '<em class="off">Équiper</em>'}</button>`).join('')}</div></section>
-    <section><h3>Sac · CT et objets à porter</h3>${stackList(inv)}</section>
-    <section><h3>Objets actifs</h3>${passives.length ? passives.map(p => `<div class="bag-item">${icon(p, 64)}<span><b>${esc(p.name)}</b><small>${esc(p.effect)}</small></span><em>ACTIF</em></div>`).join('') : '<p class="bag-empty">Aucun objet actif pour l’instant. Les boutiques de la carte en vendent : repère le logo 🛒 sur le chemin.</p>'}</section>`;
+// ---- Sac : rail de catégories, grille d'objets triable et fiche de l'objet (maquette B) ----
+const BAG_CATS = [
+  {id:'balls',  name:'Balls',    color:'#f87171', icon:'poke-ball',  list: inv => Object.values(ITEMS).filter(i => i.kind === 'ball' && owns(inv, i.id))},
+  {id:'soins',  name:'Soins',    color:'#4ade80', icon:'potion',     list: inv => Object.values(ITEMS).filter(i => i.kind === 'heal' && stockOf(inv, i.id) > 0)},
+  {id:'ct',     name:'CT',       color:'#60a5fa', icon:'tm-normal',  list: inv => Object.values(ITEMS).filter(i => i.kind === 'tm' && stockOf(inv, i.id) > 0)},
+  {id:'porter', name:'À porter', color:'#fbbf24', icon:'focus-sash', list: inv => Object.values(ITEMS).filter(i => i.kind === 'held' && stockOf(inv, i.id) > 0)},
+  {id:'pierres',name:'Pierres',  color:'#a78bfa', icon:'moon-stone', list: inv => Object.values(ITEMS).filter(i => i.kind === 'stone' && stockOf(inv, i.id) > 0)},
+  {id:'spe',    name:'Spécial',  color:'#38bdf8', icon:'luck-incense', list: inv => Object.values(ITEMS).filter(i => (i.kind === 'incense' && stockOf(inv, i.id) > 0) || (i.kind === 'passive' && inv.owned[i.id]))}
+];
+const TYPE_COLORS = {Normal:'#a8a878', Feu:'#f08030', Eau:'#6890f0', Plante:'#78c850', 'Électrik':'#f8d030', Glace:'#98d8d8', Combat:'#c03028', Poison:'#a040a0', Sol:'#e0c068', Vol:'#a890f0', Psy:'#f85888', Insecte:'#a8b820', Roche:'#b8a038', Spectre:'#705898', Dragon:'#7038f8'};
+const SORTS = [['recent', 'Récent'], ['name', 'Nom A→Z'], ['qty', 'Quantité'], ['type', 'Type'], ['power', 'Puissance']];
+const itemType = i => i.kind === 'tm' ? (i.effect.split(' · ')[0] || '') : '';
+const itemPower = i => i.kind === 'tm' ? (+(/Puissance (\d+)/.exec(i.effect)?.[1]) || 0) : 0;
+const itemQty = (inv, i) => i.kind === 'ball' || i.kind === 'passive' ? 0 : stockOf(inv, i.id);
+const tint = (hex, k) => { const n = parseInt(hex.slice(1), 16); return '#' + [16, 8, 0].map(sh => Math.round(((n >> sh) & 255) * k).toString(16).padStart(2, '0')).join(''); };
+export function mountItems(container, {getState, onChange, team = () => []}) {
+  container.innerHTML = '<div class="bg"></div>';
+  const root = container.querySelector('.bg');
+  let cat = 'balls', sort = 'recent', query = '', typeF = '', sel = null, timer = 0;
+  const colorOf = (i, c) => i.kind === 'tm' ? (TYPE_COLORS[itemType(i)] || c.color) : c.color;
+  function activeStrip(inv) {
+    const out = [], ball = ITEMS[inv.ball];
+    if (incenseLeft(inv) > 0) out.push({it: ITEMS.incense, c:'#38bdf8', sub: `${ITEMS.incense.effect.replace('Pendant 5 min : ', '')} · ${Math.floor(incenseLeft(inv) / 60000)}:${String(Math.floor(incenseLeft(inv) / 1000) % 60).padStart(2, '0')}`});
+    for (const p of activeItems(inv)) out.push({it: p, c:'#fbbf24', sub: p.effect});
+    if (ball && ball.bonus) out.push({it: ball, c:'#f87171', sub: ball.effect + ' · équipée'});
+    return out.map(a => `<div class="bg-act" style="--c:${a.c};--d:${tint(a.c, .35)}">${icon(a.it, 40)}<div><b>${esc(a.it.name)}</b><small>${esc(a.sub)}</small></div></div>`).join('');
   }
-  root.onclick = e => {if (e.target.closest('[data-incense]') && lightIncense(getState())) {onChange(); render(); return;} const b = e.target.closest('[data-ball]'); if (b && equipBall(getState(), b.dataset.ball)) {onChange(); render();}};
+  function card(i, c, inv) {
+    const col = colorOf(i, c), q = itemQty(inv, i), held = i.kind === 'held' ? heldCount(inv, i.id) : 0;
+    const tag = i.kind === 'ball' ? (inv.ball === i.id ? 'ÉQUIPÉE' : 'Équiper') : i.kind === 'held' ? `PORTÉ ×${held}` : i.kind === 'tm' ? itemType(i).toUpperCase() : i.kind === 'passive' ? 'ACTIF' : i.kind === 'incense' ? (incenseLeft(inv) > 0 ? 'ALLUMÉ' : 'À ALLUMER') : '';
+    return `<button type="button" class="bg-card${sel === i.id ? ' on' : ''}" data-sel="${i.id}" style="--c:${col};--d:${tint(col, .38)}">${q ? `<span class="bg-qty">×${q}</span>` : ''}${icon(i, 58)}<b>${esc(i.kind === 'tm' ? i.name.split(' · ')[1] || i.name : i.name)}</b><small>${esc(i.kind === 'tm' ? i.name.split(' · ')[0] + ' · ' + i.effect.split(' · ').slice(1).join(' · ') : i.effect)}</small>${tag ? `<span class="bg-tag">${esc(tag)}</span>` : ''}</button>`;
+  }
+  function detail(i, c, st) {
+    if (!i) return '<div class="bg-detail empty"><p>Choisis un objet pour voir sa fiche.</p></div>';
+    const inv = st.inv, col = colorOf(i, c), q = itemQty(inv, i), mates = team(), nHeld = i.kind === 'held' ? heldCount(inv, i.id) : 0;
+    let extra = '';
+    if (i.kind === 'held') {
+      extra = `<div class="bg-nums"><div><small>POSSÉDÉS</small><b>${q}</b></div><div><small>PORTÉS</small><b>${nHeld}</b></div><div><small>LIBRES</small><b>${q - nHeld}</b></div></div><h4>Donner à un Pokémon</h4><div class="bg-mates">${mates.map(m => { const has = heldList(inv, m.id).includes(i.id), can = has || (freeCopies(inv, i.id) > 0 && heldList(inv, m.id).length < slotsFor(m.id)); return `<button type="button" class="bg-mate${has ? ' on' : ''}" data-give="${m.id}" ${can ? '' : 'disabled'} title="${has ? 'Retirer' : 'Donner'}"><img src="${esc(m.sprite)}" alt="" onerror="this.onerror=null;this.src='${esc(m.fallback || m.sprite)}'"><b>${esc(m.name)}</b><small>${has ? 'Porte ceci · retirer' : can ? 'Donner' : heldList(inv, m.id).length >= slotsFor(m.id) ? 'Plein' : 'Aucun libre'}</small></button>`; }).join('') || '<p class="bag-empty">Aucun Pokémon dans ton équipe.</p>'}</div>`;
+    } else if (i.kind === 'ball') {
+      extra = `<button type="button" class="bg-go" data-ball="${i.id}" ${inv.ball === i.id ? 'disabled' : ''}>${inv.ball === i.id ? 'Équipée sur la Pokéball' : 'Équiper cette Ball'}</button>`;
+    } else if (i.kind === 'incense') {
+      extra = `<div class="bg-nums"><div><small>POSSÉDÉS</small><b>${q}</b></div><div><small>DURÉE</small><b>${Math.round(INCENSE_MS / 60000)} min</b></div></div>` + (incenseLeft(inv) > 0 ? `<p class="bg-note">Allumé : encore ${Math.ceil(incenseLeft(inv) / 60000)} min.</p>` : `<button type="button" class="bg-go" data-incense>Allumer l’encens</button>`);
+    } else if (i.kind === 'tm') {
+      extra = `<div class="bg-nums"><div><small>EXEMPLAIRES</small><b>${q}</b></div><div><small>TYPE</small><b>${esc(itemType(i))}</b></div><div><small>PUISSANCE</small><b>${itemPower(i) || '—'}</b></div></div><p class="bg-note">S’utilise depuis la fiche d’un Pokémon compatible.</p>`;
+    } else if (i.kind === 'stone') {
+      extra = `<div class="bg-nums"><div><small>EXEMPLAIRES</small><b>${q}</b></div></div><p class="bg-note">S’utilise depuis la fiche d’un Pokémon qui peut évoluer.</p>`;
+    } else if (i.kind === 'heal') {
+      extra = `<div class="bg-nums"><div><small>EXEMPLAIRES</small><b>${q}</b></div></div><p class="bg-note">S’utilise pendant un combat.</p>`;
+    }
+    return `<div class="bg-detail" style="--c:${col};--d:${tint(col, .35)}"><small class="bg-lab">OBJET SÉLECTIONNÉ</small><div class="bg-head">${icon(i, 96)}<div><h3>${esc(i.name)}</h3><span class="bg-tag">${esc(c.name.toUpperCase())}</span></div></div><p class="bg-desc">${esc(i.desc || i.effect)}</p>${extra}</div>`;
+  }
+  function render() {
+    const st = getState(), inv = st.inv, c = BAG_CATS.find(x => x.id === cat);
+    let list = c.list(inv).filter(i => (!typeF || itemType(i) === typeF) && (!query || i.name.toLowerCase().includes(query)));
+    if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    else if (sort === 'qty') list.sort((a, b) => itemQty(inv, b) - itemQty(inv, a));
+    else if (sort === 'type') list.sort((a, b) => itemType(a).localeCompare(itemType(b), 'fr') || a.name.localeCompare(b.name, 'fr'));
+    else if (sort === 'power') list.sort((a, b) => itemPower(b) - itemPower(a));
+    if (!sel || !list.some(i => i.id === sel)) sel = list[0]?.id || null;
+    const types = cat === 'ct' ? [...new Set(c.list(inv).map(itemType))].sort((a, b) => a.localeCompare(b, 'fr')) : [];
+    const keep = root.querySelector('[data-search]'), focused = document.activeElement === keep;
+    root.innerHTML = `<div class="bg-top"><div><small class="bg-lab">TON SAC</small><h2>Sac</h2></div><div class="bg-acts">${activeStrip(inv)}</div></div>
+    <div class="bg-body"><nav class="bg-rail">${BAG_CATS.map(x => `<button type="button" class="bg-cat${x.id === cat ? ' on' : ''}" data-cat="${x.id}" style="--c:${x.color};--d:${tint(x.color, .35)}">${icon({sprite: SPRITE(x.icon)}, 44)}<b>${x.name}</b><span>${x.list(inv).length}</span></button>`).join('')}</nav>
+    <div class="bg-mid"><div class="bg-tools"><input type="search" class="bg-search" data-search placeholder="Rechercher…" value="${esc(query)}"><div class="bg-chips">${SORTS.filter(([k]) => (k !== 'power' && k !== 'type') || cat === 'ct').map(([k, n]) => `<button type="button" class="bg-chip${sort === k ? ' on' : ''}" data-sort="${k}">${n}</button>`).join('')}</div></div>
+    ${types.length > 1 ? `<div class="bg-chips"><button type="button" class="bg-chip${typeF ? '' : ' on'}" data-type="">Tous</button>${types.map(t => `<button type="button" class="bg-chip${typeF === t ? ' on' : ''}" data-type="${esc(t)}" style="--c:${TYPE_COLORS[t] || '#fff'}">${esc(t)}</button>`).join('')}</div>` : ''}
+    <div class="bg-grid">${list.map(i => card(i, c, inv)).join('') || '<p class="bag-empty">Rien ici pour l’instant. Les boutiques de la carte vendent de quoi remplir ce compartiment.</p>'}</div></div>
+    ${detail(list.find(i => i.id === sel), c, st)}</div>`;
+    if (focused) { const el = root.querySelector('[data-search]'); el.focus(); el.setSelectionRange(query.length, query.length); }
+  }
+  root.onclick = e => {
+    const st = getState(), t = e.target;
+    const k = t.closest('[data-cat]'); if (k) { cat = k.dataset.cat; sel = null; typeF = ''; if (!['power', 'type'].includes(sort) || cat === 'ct') {} else sort = 'recent'; return render(); }
+    const so = t.closest('[data-sort]'); if (so) { sort = so.dataset.sort; return render(); }
+    const ty = t.closest('[data-type]'); if (ty) { typeF = ty.dataset.type; return render(); }
+    const cd = t.closest('[data-sel]'); if (cd) { sel = cd.dataset.sel; return render(); }
+    const bl = t.closest('[data-ball]'); if (bl && equipBall(st, bl.dataset.ball)) { onChange(); return render(); }
+    if (t.closest('[data-incense]') && lightIncense(st)) { onChange(); return render(); }
+    const gv = t.closest('[data-give]'); if (gv && sel) { const pid = +gv.dataset.give; if (heldList(st.inv, pid).includes(sel) ? unequipHeld(st, pid, sel) : equipHeld(st, pid, sel)) { onChange(); render(); } }
+  };
+  root.oninput = e => { if (e.target.matches('[data-search]')) { query = e.target.value.trim().toLowerCase(); render(); } };
   render();
+  clearInterval(timer); timer = setInterval(() => { if (!root.isConnected) clearInterval(timer); else if (incenseLeft(getState().inv) > 0 && !document.hidden) render(); }, 5000);
   return {refresh: render};
 }
