@@ -10,4 +10,4 @@ export const COMBAT_MONEY = 0.8;
 export const victoryMoney = (tier, wildLevel) => Math.max(1, Math.round(wildLevel)) * (PAYOUT_PER_LEVEL[tier] || PAYOUT_PER_LEVEL[1]);
 export const captureMoney = (tier, isNewSpecies, shiny) => (isNewSpecies ? FIRST_CATCH[tier] || FIRST_CATCH[1] : 0) + (shiny ? SHINY_REWARD : 0);
 export const fmtMoney = n => Math.max(0, Math.floor(n)).toLocaleString('fr-FR') + ' ₽';
-export const sanitizeMoney = n => Number.isSafeInteger(n) && n >= 0 ? n : 0;
+export const sanitizeMoney = n => Number.isFinite(n) && n >= 0 ? Math.min(Number.MAX_SAFE_INTEGER, Math.floor(n)) : 0;

@@ -143,3 +143,25 @@ console.log(`OK : ${n} groupes de tests d’attaques avancées`);
   for (const nm of ['grassy-terrain', 'misty-terrain', 'psychic-terrain']) assert.ok(bt.isUsable(t(nm)), nm);
   console.log('OK : champs (Électrifié, Herbu, Brumeux, Psychique)');
 }
+
+// ---- Expéditions ----
+{
+  const X = await import('../dist/expedition.js');
+  const assert2 = (await import('node:assert/strict')).default;
+  assert2.equal(X.DIFFS[0].min, 50_000); assert2.equal(X.DIFFS[2].min, 5_000_000);
+  const ex = X.emptyExped(), counts = {9: 1, 134: 1, 131: 1, 6: 1}, pw = () => 20_000;
+  assert2.equal(X.toggle(ex, 9, counts), true); X.toggle(ex, 134, counts); X.toggle(ex, 131, counts); assert2.equal(X.toggle(ex, 6, counts), false);
+  ex.sel.dif = 'm'; assert2.equal(X.start(ex, pw), false, 'puissance trop faible (3×20 000 < 500 000)');
+  ex.sel.dif = 'e'; const t0 = 1000; assert2.equal(X.start(ex, pw, t0), true); assert2.equal(ex.runs.length, 1); assert2.equal(ex.sel.team.length, 0);
+  assert2.equal(X.toggle(ex, 9, counts), false, 'un Pokémon parti est indisponible');
+  assert2.equal(X.claim(ex, 1, t0 + 29 * 60000), null); const run = X.claim(ex, 1, t0 + 31 * 60000); assert2.ok(run); assert2.equal(ex.runs.length, 0);
+  const s = X.sanitizeExped(JSON.parse(JSON.stringify({sel:{zone:'x', dif:'h', team:[9, 9, 9]}, runs:[{zone:'riv', dif:'e', team:[1, 2, 3], start:1, end:2}, {zone:'bad', team:[1, 2, 3]}]})), {9: 1});
+  assert2.equal(s.runs.length, 1); assert2.equal(s.sel.zone, 'riv'); assert2.deepEqual(s.sel.team, [9]);
+  // Affinité : une équipe Eau sur la Rivière tire plus de pierres/CT Eau qu'une équipe sans affinité.
+  const riv = X.zoneById('riv'), r = {zone:'riv', dif:'h', team:[9, 134, 131]};
+  assert2.equal(X.affinity(r.team, riv), 3);
+  const count = (team, n = 400) => { let w = 0; for (let i = 0; i < n; i++) for (const it of X.rollReward({...r, team}, Math.random).items) if (['water-stone', 'ct-bubblebeam', 'ct-water', 'leaf-stone'].includes(it.id)) w += it.qty; return w; };
+  assert2.ok(count([9, 134, 131]) > count([95, 74, 76]) * 1.5, 'les affinités augmentent le butin du type');
+  const rw = X.rollReward({...r}, Math.random, 1); assert2.ok(rw.money > 0 && rw.items.length > 0);
+  console.log('OK : expéditions (puissance min., départ/retour, affinités, sauvegarde)');
+}

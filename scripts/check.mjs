@@ -218,7 +218,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   if (!(victoryMoney(2, 10) > victoryMoney(1, 10) && victoryMoney(4, 10) > victoryMoney(3, 10))) throw new Error('gains croissants selon la rareté');
   if (captureMoney(3, true, false) !== FIRST_CATCH[3] || captureMoney(3, false, false) !== 0) throw new Error('prime de première capture');
   if (captureMoney(1, false, true) !== SHINY_REWARD || captureMoney(1, true, true) !== FIRST_CATCH[1] + SHINY_REWARD) throw new Error('prime chromatique');
-  if (sanitizeMoney(-5) !== 0 || sanitizeMoney('x') !== 0 || sanitizeMoney(120) !== 120) throw new Error('sauvegarde de l’argent');
+  if (sanitizeMoney(-5) !== 0 || sanitizeMoney('x') !== 0 || sanitizeMoney(120) !== 120) throw new Error('sauvegarde de l’argent'); if (sanitizeMoney(1234.5) !== 1234 || sanitizeMoney(1000 + 57.6) !== 1057) throw new Error('argent fractionnaire : ne doit pas remettre à zéro');
 }
 {
   const shop = await import('../dist/shop.js'), world = await import('../dist/world.js'), sh = await import('../dist/shiny.js');
