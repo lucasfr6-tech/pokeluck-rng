@@ -157,7 +157,7 @@ const defiNow=()=>Date.now();// TODO serveur : remplacer par une heure vérifié
 const defiBadges=()=>Object.keys(state.badges).filter(k=>state.badges[k]).length;
 let defiShown=-1;
 const defiSprite=id=>`<img class="df-spr" src="${spriteBW(id)}" alt="" onerror="this.onerror=null;this.src='${sprite(id)}'">`;
-const MODES=[{id:'defis',name:'Défis',sprite:'rare-candy',tone:'#ff9b4a',text:'Un type de Pokémon toutes les 6 heures : bats 3 paliers (bronze 25, argent 50, or 100) avec ton équipe de ce type.'},{id:'summon',name:'Invocations',sprite:'master-ball',tone:'#b46cf0',text:'Dépense tes Pokédollars pour invoquer des Pokémon. Une bannière Kanto change toutes les 2 heures, une bannière Spéciale tous les 3 jours.'},{id:'expeditions',name:'Expéditions',sprite:'dowsing-machine',tone:'#4fcf7e',text:'Envoie 3 Pokémon explorer une zone pendant que tu joues. Leurs types orientent le butin : pierres, CT, objets et Pokédollars.'}];
+const MODES=[{id:'defis',name:'Défis',sprite:'rare-candy',tone:'#ff9b4a',text:'Un type de Pokémon toutes les 6 heures : bats 3 paliers (bronze 25, argent 50, or 100) avec ton équipe de ce type.'},{id:'expeditions',name:'Expéditions',sprite:'dowsing-machine',tone:'#4fcf7e',text:'Envoie 3 Pokémon explorer une zone pendant que tu joues. Leurs types orientent le butin : pierres, CT, objets et Pokédollars.'}];
 function renderModes(body){body.innerHTML=`<div class="md-wrap"><p class="md-intro">Les modes de jeu sont des façons de jouer à côté de l’aventure principale. D’autres arriveront ici.</p><div class="md-grid">${MODES.map(m=>`<button class="md-card" data-mode-open="${m.id}" style="--tone:${m.tone}"><i><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${m.sprite}.png" alt=""></i><strong>${m.name}</strong><span>${m.text}</span><em>Jouer</em></button>`).join('')}</div></div>`;}
 document.addEventListener('click',e=>{const m=e.target.closest('[data-mode-open]');if(m)openView(m.dataset.modeOpen);});
 function renderDefis(body){
@@ -513,8 +513,8 @@ const fullButton=$('#fullscreen');if(!document.documentElement.requestFullscreen
 initializeSpriteCentering();
 
 const compassMenu=$('#menu-drawer');
-const cm=$('#cm'),cmHint=$('#cm-hint'),CM_GROUPS={dex:'Ouvre le Pokédex, ou choisis Statistiques ou Chromatiques.',quests:'Ouvre les quêtes, ou choisis Succès.',modes:'Choisis un mode de jeu.'};
-function cmClose(){cm.classList.remove('open-dex','open-quests','open-modes');cmHint.textContent='Choisis une destination.';}
+const cm=$('#cm'),cmHint=$('#cm-hint'),CM_GROUPS={dex:'Ouvre le Pokédex, ou choisis Statistiques ou Chromatiques.',quests:'Ouvre les quêtes, ou choisis Succès.',modes:'Choisis un mode de jeu.',pokemon:'Ouvre tes Pokémon, ou choisis Invocations.'};
+function cmClose(){cm.classList.remove('open-dex','open-quests','open-modes','open-pokemon');cmHint.textContent='Choisis une destination.';}
 cm.addEventListener('click',e=>{if(!e.target.closest('.cm-b')&&(e.target.closest('.cm-core')||e.target===cm)){if(cm.className.includes('open-'))cmClose();return;}const b=e.target.closest('.cm-b');if(!b)return;e.stopImmediatePropagation();const g=b.dataset.grp;
   if(b.classList.contains('cm-sub')){cmClose();openView(b.dataset.view);return;}
   if(g&&!cm.classList.contains('open-'+g)){cmClose();cm.classList.add('open-'+g);cmHint.textContent=CM_GROUPS[g];return;}

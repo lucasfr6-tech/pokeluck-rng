@@ -245,9 +245,9 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .cm .cm-b:focus-visible{outline:none}
 .cm .cm-sub{display:none}
 .cm .cm-sub i{width:78px;height:78px}.cm .cm-sub img{width:46px;height:46px}
-.cm.open-dex .cm-sub[data-grp=dex],.cm.open-quests .cm-sub[data-grp=quests],.cm.open-modes .cm-sub[data-grp=modes]{display:flex}
-.cm.open-dex .cm-b:not([data-grp=dex]),.cm.open-quests .cm-b:not([data-grp=quests]),.cm.open-modes .cm-b:not([data-grp=modes]){opacity:.35}
-.cm.open-dex .cm-b:not([data-grp=dex]) i,.cm.open-quests .cm-b:not([data-grp=quests]) i,.cm.open-modes .cm-b:not([data-grp=modes]) i{box-shadow:none}
+.cm.open-dex .cm-sub[data-grp=dex],.cm.open-quests .cm-sub[data-grp=quests],.cm.open-modes .cm-sub[data-grp=modes],.cm.open-pokemon .cm-sub[data-grp=pokemon]{display:flex}
+.cm.open-dex .cm-b:not([data-grp=dex]),.cm.open-quests .cm-b:not([data-grp=quests]),.cm.open-modes .cm-b:not([data-grp=modes]),.cm.open-pokemon .cm-b:not([data-grp=pokemon]){opacity:.35}
+.cm.open-dex .cm-b:not([data-grp=dex]) i,.cm.open-quests .cm-b:not([data-grp=quests]) i,.cm.open-modes .cm-b:not([data-grp=modes]) i,.cm.open-pokemon .cm-b:not([data-grp=pokemon]) i{box-shadow:none}
 .cm .cm-b.cm-sub{opacity:1!important}
 .cm.open-dex .cm-b[data-view=dex] i,.cm.open-quests .cm-b[data-view=quests] i{width:136px;height:136px}
 .cm.open-dex .cm-b[data-view=dex] img,.cm.open-quests .cm-b[data-view=quests] img{width:84px;height:84px}
@@ -644,9 +644,9 @@ span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:
 .bld-art.pagoda{inset:-40% 12% 0 12%}
 .map-spot .bld-art.mid,.map-spot .bld-art.wide{filter:drop-shadow(0 .3cqw .2cqw #0009)}
 
-.cm .cm-b.cm-sub[data-grp=modes]{z-index:3}.cm.open-modes .cm-core{opacity:.25}
-.cm.open-dex .cm-b[data-view=dex] i,.cm.open-quests .cm-b[data-view=quests] i,.cm.open-modes .cm-b[data-view=modes] i{width:112px;height:112px}
-.cm.open-dex .cm-b[data-view=dex] img,.cm.open-quests .cm-b[data-view=quests] img,.cm.open-modes .cm-b[data-view=modes] img{width:70px;height:70px}
+.cm .cm-b.cm-sub[data-grp=modes],.cm .cm-b.cm-sub[data-grp=pokemon]{z-index:3}.cm.open-modes .cm-core{opacity:.25}
+.cm.open-dex .cm-b[data-view=dex] i,.cm.open-quests .cm-b[data-view=quests] i,.cm.open-modes .cm-b[data-view=modes] i,.cm.open-pokemon .cm-b[data-view=pokemon] i{width:112px;height:112px}
+.cm.open-dex .cm-b[data-view=dex] img,.cm.open-quests .cm-b[data-view=quests] img,.cm.open-modes .cm-b[data-view=modes] img,.cm.open-pokemon .cm-b[data-view=pokemon] img{width:70px;height:70px}
 
 /* Mode de jeu */
 .md-wrap{padding:6px 2px}.md-intro{margin:0 0 14px;color:#b6cede;font-size:13px}
@@ -700,7 +700,7 @@ button.map-time{cursor:pointer;font-family:var(--pixel)}button.map-time:hover,bu
 .td-foot{margin:0;padding:0 16px 14px;font-size:11px;color:#9bb7ca}
 @media(max-width:430px){.td-grid,.td-clock{grid-template-columns:1fr}.td-mons{grid-template-columns:repeat(3,1fr)}}
 
-.cm-core{pointer-events:auto!important;z-index:1}.cm-core img{pointer-events:none}.cm.open-modes .cm-core,.cm.open-dex .cm-core,.cm.open-quests .cm-core{opacity:1}
+.cm-core{pointer-events:auto!important;z-index:1}.cm-core img{pointer-events:none}.cm.open-modes .cm-core,.cm.open-dex .cm-core,.cm.open-quests .cm-core,.cm.open-pokemon .cm-core{opacity:1}
 .cm.open-modes .cm-orbit{border-color:#7a5a30}
 
 /* Champs (terrain) dans la scène de combat */
