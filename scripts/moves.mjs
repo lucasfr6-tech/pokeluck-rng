@@ -158,10 +158,10 @@ console.log(`OK : ${n} groupes de tests d’attaques avancées`);
 {
   const X = await import('../dist/expedition.js');
   const assert2 = (await import('node:assert/strict')).default;
-  assert2.equal(X.DIFFS[0].min, 50_000); assert2.equal(X.DIFFS[2].min, 5_000_000);
-  const ex = X.emptyExped(), counts = {9: 1, 134: 1, 131: 1, 6: 1}, pw = () => 20_000;
+  assert2.equal(X.DIFFS[0].min, 500_000); assert2.equal(X.DIFFS[2].min, 50_000_000);
+  const ex = X.emptyExped(), counts = {9: 1, 134: 1, 131: 1, 6: 1}, pw = () => 200_000;
   assert2.equal(X.toggle(ex, 9, counts), true); X.toggle(ex, 134, counts); X.toggle(ex, 131, counts); assert2.equal(X.toggle(ex, 6, counts), false);
-  ex.sel.dif = 'm'; assert2.equal(X.start(ex, pw), false, 'puissance trop faible (3×20 000 < 500 000)');
+  ex.sel.dif = 'm'; assert2.equal(X.start(ex, pw), false, 'puissance trop faible (3×200 000 < 5 000 000)');
   ex.sel.dif = 'e'; const t0 = 1000; assert2.equal(X.start(ex, pw, t0), true); assert2.equal(ex.runs.length, 1); assert2.equal(ex.sel.team.length, 0);
   assert2.equal(X.toggle(ex, 9, counts), false, 'un Pokémon parti est indisponible');
   assert2.equal(X.claim(ex, 1, t0 + 29 * 60000), null); const run = X.claim(ex, 1, t0 + 31 * 60000); assert2.ok(run); assert2.equal(ex.runs.length, 0);
