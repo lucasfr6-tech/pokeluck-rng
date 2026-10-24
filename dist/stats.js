@@ -20,7 +20,7 @@ export function fmtDuration(sec) {
 }
 export function sanitizeShinyLog(raw) {
   if (!Array.isArray(raw)) return [];
-  return raw.filter(e => e && Number.isInteger(e.id) && e.id >= 1 && e.id <= 151 && Number.isFinite(e.at) && e.at > 0 && nat(e.n) >= 0).map(e => ({id: e.id, at: Math.floor(e.at), n: nat(e.n)})).slice(0, LOG_MAX);
+  return raw.filter(e => e && Number.isInteger(e.id) && e.id >= 1 && e.id <= 251 && Number.isFinite(e.at) && e.at > 0 && nat(e.n) >= 0).map(e => ({id: e.id, at: Math.floor(e.at), n: nat(e.n)})).slice(0, LOG_MAX);
 }
 // Ajoute un chromatique (le plus récent en premier). `totalDraws` = tirages totaux à cet instant ; n = tirages depuis le précédent chromatique.
 export function logShiny(log, play, id, at, totalDraws) {

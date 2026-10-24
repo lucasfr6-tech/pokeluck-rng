@@ -44,7 +44,9 @@ export const FIXED_FX = {
   'psywave':(a, d, rand) => Math.max(1, Math.floor(a.level * (.5 + rand()))),
   'endeavor':(a, d) => Math.max(0, d.hp - a.hp),
   'final-gambit':a => a.hp,
-  'sonic-boom':() => 20, 'dragon-rage':() => 40
+  'sonic-boom':() => 20, 'dragon-rage':() => 40,
+  // Riposte et Voile Miroir (Gen. II) : renvoient le double des dégâts reçus ce tour, physiques ou spéciaux.
+  'counter':a => V(a).lastHitBy?.cls === 'physical' ? V(a).lastHitBy.dmg * 2 : 0, 'mirror-coat':a => V(a).lastHitBy?.cls === 'special' ? V(a).lastHitBy.dmg * 2 : 0
 };
 
 // ── Attaques en deux tours / semi-invulnérables ──
@@ -165,6 +167,13 @@ export const STATUS_FX = {
   'teleport':() => 'noop', 'splash':() => 'noop', 'celebrate':() => 'noop', 'hold-hands':() => 'noop', 'happy-hour':() => 'noop', 'whirlwind':() => false, 'roar':() => false, 'baton-pass':() => false,
   'future-sight':(X, a, d, s, m, ds, run, calc) => { const t = X.S(ds); if (t.future) return false; t.future = {turns:3, dmg:calc(m), user:a.name}; X.msg(`${a.name} prévoit une attaque pour plus tard !`, a, s); return true; },
   'doom-desire':(X, a, d, s, m, ds, run, calc) => { const t = X.S(ds); if (t.future) return false; t.future = {turns:3, dmg:calc(m), user:a.name}; X.msg(`${a.name} fait un vœu destructeur !`, a, s); return true; },
+  // Génération II
+  'mind-reader':(X, a, d, s) => { V(a).lockOn = true; X.msg(`${a.name} lit les pensées de ${d.name} : sa prochaine attaque ne ratera pas !`, a, s); return true; },
+  'lock-on':(X, a, d, s) => { V(a).lockOn = true; X.msg(`${a.name} verrouille sa cible : sa prochaine attaque ne ratera pas !`, a, s); return true; },
+  'foresight':(X, a, d, s, m, ds) => { if (V(d).foresight) return false; V(d).foresight = true; X.msg(`${d.name} est démasqué : les types Spectre ne l’arrêtent plus !`, d, ds); return true; },
+  'odor-sleuth':(X, a, d, s, m, ds) => { if (V(d).foresight) return false; V(d).foresight = true; X.msg(`${d.name} est démasqué !`, d, ds); return true; },
+  'sketch':(X, a, d, s) => { const last = V(d).last; if (!last || last.name === 'sketch' || last.name === 'struggle') return false; const i = a.moves.findIndex(x => x.name === 'sketch'); if (i < 0) return false; a.moves[i] = last; a.pp[last.name] = last.pp || 10; X.msg(`${a.name} dessine ${last.fr || last.name} !`, a, s); return true; },
+  'conversion-2':(X, a, d, s) => { const last = V(d).last; if (!last || !last.type) return false; const R = {normal:['rock','steel'], fire:['fire','water','rock','dragon'], water:['water','grass','dragon'], electric:['electric','grass','dragon'], grass:['fire','grass','poison','flying','bug','dragon','steel'], ice:['fire','water','ice','steel'], fighting:['poison','flying','psychic','bug','fairy'], poison:['poison','ground','rock','ghost'], ground:['grass','bug'], flying:['electric','rock','steel'], psychic:['psychic','steel'], bug:['fire','fighting','poison','flying','ghost','steel','fairy'], rock:['fighting','ground','steel'], ghost:['dark'], dragon:['steel'], dark:['fighting','dark','fairy'], steel:['fire','water','electric','steel']}; const opts = R[last.type]; if (!opts) return false; const t = opts[Math.floor(X.rand() * opts.length)]; a.types = [t]; X.msg(`${a.name} change de type : il devient de type ${t} !`, a, s); return true; },
   'bide':(X, a, d, s) => { V(a).lock = {move:{name:'bide', fr:'Patience', power:null, acc:null, type:'normal', cls:'physical', priority:1}, kind:'bide', turns:2}; V(a).bideTaken = 0; X.msg(`${a.name} encaisse les coups…`, a, s); return true; }
 };
 export const FX_NAMES = new Set(Object.keys(STATUS_FX));
@@ -233,6 +242,7 @@ export function fxUseful(name, a, d, b) {
     case 'perish-song': return va.perish == null;
     case 'charge': return !va.charged;
     case 'metronome': return true;
+    case 'mind-reader': case 'lock-on': case 'foresight': case 'odor-sleuth': case 'sketch': case 'conversion-2': return false;
     case 'sleep-talk': return a.status?.type === 'slp';
     case 'transform': case 'mimic': case 'acupressure': case 'spite': case 'torment': case 'encore': case 'disable': case 'memento': case 'laser-focus': case 'trick-room': case 'defog': case 'bide': return false;
     case 'electric-terrain': return b.terrain?.id !== 'electric'; case 'grassy-terrain': return b.terrain?.id !== 'grass'; case 'misty-terrain': return b.terrain?.id !== 'misty'; case 'psychic-terrain': return b.terrain?.id !== 'psychic';

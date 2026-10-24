@@ -12,13 +12,14 @@ export const MAX_LEVEL = 100;
 // Niveau d'évolution par pierre, échange ou lien (et espèces sans niveau d'évolution propre) : provisoire.
 const DEFAULT_EVOLVE_LEVEL = 36;
 // Numéro de l'évolution → niveau auquel la forme précédente évolue (jeux Rouge/Bleu).
-const evolveLevels = {2:16,3:32,5:16,6:36,8:16,9:36,11:7,12:10,14:7,15:10,17:18,18:36,20:20,22:20,24:22,28:22,30:16,33:16,42:22,44:21,47:24,49:31,51:26,53:28,55:33,57:28,61:25,64:16,67:28,70:21,73:30,75:25,78:40,80:37,82:30,85:31,87:34,89:38,93:25,97:26,99:28,101:30,105:28,110:35,112:42,117:32,119:33,130:20,139:40,141:40,148:30,149:55};
+const evolveLevels = {2:16,3:32,5:16,6:36,8:16,9:36,11:7,12:10,14:7,15:10,17:18,18:36,20:20,22:20,24:22,28:22,30:16,33:16,42:22,44:21,47:24,49:31,51:26,53:28,55:33,57:28,61:25,64:16,67:28,70:21,73:30,75:25,78:40,80:37,82:30,85:31,87:34,89:38,93:25,97:26,99:28,101:30,105:28,110:35,112:42,117:32,119:33,130:20,139:40,141:40,148:30,149:55,153:16,154:32,156:14,157:36,159:18,160:30,162:15,164:20,166:18,168:22,171:27,178:25,180:15,181:30,184:18,188:18,189:27,195:20,205:31,210:23,217:30,219:38,221:33,224:25,229:24,232:25,237:20,247:30,248:55};
 
 export const minLevel = id => evolvesFrom[id] ? (evolveLevels[id] ?? DEFAULT_EVOLVE_LEVEL) : START_LEVEL;
 // Plafond d'une espèce : un niveau avant l'évolution de la forme suivante (la plus basse en cas d'embranchement).
 const nextLevels = {};
 for (const to of Object.keys(evolvesFrom)) {
   const from = evolvesFrom[to];
+  if (+to > 151 && from <= 151) continue; // évolutions de Johto d'une espèce de Kanto : ne plafonnent pas la forme de Kanto
   nextLevels[from] = Math.min(nextLevels[from] ?? Infinity, minLevel(+to));
 }
 export const maxLevel = id => nextLevels[id] ? nextLevels[id] - 1 : MAX_LEVEL;

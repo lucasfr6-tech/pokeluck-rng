@@ -89,7 +89,7 @@ export function sanitizeInv(raw) {
     if (raw.held && typeof raw.held === 'object') {
       const used = {};
       for (const [pid, list] of Object.entries(raw.held)) {
-        const n = +pid; if (!Number.isInteger(n) || n < 1 || n > 151 || !Array.isArray(list)) continue;
+        const n = +pid; if (!Number.isInteger(n) || n < 1 || n > 251 || !Array.isArray(list)) continue;
         const keep = [];
         for (const id of list) if (ITEMS[id]?.kind === 'held' && !keep.includes(id) && keep.length < slotsFor(n) && (used[id] || 0) < (inv.stock[id] || 0)) {keep.push(id); used[id] = (used[id] || 0) + 1;}
         if (keep.length) inv.held[n] = keep;

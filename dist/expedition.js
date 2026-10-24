@@ -41,7 +41,7 @@ export const canStart = (team, zone, diff, powerOf) => team.length === TEAM_SIZE
 export const emptyExped = () => ({sel:{zone:'riv', dif:'m', team:[]}, runs:[], nextId:1});
 export function sanitizeExped(raw, counts = {}) {
   const o = emptyExped(); if (!raw || typeof raw !== 'object') return o;
-  const ok = id => Number.isInteger(id) && id >= 1 && id <= 151;
+  const ok = id => Number.isInteger(id) && id >= 1 && id <= 251;
   const sel = raw.sel || {};
   if (EZONES.some(z => z.id === sel.zone)) o.sel.zone = sel.zone;
   if (DIFFS.some(d => d.id === sel.dif)) o.sel.dif = sel.dif;

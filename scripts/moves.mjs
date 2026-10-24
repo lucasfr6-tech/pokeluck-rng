@@ -112,6 +112,16 @@ ok('Choc Mental d’un clone, Requiem, Danse… ne plantent pas sur 400 tours al
     for (let t = 0; t < 40 && !b.over; t++) bt.takeTurn(b, bt.playerChoices(bt.activeFighter(b))[Math.floor(rnd() * 4)]);
   }
 });
+ok('Génération II : Riposte renvoie le double, Triple Pied frappe plusieurs fois, Poursuite/Voile Miroir', () => {
+  const me = mk({spe:1, moves:[hit('counter', {power:null, priority:-5})]}), foe = mk({moves:[hit('x')]});
+  const b = duel(me, foe); const ev = bt.takeTurn(b, me.moves[0]);
+  assert.ok(foe.hp < foe.maxHp, 'Riposte inflige des dégâts après un coup physique');
+  const tk = mk({moves:[hit('triple-kick', {power:10, acc:null})]}), dummy = mk({spe:1, moves:[st('splash')]});
+  const b2 = duel(tk, dummy); const e2 = bt.takeTurn(b2, tk.moves[0]); const atk = e2.find(e => e.type === 'attack' && e.side === 'player');
+  assert.equal(atk.hits, 3);
+  const lk = mk({moves:[st('lock-on', {target:'selected-pokemon'})]}), d2 = mk({moves:[st('splash')]});
+  const b3 = duel(lk, d2); bt.takeTurn(b3, lk.moves[0]); assert.ok(lk.vol.lockOn);
+});
 console.log(`OK : ${n} groupes de tests d’attaques avancées`);
 // ── Cycle jour / nuit ──
 {

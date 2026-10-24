@@ -65,7 +65,7 @@ export const pickable = (type, counts) => all.filter(id => canPick(id, type, cou
 export const emptyDefis = () => ({picks: {}, slot: -1, claimed: {}});
 export function sanitizeDefis(raw) {
   const o = emptyDefis(); if (!raw || typeof raw !== 'object') return o;
-  if (raw.picks && typeof raw.picks === 'object') for (const t of DEFI_TYPES) { const l = raw.picks[t]; if (Array.isArray(l)) o.picks[t] = [...new Set(l.filter(n => Number.isInteger(n) && n >= 1 && n <= 151 && types[n]?.includes(t) && defiEligible(n)))].slice(0, 3); }
+  if (raw.picks && typeof raw.picks === 'object') for (const t of DEFI_TYPES) { const l = raw.picks[t]; if (Array.isArray(l)) o.picks[t] = [...new Set(l.filter(n => Number.isInteger(n) && n >= 1 && n <= 251 && types[n]?.includes(t) && defiEligible(n)))].slice(0, 3); }
   if (Number.isInteger(raw.slot)) o.slot = raw.slot;
   if (raw.claimed && typeof raw.claimed === 'object') for (const t of TIER_IDS) if (raw.claimed[t] === true) o.claimed[t] = true;
   return o;

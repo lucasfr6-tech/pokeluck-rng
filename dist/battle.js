@@ -113,7 +113,8 @@ export function damage(attacker, defender, move, rand = Math.random, weather = n
     const th = move.acc * accMult(Math.max(-6, Math.min(6, stageOf(attacker, 'acc') - stageOf(defender, 'eva')))) * (attacker.ability === 'compound-eyes' ? 1.3 : 1);
     if (rand() * 100 >= th) return {hit:false, dmg:0, eff:1, stab:false};
   }
-  const kind = dmgKind(move), eff = effectiveness(move.type, defender.types) * (defender.ability === 'levitate' && move.type === 'ground' ? 0 : 1);
+  const foeTypes = opts.foresight && (move.type === 'normal' || move.type === 'fighting') ? defender.types.filter(t => t !== 'ghost') : defender.types;
+  const kind = dmgKind(move), eff = effectiveness(move.type, foeTypes) * (defender.ability === 'levitate' && move.type === 'ground' ? 0 : 1);
   if (kind === 'fixed') return {hit:true, dmg:eff > 0 ? fixedDamage(move, attacker, defender, rand) : 0, eff, stab:false};
   const physical = move.cls === 'physical';
   const crit = rand() < CRIT[Math.min(3, (move.crit || 0) + (opts.critBoost || 0))];
@@ -372,7 +373,7 @@ function engine(b, events) {
       // Casse-Brique et consorts brisent les écrans avant de frapper
       if (['brick-break', 'psychic-fangs', 'raging-bull'].includes(move.name)) { const t = S(dside); if (t.reflect > 0 || t.lightscreen > 0 || t.auroraveil > 0) { t.reflect = t.lightscreen = t.auroraveil = 0; msg(`Les écrans de ${d.name} sont brisés !`, d, dside); } }
       const physical = move.cls === 'physical', sc = S(dside);
-      const opts = {mult:terrainMult(b.terrain, move, a, d) * (va.dyna > 0 ? DYNAMAX_DMG : 1), screen:(physical ? sc.reflect : sc.lightscreen) > 0 || sc.auroraveil > 0, sureHit:!!vd.sureHitBy, critBoost:va.focus ? 2 : 0, defenderInvulnerable:false};
+      const opts = {mult:terrainMult(b.terrain, move, a, d) * (va.dyna > 0 ? DYNAMAX_DMG : 1), screen:(physical ? sc.reflect : sc.lightscreen) > 0 || sc.auroraveil > 0, sureHit:!!vd.sureHitBy, foresight:!!vd.foresight, critBoost:va.focus ? 2 : 0, defenderInvulnerable:false};
       if (va.lockOn) { opts.sureHit = true; va.lockOn = false; }
       const sub = vd.sub > 0 && !['sonic-boom'].includes(move.name);
       let r, hits = 1;
@@ -381,7 +382,10 @@ function engine(b, events) {
         r = a.level < d.level || rand() * 100 >= th ? {hit:false, dmg:0, eff:1, stab:false} : {hit:true, dmg:d.hp, eff:1, stab:false};
       } else {
         r = damage(a, d, move, rand, b.weather, opts);
-        if (r.hit && move.maxHits > 1 && r.dmg > 0) {
+        if (r.hit && move.name === 'triple-kick' && r.dmg > 0) {
+          for (hits = 2; hits <= 3 && r.dmg < d.hp; hits++) { const nx = damage(a, d, {...move, power:10 * hits, acc:hits === 2 ? move.acc : move.acc}, rand, b.weather, {...opts, sureHit:false}); if (!nx.hit) break; r.dmg += nx.dmg; }
+          hits = Math.max(1, hits - 1);
+        } else if (r.hit && move.maxHits > 1 && r.dmg > 0) {
           const n = move.minHits === move.maxHits ? move.maxHits : (() => { const x = rand(); return x < .375 ? 2 : x < .75 ? 3 : x < .875 ? 4 : 5; })();
           const rest = {...move, acc:null};
           for (hits = 1; hits < n && r.dmg < d.hp; hits++) r.dmg += damage(a, d, rest, rand, b.weather, opts).dmg;
@@ -432,6 +436,7 @@ function engine(b, events) {
       if (!blockedBySub && r?.hit && dmg > 0) {
         if (move.drain < 0 && a.ability !== 'rock-head') { const rec = Math.max(1, Math.floor(dmg * -move.drain / 100)); a.hp = Math.max(0, a.hp - rec); msg(`${a.name} est blessé par le contrecoup !`, a, side); if (checkFaint(side)) return; }
         if (move.name === 'rapid-spin') { const t = S(side); t.rocks = t.spikes = t.tspikes = t.web = 0; delete va.trap; delete va.seed; }
+        if ((move.name === 'thief' || move.name === 'covet') && !(a.sash || a.berry || a.leftovers)) { const it = d.sash ? 'sash' : d.berry ? 'berry' : d.leftovers ? 'leftovers' : null; if (it) { d[it] = false; a[it] = true; msg(`${a.name} dérobe l’objet de ${d.name} !`, a, side); } }
         if (move.name === 'knock-off') { if (d.sash || d.berry || d.leftovers) { d.sash = d.berry = d.leftovers = false; msg(`${a.name} fait tomber l’objet de ${d.name} !`, d, dside); } }
         if (move.name === 'smelling-salts' && d.status?.type === 'par') { d.status = null; msg(`${d.name} n’est plus paralysé !`, d, dside); }
         if (move.name === 'wake-up-slap' && d.status?.type === 'slp') { d.status = null; msg(`${d.name} se réveille !`, d, dside); }
@@ -532,7 +537,7 @@ function engine(b, events) {
       if (b.trickRoom > 0 && --b.trickRoom === 0) msg('Les dimensions retrouvent leur état normal.', A('player'), 'player');
     },
     tick(v) {
-      v.protect = false; v.endure = false; if (!v.usedProt) v.protN = 0; v.usedProt = false; v.hurt = false; v.moved = false;
+      v.protect = false; v.endure = false; if (!v.usedProt) v.protN = 0; v.usedProt = false; v.hurt = false; v.moved = false; v.lastHitBy = null;
       if (v.taunt > 0) v.taunt--; if (v.encore && --v.encore.turns <= 0) delete v.encore; if (v.disabled && --v.disabled.turns <= 0) delete v.disabled;
     },
     leave(side) { const f = A(side); if (f.ability === 'natural-cure' && f.status) f.status = null; drop(f); }

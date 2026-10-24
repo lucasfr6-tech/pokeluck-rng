@@ -5,7 +5,7 @@ import {effortYield} from './training.js';
 import {DEFAULT_BASE} from './battle.js';
 
 const API = 'https://pokeapi.co/api/v2/';
-const GROUPS = ['red-blue', 'yellow'];
+const GROUPS = ['red-blue', 'yellow', 'gold-silver', 'crystal']; // Kanto : Rouge/Bleu puis Jaune ; Johto : Or/Argent puis Cristal
 // Générations suivantes : complètent les attaques que les jeux Rouge/Bleu/Jaune ne donnaient pas par niveau (ex. Lance-Flammes).
 const LATER = ['firered-leafgreen', 'emerald', 'ruby-sapphire', 'heartgold-soulsilver', 'platinum', 'diamond-pearl', 'black-white', 'black-2-white-2', 'x-y', 'sun-moon', 'sword-shield'];
 const STAT = {hp:'hp', attack:'atk', defense:'def', 'special-attack':'spa', 'special-defense':'spd', speed:'spe'};
@@ -44,7 +44,8 @@ export function parseSpecies(json) {
   }
   learnset.sort((a, b) => a[1] - b[1]);
   // CT compatibles (jeux Rouge/Bleu et Jaune).
-  const machines = [...new Set((json.moves || []).filter(m => (m.version_group_details || []).some(d => GROUPS.includes(d.version_group.name) && d.move_learn_method.name === 'machine')).map(m => m.move.name))];
+  const MG = json.id > 151 ? ['gold-silver', 'crystal'] : ['red-blue', 'yellow'];
+  const machines = [...new Set((json.moves || []).filter(m => (m.version_group_details || []).some(d => MG.includes(d.version_group.name) && d.move_learn_method.name === 'machine')).map(m => m.move.name))];
   const abilities = (json.abilities || []).filter(a => !a.is_hidden).sort((x, y) => x.slot - y.slot).map(a => a.ability.name);
   return {stats, evYield, machines, abilities, learnset: learnset.length ? learnset : [['tackle', 1]]};
 }

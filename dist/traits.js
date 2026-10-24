@@ -15,7 +15,7 @@ export const randomTraits = (rand = Math.random) => ({n:NATURE_KEYS[Math.floor(r
 export const sanitizeTraits = raw => {
   const out = {};
   if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const [id, t] of Object.entries(raw)) {
-    const n = +id; if (Number.isInteger(n) && n >= 1 && n <= 151 && NATURES[t?.n] && (t.s === 0 || t.s === 1)) out[n] = {n:t.n, s:t.s};
+    const n = +id; if (Number.isInteger(n) && n >= 1 && n <= 251 && NATURES[t?.n] && (t.s === 0 || t.s === 1)) out[n] = {n:t.n, s:t.s};
   }
   return out;
 };

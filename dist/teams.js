@@ -7,7 +7,7 @@ export function sanitizeTeams(raw) {
   for (let i = 0; i < TEAM_SLOTS; i++) {
     const ids = raw[i]?.ids;
     if (!Array.isArray(ids)) continue;
-    const clean = [...new Set(ids.filter(id => Number.isInteger(id) && id >= 1 && id <= 151))].slice(0, 6);
+    const clean = [...new Set(ids.filter(id => Number.isInteger(id) && id >= 1 && id <= 251))].slice(0, 6);
     if (clean.length) out[i] = {ids:clean};
   }
   return out;

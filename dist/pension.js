@@ -10,7 +10,7 @@ export const eggNeed = (a, b) => (EGG_COST[tierOf(a)] || 30) + (EGG_COST[tierOf(
 export const MUTATION = .2;          // chance qu'un IV hérité soit retiré au hasard
 export const SHINY_BASE = 8;         // multiplicateur de chance de chromatique d'un œuf de pension
 export const SHINY_PER_PARENT = 2;   // ×2 de plus par parent possédant une forme chromatique
-const validId = n => Number.isInteger(n) && n >= 1 && n <= 151;
+const validId = n => Number.isInteger(n) && n >= 1 && n <= 251;
 export const blankDaycare = () => ({a: null, b: null, egg: null});
 export function sanitizeDaycare(raw) {
   const o = blankDaycare(); if (!raw || typeof raw !== 'object') return o;

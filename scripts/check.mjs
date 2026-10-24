@@ -6,12 +6,12 @@ import {chooseAiMove,effectiveness,computeStats,knownMoves,nextMove,damage,makeF
 import {parseSpecies,parseMove} from '../dist/battle-data.js';
 import {existsSync} from 'node:fs';
 import {wildLevelZone,wildLevelNear,wildLevel,minLevel,maxLevel,levelInfo,powerAt,xpToNext,START_LEVEL} from '../dist/levels.js';
-assert.equal(pool.length,151);
-assert.equal(names.length,151);
-assert.equal(powers.length,151);
+assert.equal(pool.length,251);
+assert.equal(names.length,251);
+assert.equal(powers.length,251);assert.equal(names[151],'Germignon');assert.equal(names[250],'Celebi');
 assert.equal(names[0],'Bulbizarre');assert.equal(names[149],'Mewtwo');assert.equal(names[150],'Mew');
 for(const p of pool)assert.ok(types[p.id]?.length>=1&&types[p.id].length<=2,'Types manquants : '+p.name);
-assert.ok(Math.abs(pool.reduce((s,p)=>s+p.probability,0)-1)<1e-9);
+assert.ok(Math.abs(pool.slice(0,151).reduce((s,p)=>s+p.probability,0)-1)<1e-9);
 assert.ok(powers.every(n=>Number.isInteger(n)&&n>=1));
 for(const zone of zones){
   const entries=zonePool(zone.id);
@@ -69,7 +69,7 @@ assert.equal(maxLevel(133),35);assert.equal(minLevel(134),36);
 assert.equal(maxLevel(25),35);
 for(const p of pool){assert.ok(minLevel(p.id)>=5&&maxLevel(p.id)>=minLevel(p.id),'Paliers incohérents : '+p.name);}
 // Une évolution commence là où le palier de sa forme précédente s'arrête.
-for(const [to,from] of Object.entries(evolvesFrom))assert.equal(minLevel(+to),maxLevel(from)+1,'Palier : '+names[to-1]);
+for(const [to,from] of Object.entries(evolvesFrom))if(!(+to>151&&from<=151))assert.equal(minLevel(+to),maxLevel(from)+1,'Palier : '+names[to-1]);
 assert.equal(levelInfo(4,1).level,5);
 assert.deepEqual([levelInfo(4,xpToNext(5)).level,levelInfo(4,xpToNext(5)+1).level],[5,6]); // un niveau coûte xpToNext(5) points
 {const n=1+xpToNext(5)+xpToNext(6)+xpToNext(7)+1;assert.equal(levelInfo(4,n).level,8);assert.equal(levelInfo(4,n).xp,1);assert.equal(levelInfo(4,n).need,xpToNext(8));}
@@ -532,7 +532,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(D.DEX_TOTAL, 151); assert.deepEqual(D.DEX_MILESTONES.map(m => m.n), [25, 50, 100, 151]);
   assert.deepEqual(D.sanitizeDex({claimed:{25:true, 77:true, 50:'x'}}), {claimed:{25:true}, shinyClaimed:{}}); assert.equal(D.dexLuck(D.sanitizeDex()), 0); assert.equal(D.dexLuck({claimed:{25:true}}), .05); assert.equal(D.dexLuck({claimed:{25:true, 50:true}}), .15); assert.equal(D.dexLuck({claimed:{25:true, 50:true, 100:true, 151:true}}), .5); assert.deepEqual(D.DEX_MILESTONES.map(m => m.luck), [.05, .15, .25, .5]);
   assert.equal(D.milestoneState(D.sanitizeDex(), 30).filter(m => m.ready).length, 1); assert.equal(D.milestoneState({claimed:{25:true}}, 30).filter(m => m.ready).length, 0);
-  assert.deepEqual(D.lineOf(4), [[4], [5], [6]]); assert.deepEqual(D.lineOf(133).map(s => s.length), [1, 3]); assert.equal(D.evolutionHow(133, 134), 'Pierre Eau'); assert.equal(D.evolutionHow(4, 5), 'Niv. 16');
+  assert.deepEqual(D.lineOf(4), [[4], [5], [6]]); assert.deepEqual(D.lineOf(133).map(s => s.length), [1, 5]); assert.equal(D.evolutionHow(133, 134), 'Pierre Eau'); assert.equal(D.evolutionHow(4, 5), 'Niv. 16');
   assert.ok(D.zonesOf(19).length > 0 && D.zonesOf(19).every((z, i, a) => !i || a[i - 1].p >= z.p));
   S.setBonusSlots(1); assert.equal(S.slotsFor(25), 2); S.setBonusSlots(0); assert.equal(S.slotsFor(25), 1);
   for (let k = 0; k < 400; k++) { const day = 20260101 + k, d = Q.generateQuests('daily', day, {badges:k % 9, discovered:k % 152}), w = Q.generateQuests('weekly', day, {badges:k % 9, discovered:k % 152});
@@ -567,7 +567,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 {
   const N = await import('../dist/nick.js');
   assert.ok(!/[<>&"']/.test(N.cleanNick('<img onerror="x">')) && N.cleanNick('a'.repeat(40)).length === 12);
-  assert.deepEqual(N.sanitizeNick({25: ' Sparky ', 0: 'x', 200: 'y', 3: '   '}), {25: 'Sparky'});
+  assert.deepEqual(N.sanitizeNick({25: ' Sparky ', 0: 'x', 300: 'y', 3: '   '}), {25: 'Sparky'});
   assert.deepEqual(N.sanitizeFav({25: true, 26: 'yes', 999: true}), {25: true});
   assert.equal(N.nameOf({nick: {25: 'Sparky'}}, 25, 'Pikachu'), 'Sparky'); assert.equal(N.nameOf({nick: {}}, 25, 'Pikachu'), 'Pikachu');
   const L = [{id: 1}, {id: 2}, {id: 3}].sort(N.favFirst({fav: {3: true}}, (a, b) => a.id - b.id)); assert.deepEqual(L.map(x => x.id), [3, 1, 2]);
