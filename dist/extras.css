@@ -842,3 +842,9 @@ body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-
 .cd-search{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:3px solid #ff7ab8;background:#0b1a28;color:#ffc4e0;flex:1;max-width:420px}
 .cd-search input{flex:1;min-width:0;background:none;border:0;outline:0;color:#eef6ff;font:700 15px system-ui}
 .cd-row em{display:inline-flex;align-items:center;gap:4px}.cd-row em img{width:24px;height:24px;image-rendering:pixelated}
+/* ---- Flèche vers Johto ---- */
+.map-johto{position:absolute;left:3%;bottom:4%;z-index:6;display:flex;align-items:center;gap:6px;padding:5px 10px 5px 6px;border-radius:12px;border:3px solid #ffffff66;background:#0b1a28aa;color:#ffffffaa;font:900 11px system-ui;cursor:pointer}
+.map-johto svg{width:22px;height:22px;fill:currentColor}
+.map-johto.open{border-color:#ffd25a;background:#3a2a05dd;color:#ffd25a;box-shadow:0 0 14px #ffd25a;animation:johtoGlow 1.2s ease-in-out infinite}
+.map-johto.done{border-color:#7fe3a1;color:#7fe3a1;background:#0b2a1acc}
+@keyframes johtoGlow{50%{box-shadow:0 0 26px #ffd25a}}

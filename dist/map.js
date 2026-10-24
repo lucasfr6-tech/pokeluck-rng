@@ -34,7 +34,7 @@ function trailSvg(pos,cur){
   }
   return `<svg class="map-route" viewBox="0 0 ${100*ASPECT} 100" aria-hidden="true">${out}</svg>`;
 }
-export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}){
+export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}},region={open:false,done:false}){
   const path=buildPath(shops),main=path.filter(n=>n.kind!=='shop'),pos=main.map((_,i)=>spotPosition(i));
   const side=p=>(p.x>72?' edge-r':p.x<28?' edge-l':'')+(p.y<30?' below':'');
   let html='';
@@ -77,6 +77,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
     ${trailSvg(pos,curIdx)}
     <span class="map-water" aria-hidden="true"></span><span class="map-glint g1" aria-hidden="true"></span><span class="map-glint g2" aria-hidden="true"></span>
     ${html}
+    <button type="button" class="map-johto${region.done?' done':region.open?' open':' closed'}" data-region="johto" aria-label="${region.done?'Johto : passage enregistré':region.open?'Passer à Johto':'Johto : bats le Champion de Kanto pour débloquer'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 4 12l16 9z"/></svg><span>Johto</span></button>
     <span class="sr-only">Destination actuelle : ${esc(cur?.name||'Route 1')}. Choisis un rond sur la carte pour voyager ou défier un champion.</span>
   </div>`;
 }
