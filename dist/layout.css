@@ -256,13 +256,11 @@ body.team-dragging,body.team-dragging .team-card{cursor:grabbing!important}
   .v-card{padding:12px 14px 14px}.v-list li{padding:6px 10px}
 }
 
-/* Pendant un combat, l'arène descend : carte et équipe se compactent */
+/* Mise en page identique en combat et hors combat (la scène ne change jamais de taille) */
 @media(min-width:701px) and (min-height:621px){
-  body.in-fight{--map-size:clamp(130px,18dvh,190px)}
-
-
-  body.in-fight .game .team-panel,body.in-fight .game .map-panel{padding-top:6px;padding-bottom:6px}
-  body.in-fight .map-panel-foot{display:none}
+  :root{--map-size:clamp(130px,18dvh,190px)}
+  .game .team-panel,.game .map-panel{padding-top:6px;padding-bottom:6px}
+  .map-panel-foot{display:none}
 }
 
 /* Écran large mais bas (téléphone en paysage) : carte à droite, rail étroit */
