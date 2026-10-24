@@ -540,3 +540,4 @@ span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:
 .inc-go{margin-left:auto;padding:8px 16px;border-radius:12px;border:0;border-bottom:4px solid #b06a10;background:#ffb02e;color:#10283f;font:800 13px system-ui;cursor:pointer}.inc-on{margin-left:auto;font:800 12px system-ui;color:#7fe3a1;font-style:normal}
 
 .zone-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right}.zone-streak{padding:6px 12px;border-radius:12px;border:2px solid #ffd27c;background:#3a3016;color:#ffe9b8;font:600 13px system-ui}.zone-streak b{color:#fff}.zone-streak:empty{display:none}
+.game .ball[data-ball=safari]{background-image:url(assets/balls/safari.png)}

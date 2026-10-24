@@ -239,3 +239,5 @@ body.reduce-motion .wx-fx,body.reduce-motion .wx-pill{animation:none!important}
 .map-rival img{filter:drop-shadow(0 0 2px #ffe9b8) drop-shadow(0 0 4px #ff5a6e) drop-shadow(0 1px 0 #0008)}
 @keyframes rival-aura{50%{opacity:.55;transform:translate(-50%,-50%) scale(1.15)}}
 .reduce-motion .map-rival:before{animation:none}
+
+.ball[data-ball=safari] .ball-top{background:#6b9a3a;box-shadow:inset -12px 5px 0 #4a6c26}.ball[data-ball=safari] .ball-core{background:#fff9e9}
