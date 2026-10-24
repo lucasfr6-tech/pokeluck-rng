@@ -468,6 +468,9 @@ body:not([data-skin="light"]) .credit { color: #8094ad; }
 
 /* ---------- superpositions ---------- */
 [hidden] { display: none !important; }
+.autonext { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; background: rgba(125,243,255,.08); border: 1px solid rgba(125,243,255,.35); cursor: pointer; text-align: left; margin-top: 8px; }
+.autonext input { width: 20px; height: 20px; accent-color: #7df3ff; flex: none; cursor: pointer; } .autonext span { display: flex; flex-direction: column; flex: 1; min-width: 0; } .autonext b { font-size: .86rem; } .autonext small { font-size: .7rem; font-weight: 700; color: var(--ink-soft); }
+.autonext em { font-style: normal; font-weight: 900; font-size: .8rem; color: #7df3ff; white-space: nowrap; } .prepauto { padding: 0 16px 10px; } .prepauto .autonext { margin-top: 0; }
 .farmroll .giftpic img.sil { filter: brightness(0) drop-shadow(0 0 12px #ffd23f); }
 .farmroll .coin.spin { animation: frspin 1.4s cubic-bezier(.3,.1,.3,1); } @keyframes frspin { to { transform: rotateY(1440deg); } }
 .farmroll.won .giftpic { box-shadow: 0 0 60px rgba(255,210,63,.7); } .farmroll.lost .giftpic { opacity: .7; }
@@ -2527,22 +2530,27 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-171416';
+const BUILD_ID = '20261024-171728';
+let UPDATE_PENDING = false;
+// en plein niveau (partie en cours, pas encore l'écran de fin) : on attend la fin avant de recharger
+const inLevel = () => { try { return !!G && current === 'game' && $('#endScreen').hidden; } catch (e) { return false; } };
 (function autoUpdate() {
   if (!/github\.io$/.test(location.hostname)) return;
-  let shown = false;
   const check = async () => {
-    if (shown) return;
+    if (UPDATE_PENDING) return;
     try {
       const r = await fetch('version.json?t=' + Date.now(), {cache: 'no-store'}); if (!r.ok) return;
       const v = await r.json(); if (!v.build || v.build === BUILD_ID) return;
-      shown = true; let left = 30;
+      UPDATE_PENDING = true; try { stopAuto(); } catch (e) {}
+      let left = 30;
       const el = document.createElement('div'); el.className = 'updbar';
-      el.innerHTML = '<b>✦ Nouvelle version du jeu !</b><span>Rechargement dans <i>30</i> s</span><button type="button">Recharger maintenant</button>';
+      el.innerHTML = '<b>✦ Nouvelle version du jeu !</b><span class="updt"></span><button type="button">Recharger maintenant</button>';
       document.body.appendChild(el);
       const go = () => { try { persist(); } catch (e) {} location.reload(); };
       el.querySelector('button').onclick = go;
-      const iv = setInterval(() => { left--; el.querySelector('i').textContent = left; if (left <= 0) { clearInterval(iv); go(); } }, 1000);
+      const paint = () => { el.querySelector('.updt').innerHTML = inLevel() ? 'Termine ton niveau : la page se rechargera juste après.' : `Rechargement dans <i>${left}</i> s`; };
+      paint();
+      setInterval(() => { if (inLevel()) { left = 30; paint(); return; } left--; paint(); if (left <= 0) go(); }, 1000);
     } catch (e) {}
   };
   setTimeout(check, 4000); setInterval(check, 30000);
@@ -3272,7 +3280,9 @@ function renderPrep() {
       ${cfg.mono ? `<div><span>Fragments</span><b>${monoFrags(cfg.megaId)} / ${monoNeedOf(cfg.megaId)}</b></div>` : ''}
       ${cfg.gold && cfg.gold !== 1 && !cfg.mono && !cfg.night ? `<div><span>Gains ₽</span><b>×${String(cfg.gold).replace('.', ',')}</b></div>` : ''}
     </div>
+    ${autoKey(cfg) ? `<div class="prepauto">${autoBox(autoKey(cfg), 'pAuto')}</div>` : ''}
     <div class="mtypes"><span class="lbl">Sauvages</span>${[...new Set(en.flatMap(id => DEX[id].types))].slice(0, 6).map(typeBadge).join(' ')}${cfg.noAir ? '<span class="warnair" style="color:#8fe36a">⛰ Facile : aucun Pokémon volant</span>' : ''}${cfg.sky && !cfg.noAir ? `<span class="warnair">☁ ${cfg.inf ? 'Une vague sur 5 est pleine de volants' : 'Niveau Ciel : beaucoup de volants'}</span>` : ''}</div>`;
+  if ($('#pAuto')) $('#pAuto').onchange = e => setAuto(autoKey(cfg), e.target.checked);
   const keys = prepTeamKeys();
   $('#prepTeam').innerHTML = SAVE.team.map((id, i) => { const k = keys[i], d = TDEF[k], r = rarityOf(id), tr = SAVE.traits[id] ? TRAITS[SAVE.traits[id]] : null, lim = placeLimit({traits: SAVE.traits}, k);
     const bad = cfg.mono && !monoAllowed(id, cfg.mono), veil = cfg.night && r < NIGHT_MIN_R;
@@ -5070,6 +5080,26 @@ function pauseAct(k) {
   renderPause(); $(`#pauseBox [data-p="${k}"]`).focus();
 }
 
+// ---------- Mode auto : enchaîner les niveaux (une case par mode) ----------
+const autoKey = cfg => !cfg ? null : cfg.night ? 'night' : cfg.mono ? 'mono' : cfg.raid ? 'raid' : cfg.inf ? 'inf' : cfg.loc != null && cfg.mode === 'story' ? 'story' : null;
+const AUTO_LABEL = {story: 'Aventure', night: 'Cauchemar', mono: 'Monotype', raid: 'Raid', inf: 'Infini'};
+const AUTO_DESC = {story: 'chapitre suivant après une victoire, on rejoue après une défaite', night: 'niveau suivant après une victoire, on rejoue après une défaite', mono: 'on rejoue le temple en boucle', raid: 'on relance le raid en boucle', inf: 'on relance l’Infini en boucle'};
+const autoOn = k => !!(k && SAVE.autoNext && SAVE.autoNext[k]);
+function setAuto(k, v) { SAVE.autoNext = SAVE.autoNext || {}; SAVE.autoNext[k] = !!v; persist(); }
+const autoBox = (k, id) => k ? `<label class="autonext"><input type="checkbox" id="${id}" data-nav ${autoOn(k) ? 'checked' : ''}><span><b>Auto ${AUTO_LABEL[k]}</b><small>${AUTO_DESC[k]}</small></span><em id="${id}T"></em></label>` : '';
+let autoTimer = null;
+function stopAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } const t = $('#eAutoT'); if (t) t.textContent = ''; }
+function armAuto(win) {
+  stopAuto(); const k = autoKey(G && G.cfg); if (!autoOn(k) || G.quit || UPDATE_PENDING) return; // une mise à jour attend : pas d'enchaînement
+  let left = 6; const tick = () => { const t = $('#eAutoT'); if (t) t.textContent = `Lancement dans ${left} s…`; };
+  tick();
+  autoTimer = setInterval(() => { left--; if ($('#endScreen').hidden) { stopAuto(); return; } if (left > 0) { tick(); return; } stopAuto();
+    const next = win ? ($('#eNextCh') || null) : null;
+    if (next) next.click();
+    else if (win && G.cfg.night && G.cfg.nl < NIGHT_LEVELS - 1) { const c = G.cfg; $('#endScreen').hidden = true; nightZ = c.nz; nightL = c.nl + 1; pokeWipe(() => startGame(nightCfg(c.nz, c.nl + 1))); }
+    else $('#eAgain').click();
+  }, 1000);
+}
 // ---------- fin de partie ----------
 function endScreen(win) {
   const cfg = G.cfg, cleared = win ? G.wave : Math.max(0, G.wave - 1);
@@ -5151,6 +5181,7 @@ function endScreen(win) {
     <div class="grid">${[['Vagues', cleared], ['K.O.', G.kills], ['₽ gagnés', fmt(G.earned || 0)]].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
     ${teamIds.length ? `<div class="lbl">Ton équipe</div><div class="team">${teamIds.map(id => `<span title="${name(id)}">${img(id, Math.min(40, DEX[id].h))}</span>`).join('')}</div>` : ''}
     <div class="btns">${win && cfg.loc != null && !(cfg.loc === ADV_LOCS.length - 1 && cfg.chapter === ADV_CHAPTERS - 1) ? `<button class="btn go" data-nav id="eNextCh">${cfg.chapter === ADV_CHAPTERS - 1 ? 'Lieu suivant ▶' : 'Chapitre suivant ▶'}</button>` : ''}${win && cfg.night && cfg.nl < NIGHT_LEVELS - 1 ? '<button class="btn go" data-nav id="eNextN">Niveau suivant ▶</button>' : ''}<button class="btn ${(win && cfg.loc != null) || (win && cfg.night && cfg.nl < NIGHT_LEVELS - 1) ? '' : 'go'}" data-nav id="eAgain">Rejouer</button><button class="btn" data-nav id="eMenu">${cfg.night ? 'Les Rêves' : cfg.mono ? 'Fragments Méga' : cfg.mode === 'survival' || cfg.loc != null ? 'Carte de Kanto' : 'Menu principal'}</button></div>`;
+  if (autoKey(cfg) && !G.quit) { $('#endBox').insertAdjacentHTML('beforeend', autoBox(autoKey(cfg), 'eAuto')); $('#eAuto').onchange = e => { setAuto(autoKey(cfg), e.target.checked); if (e.target.checked) armAuto(win); else stopAuto(); }; }
   $('#endBox').className = 'box end ' + (win ? 'win' : 'lose');
   lbSync(true);
   $('#endScreen').hidden = false;
@@ -5159,6 +5190,8 @@ function endScreen(win) {
   $('#eMenu').onclick = () => { $('#endScreen').hidden = true; pokeWipe(() => { const back = G.cfg.mode === 'survival' ? 'survival' : G.cfg.night ? 'night' : G.cfg.mono ? 'megas' : G.cfg.loc != null ? 'adventure' : null; leaveGame(); if (back) { history_.length = 0; history_.push('home'); go(back, {noPush: true}); } else go('home', {noPush: true}); }); };
   if ($('#eNextCh')) $('#eNextCh').onclick = () => { const c = G.cfg, last = c.chapter === ADV_CHAPTERS - 1, nl = last ? c.loc + 1 : c.loc, nc = last ? 0 : c.chapter + 1, nd = last ? 'easy' : c.diff; advLoc = nl; advDiff = nd; advCh = nc; $('#endScreen').hidden = true; pokeWipe(() => startGame(advCfg(nl, nc, nd, advLocsCleared()))); };
   if ($('#eNextN')) $('#eNextN').onclick = () => { const c = G.cfg; $('#endScreen').hidden = true; nightZ = c.nz; nightL = c.nl + 1; pokeWipe(() => { leaveGame(); history_.length = 0; history_.push('home', 'night'); go('prep', {cfg: nightCfg(c.nz, c.nl + 1), noPush: true}); }); };
+  $$('#endBox .btns button').forEach(b => b.addEventListener('click', stopAuto, true));
+  armAuto(win);
   setTimeout(() => ($('#eNextCh') || $('#eNextN') || $('#eAgain')).focus(), 50);
 }
 
