@@ -468,6 +468,8 @@ body:not([data-skin="light"]) .credit { color: #8094ad; }
 
 /* ---------- superpositions ---------- */
 [hidden] { display: none !important; }
+.updbar { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 999; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; padding: 10px 16px; border-radius: 14px; background: linear-gradient(120deg, #1d2a4a, #2b1d4a); border: 1px solid #7df3ff; box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 20px rgba(125,243,255,.35); color: #fff; font-weight: 800; font-size: .85rem; max-width: calc(100vw - 32px); }
+.updbar i { font-style: normal; color: #7df3ff; } .updbar button { padding: 6px 12px; border-radius: 10px; border: 0; background: #7df3ff; color: #12102a; font-weight: 900; cursor: pointer; }
 .overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; overflow-y: auto; background: rgba(6,10,16,.72); backdrop-filter: blur(4px);
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
 .overlay > .box { animation: zoomin .28s cubic-bezier(.2,1.2,.4,1) both; }
@@ -2472,6 +2474,27 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 //  SAUVEGARDE
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
+// ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
+const BUILD_ID = '20261024-164407';
+(function autoUpdate() {
+  if (!/github\.io$/.test(location.hostname)) return;
+  let shown = false;
+  const check = async () => {
+    if (shown) return;
+    try {
+      const r = await fetch('version.json?t=' + Date.now(), {cache: 'no-store'}); if (!r.ok) return;
+      const v = await r.json(); if (!v.build || v.build === BUILD_ID) return;
+      shown = true; let left = 30;
+      const el = document.createElement('div'); el.className = 'updbar';
+      el.innerHTML = '<b>✦ Nouvelle version du jeu !</b><span>Rechargement dans <i>30</i> s</span><button type="button">Recharger maintenant</button>';
+      document.body.appendChild(el);
+      const go = () => { try { persist(); } catch (e) {} location.reload(); };
+      el.querySelector('button').onclick = go;
+      const iv = setInterval(() => { left--; el.querySelector('i').textContent = left; if (left <= 0) { clearInterval(iv); go(); } }, 1000);
+    } catch (e) {}
+  };
+  setTimeout(check, 4000); setInterval(check, 30000);
+})();
 const DEFAULT_SAVE = () => ({name: 'Red', opts: {speed: 1, dmg: true, shake: true, auto: false, theme: 'dark'}, stars: {}, best: {}, daily: {}, dex: {}, played: 0, wins: 0});
 let SAVE = DEFAULT_SAVE();
 try { const raw = localStorage.getItem(SAVE_KEY); if (raw) { const p = JSON.parse(raw); SAVE = Object.assign(DEFAULT_SAVE(), p); SAVE.opts = Object.assign(DEFAULT_SAVE().opts, p.opts || {}); } } catch (e) {}
