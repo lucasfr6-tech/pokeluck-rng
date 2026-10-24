@@ -7,6 +7,7 @@ import {tierOf} from './world.js';
 import {playAttackEffect} from './effects.js';
 import {mountTrainer, unmountTrainer, sendOut} from './trainer-fx.js';
 
+const GHOST_MOVES = '<button class="move ghost" disabled tabindex="-1" aria-hidden="true"><b>Attaque</b><small>PP 10/10</small></button>'.repeat(4);
 const $ = s => document.querySelector(s);
 import {sd} from './speed.js';
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -105,7 +106,7 @@ export function createFight(ctx) {
 
   async function finish() {
     el.flee.disabled = true;
-    el.moves.innerHTML = '';
+    el.moves.innerHTML = GHOST_MOVES;
     const resolvedBattle=bt;
     const lost = bt.winner !== 'player';
     let html;
@@ -212,7 +213,7 @@ export function createFight(ctx) {
   return {
     active: () => !!bt && !bt.over,
     isBoss: () => !!boss,
-    cancel() { setTerrain(null); token++; boss = null; unmountTrainer(); document.body.classList.remove('boss-fight'); bt = null; playing = false; starting = false; vWait = 0; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
+    cancel() { setTerrain(null); token++; boss = null; unmountTrainer(); document.body.classList.remove('boss-fight'); bt = null; playing = false; starting = false; vWait = 0; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = GHOST_MOVES; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
     // Mode Auto : joue le tour (meilleure attaque selon l'efficacité, le STAB et la précision) ou passe l'écran de fin.
     autoStep(wait = 2) {
       if (starting || playing) return 'wait';
@@ -227,7 +228,7 @@ export function createFight(ctx) {
     async startBoss(arena) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; boss = arena;
       el.flee.disabled = false; el.flee.textContent = 'Quitter'; el.flee.title = 'Quitter le combat sans récompense de victoire';
-      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = ''; say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
+      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = GHOST_MOVES; say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
       try {
         const ids = arena.defi ? arena.defi.team : ctx.team(), lv = id => ctx.level(id);
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
@@ -252,7 +253,7 @@ export function createFight(ctx) {
     async start(p, types, encounterTraining=createTraining()) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; wildLevel = ctx.wildLevel(p.id);
       el.flee.disabled = false; el.flee.textContent = 'Fuir'; el.flee.title = 'Fuir (Espace)';
-      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
+      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight'); el.moves.innerHTML = GHOST_MOVES; say('Préparation du combat…');
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
