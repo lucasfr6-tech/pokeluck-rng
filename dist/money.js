@@ -7,7 +7,10 @@ export const FIRST_CATCH = [0, 100, 200, 400, 800, 2000];
 export const SHINY_REWARD = 5000;
 // Les gains d'argent de tous les combats sont réduits de 20 %.
 export const COMBAT_MONEY = 0.8;
-export const victoryMoney = (tier, wildLevel) => Math.max(1, Math.round(wildLevel)) * (PAYOUT_PER_LEVEL[tier] || PAYOUT_PER_LEVEL[1]);
+// Au-delà du niveau 30, le gain n'augmente presque plus avec le niveau (10 % de la pente) : une victoire niveau 90 rapporte environ 2,5 fois moins qu'avec un barème linéaire.
+export const MONEY_SOFT_LEVEL = 30, MONEY_SOFT_SLOPE = .1;
+export const effectiveLevel = lv => lv <= MONEY_SOFT_LEVEL ? lv : MONEY_SOFT_LEVEL + (lv - MONEY_SOFT_LEVEL) * MONEY_SOFT_SLOPE;
+export const victoryMoney = (tier, wildLevel) => Math.max(1, Math.round(effectiveLevel(Math.max(1, Math.round(wildLevel))) * (PAYOUT_PER_LEVEL[tier] || PAYOUT_PER_LEVEL[1])));
 export const captureMoney = (tier, isNewSpecies, shiny) => (isNewSpecies ? FIRST_CATCH[tier] || FIRST_CATCH[1] : 0) + (shiny ? SHINY_REWARD : 0);
 export const fmtMoney = n => Math.max(0, Math.floor(n)).toLocaleString('fr-FR') + ' ₽';
 export const sanitizeMoney = n => Number.isFinite(n) && n >= 0 ? Math.min(Number.MAX_SAFE_INTEGER, Math.floor(n)) : 0;

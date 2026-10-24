@@ -214,7 +214,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const {victoryMoney, captureMoney, FIRST_CATCH, SHINY_REWARD, sanitizeMoney} = await import('../dist/money.js');
-  if (victoryMoney(1, 5) !== 80 || victoryMoney(5, 100) !== 9900) throw new Error('gains de combat');
+  if (victoryMoney(1, 5) !== 80 || victoryMoney(5, 100) !== 3663 || victoryMoney(2, 40) !== 744) throw new Error('gains de combat');
   if (!(victoryMoney(2, 10) > victoryMoney(1, 10) && victoryMoney(4, 10) > victoryMoney(3, 10))) throw new Error('gains croissants selon la rareté');
   if (captureMoney(3, true, false) !== FIRST_CATCH[3] || captureMoney(3, false, false) !== 0) throw new Error('prime de première capture');
   if (captureMoney(1, false, true) !== SHINY_REWARD || captureMoney(1, true, true) !== FIRST_CATCH[1] + SHINY_REWARD) throw new Error('prime chromatique');
