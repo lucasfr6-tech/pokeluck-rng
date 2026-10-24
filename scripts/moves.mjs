@@ -127,3 +127,19 @@ console.log(`OK : ${n} groupes de tests d’attaques avancées`);
   const sum = wd.zonePool('mansion', 0, dc.PERIODS.night).reduce((n, e) => n + e.probability, 0); assert.ok(Math.abs(sum - 1) < 1e-9);
   console.log('OK : cycle jour / crépuscule / nuit / matin');
 }
+// ── Champs ──
+{
+  const t = (name) => ({name, fr:name, power:null, acc:null, type:'electric', cls:'status', target:'entire-field'});
+  const me = mk({moves:[t('electric-terrain')]}), foe = mk({moves:[st('splash')]}), b = duel(me, foe);
+  const ev = bt.takeTurn(b, me.moves[0]);
+  assert.ok(ev.some(e => e.type === 'terrain' && e.terrain === 'electric')); assert.equal(b.terrain.turns, 4);
+  const zap = hit('zap', {type:'electric', cls:'special'});
+  const plain = bt.damage(mk(), mk(), zap, R(.5)).dmg, boosted = bt.damage(mk(), mk(), zap, R(.5), null, {mult:bt.moves ? 1.3 : 1.3}).dmg;
+  assert.ok(boosted > plain);
+  for (let i = 0; i < 5; i++) bt.takeTurn(b, st('splash'));
+  assert.equal(b.terrain, null);
+  const sleeper = mk(); const b2 = duel(me, sleeper); b2.terrain = {id:'electric', name:'x', turns:5};
+  const hyp = st('hypnosis', {acc:null, category:'ailment', ailment:'sleep', target:'selected-pokemon'}); bt.takeTurn(b2, hyp); assert.equal(sleeper.status, null);
+  for (const nm of ['grassy-terrain', 'misty-terrain', 'psychic-terrain']) assert.ok(bt.isUsable(t(nm)), nm);
+  console.log('OK : champs (Électrifié, Herbu, Brumeux, Psychique)');
+}

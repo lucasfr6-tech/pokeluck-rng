@@ -27,6 +27,15 @@ export function createFight(ctx) {
   const el = {battle: $('#battle'), log: $('#battle-log'), moves: $('#moves'), card: $('#fighter'), cardImg: $('#ally'), cardXp: $('#fighter-xp'), cardXpText: $('#fighter-xptext'), cardName: $('#fighter-name'), cardFill: $('#fighter-fill'), cardText: $('#fighter-text'),
     victory: $('#victory'), swBtn: $('#switch'), swPanel: $('#switch-panel'), flee: $('#flee'), hp: $('#hp'), hpName: $('#hp-name'), hpSt: $('#hp-st'), cardSt: $('#fighter-st'), hpText: $('#hp-text'), hpFill: $('#hp-fill'), stage: $('#stage')};
   if (window.ResizeObserver) new ResizeObserver(() => { const h = el.battle.offsetHeight; if (h) document.querySelector('.scene').style.setProperty('--strip', h + 'px'); }).observe(el.battle);
+  const TERRAIN_LABEL = {electric:'Champ Électrifié', grass:'Champ Herbu', misty:'Champ Brumeux', psychic:'Champ Psychique'};
+  const scene = document.querySelector('.scene') || el.stage;
+  function setTerrain(id, turns = 5) {
+    let fx = scene.querySelector('.terrain-fx');
+    if (!id) { scene.removeAttribute('data-terrain'); fx?.remove(); return; }
+    if (!fx) { fx = document.createElement('div'); fx.className = 'terrain-fx'; fx.setAttribute('aria-hidden', 'true'); scene.appendChild(fx); }
+    fx.innerHTML = '<span class="tf-bg"></span>' + Array.from({length: 10}, (_, i) => `<i style="--i:${i};--x:${(i * 37 + 8) % 92}%;--d:${(i * 0.37) % 2.2}s;--s:${.8 + (i % 4) * .22}"></i>`).join('') + `<b class="terrain-tag">${TERRAIN_LABEL[id]}</b>`;
+    scene.dataset.terrain = id;
+  }
   const delay = ms => wait(ctx.reduced() ? Math.min(ms, 120) : ms);
   const bar = (fill, hp, max) => { const r = max ? hp / max : 0; fill.style.width = Math.max(0, r * 100) + '%'; fill.dataset.level = r > .5 ? 'high' : r > .2 ? 'mid' : 'low'; };
   const say = text => { el.log.textContent = text; };
@@ -61,6 +70,7 @@ export function createFight(ctx) {
         say(e.text);
         if (e.side === 'wild') setWild(e.snap.hp, e.snap); else { const f = bt.team.find(t => t.id === e.id); if (f && activeFighter(bt).id === e.id) setCard(f, e.snap.hp, e.snap); }
         await delay(900);
+      } else if (e.type === 'terrain') { setTerrain(e.terrain, e.turns);
       } else if (e.type === 'attack' && e.status) {
         say(`${e.user} utilise ${e.move} !`); await delay(750);
         if (!e.hit) { say(`${e.user} utilise ${e.move} ! Raté !`); await delay(600); }
@@ -113,7 +123,7 @@ export function createFight(ctx) {
     } else html = `<div class="v-card lost" role="dialog" aria-label="Défaite"><h2>Défaite…</h2><p>Toute ton équipe est K.O. Aucune pénalité : relance un tirage pour retenter ta chance.</p><button class="v-continue" id="v-continue">Continuer · Espace</button></div>`;
     await delay(500);
     if (bt!==resolvedBattle) return;
-    el.victory.innerHTML = html; el.victory.hidden = false; el.battle.hidden = true;
+    el.victory.innerHTML = html; el.victory.hidden = false; el.battle.hidden = true; setTerrain(null);
     $('#v-continue').focus({preventScroll: true});
     $('#v-continue').onclick = () => ctx.onContinue();
     ctx.onEnd?.(lost ? 'loss' : 'win');
@@ -191,7 +201,7 @@ export function createFight(ctx) {
   return {
     active: () => !!bt && !bt.over,
     isBoss: () => !!boss,
-    cancel() { token++; boss = null; unmountTrainer(); document.body.classList.remove('boss-fight'); bt = null; playing = false; starting = false; vWait = 0; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
+    cancel() { setTerrain(null); token++; boss = null; unmountTrainer(); document.body.classList.remove('boss-fight'); bt = null; playing = false; starting = false; vWait = 0; el.battle.hidden = true; closeSwitch(); el.victory.hidden = true; el.victory.innerHTML = ''; el.card.hidden = true; el.cardImg.hidden = true; delete el.cardImg.dataset.id; el.moves.innerHTML = ''; el.stage.classList.remove('fighting'); document.body.classList.remove('in-fight'); },
     // Mode Auto : joue le tour (meilleure attaque selon l'efficacité, le STAB et la précision) ou passe l'écran de fin.
     autoStep(wait = 2) {
       if (starting || playing) return 'wait';
@@ -205,7 +215,7 @@ export function createFight(ctx) {
     // Combat d'arène : le champion envoie ses Pokémon l'un après l'autre (équipe réelle, niveaux fixes).
     async startBoss(arena) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; boss = arena;
-      el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = ''; say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
+      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = ''; say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
       try {
         const ids = arena.defi ? arena.defi.team : ctx.team(), lv = id => ctx.level(id);
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
@@ -228,7 +238,7 @@ export function createFight(ctx) {
     },
     async start(p, types, encounterTraining=createTraining()) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; wildLevel = ctx.wildLevel(p.id);
-      el.battle.hidden = false; el.stage.classList.add('fighting'); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
+      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }

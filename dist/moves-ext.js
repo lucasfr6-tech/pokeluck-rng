@@ -62,6 +62,22 @@ export const RECHARGE = ['hyper-beam', 'giga-impact', 'blast-burn', 'frenzy-plan
 export const RAMPAGE = ['thrash', 'outrage', 'petal-dance', 'raging-fury'];
 // ── Piège (dégâts chaque tour, pas de changement) ──
 export const TRAP = {'wrap':'est ligoté', 'bind':'est serré', 'fire-spin':'est pris dans un tourbillon de feu', 'clamp':'est coincé', 'whirlpool':'est pris dans un tourbillon', 'sand-tomb':'est enfermé dans le sable', 'magma-storm':'est pris dans un tourbillon de lave', 'infestation':'est infesté', 'snap-trap':'est pris au piège', 'thunder-cage':'est enfermé'};
+// Champs (5 tours) : effets sur les Pokémon au sol (ni Vol, ni Lévitation).
+export const TERRAIN = {
+  'electric-terrain':{id:'electric', name:'Champ Électrifié', text:'Un champ électrique se déploie !'},
+  'grassy-terrain':{id:'grass', name:'Champ Herbu', text:'Un champ herbu recouvre le sol !'},
+  'misty-terrain':{id:'misty', name:'Champ Brumeux', text:'Une brume épaisse recouvre le sol !'},
+  'psychic-terrain':{id:'psychic', name:'Champ Psychique', text:'Le sol devient étrange et mystérieux !'}
+};
+export const grounded = f => !f.types.includes('flying') && f.ability !== 'levitate';
+export function terrainMult(t, move, a, d) {
+  if (!t) return 1;
+  if (t.id === 'electric' && move.type === 'electric' && grounded(a)) return 1.3;
+  if (t.id === 'grass' && move.type === 'grass' && grounded(a)) return 1.3;
+  if (t.id === 'psychic' && move.type === 'psychic' && grounded(a)) return 1.3;
+  if (t.id === 'misty' && move.type === 'dragon' && grounded(d)) return .5;
+  return 1;
+}
 export const SELF_KO = ['explosion', 'self-destruct', 'misty-explosion', 'final-gambit'];
 export const PROTECT = ['protect', 'detect', 'spiky-shield', 'kings-shield', 'baneful-bunker', 'obstruct', 'silk-trap', 'burning-bulwark', 'max-guard'];
 export const WEATHER_MOVE = {'rain-dance':['rain', 'La pluie se met à tomber !'], 'sunny-day':['sun', 'Le soleil brille intensément !'], 'hail':['hail', 'Il se met à grêler !'], 'snowscape':['hail', 'Il se met à neiger !'], 'sandstorm':['sand', 'Une tempête de sable se lève !']};
@@ -102,6 +118,7 @@ export const STATUS_FX = {
   'silk-trap':(X, a, d, s) => protect(X, a, s, 'se protège'), 'burning-bulwark':(X, a, d, s) => protect(X, a, s, 'se protège'),
   'endure':(X, a, d, s) => { const v = V(a); const ok = X.rand() < 1 / Math.pow(3, v.protN || 0); v.protN = (v.protN || 0) + 1; v.usedProt = true; if (!ok) return false; v.endure = true; X.msg(`${a.name} se prépare à encaisser les coups !`, a, s); return true; },
   'rain-dance':(X, a, d, s, m) => weather(X, a, s, m), 'sunny-day':(X, a, d, s, m) => weather(X, a, s, m), 'hail':(X, a, d, s, m) => weather(X, a, s, m), 'snowscape':(X, a, d, s, m) => weather(X, a, s, m), 'sandstorm':(X, a, d, s, m) => weather(X, a, s, m),
+  'electric-terrain':(X, a, d, s, mv) => terrain(X, a, s, mv), 'grassy-terrain':(X, a, d, s, mv) => terrain(X, a, s, mv), 'misty-terrain':(X, a, d, s, mv) => terrain(X, a, s, mv), 'psychic-terrain':(X, a, d, s, mv) => terrain(X, a, s, mv),
   'trick-room':(X, a, d, s) => { if (X.b.trickRoom > 0) { X.b.trickRoom = 0; X.msg('Les dimensions retrouvent leur état normal.', a, s); return true; } X.b.trickRoom = 5; X.msg(`${a.name} déforme les dimensions !`, a, s); return true; },
   'stealth-rock':(X, a, d, s, m, ds) => cond(X, ds, 'rocks', 1, 'Des pierres pointues flottent autour de l’équipe adverse !', d),
   'spikes':(X, a, d, s, m, ds) => { const t = X.S(ds); if ((t.spikes || 0) >= 3) return false; t.spikes = (t.spikes || 0) + 1; X.msg('Des picots sont semés aux pieds de l’équipe adverse !', d, ds); return true; },
@@ -165,6 +182,10 @@ function weather(X, a, s, m) {
   if (!('baseWeather' in X.b)) X.b.baseWeather = X.b.weather || null;
   X.b.weather = w; X.b.weatherTurns = 5; X.msg(text, a, s); return true;
 }
+function terrain(X, a, s, m) {
+  const t = TERRAIN[m.name]; if (X.b.terrain?.id === t.id) return false;
+  X.b.terrain = {id:t.id, name:t.name, turns:5}; X.events.push({type:'terrain', terrain:t.id, name:t.name, turns:5}); X.msg(t.text, a, s); return true;
+}
 function cureTeam(X, a, s) {
   const team = s === 'player' ? X.b.team : [a];
   for (const f of team) { if (f.status) f.status = null; }
@@ -214,6 +235,7 @@ export function fxUseful(name, a, d, b) {
     case 'metronome': return true;
     case 'sleep-talk': return a.status?.type === 'slp';
     case 'transform': case 'mimic': case 'acupressure': case 'spite': case 'torment': case 'encore': case 'disable': case 'memento': case 'laser-focus': case 'trick-room': case 'defog': case 'bide': return false;
+    case 'electric-terrain': return b.terrain?.id !== 'electric'; case 'grassy-terrain': return b.terrain?.id !== 'grass'; case 'misty-terrain': return b.terrain?.id !== 'misty'; case 'psychic-terrain': return b.terrain?.id !== 'psychic';
     default: return false;
   }
 }

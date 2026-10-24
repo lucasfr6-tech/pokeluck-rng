@@ -702,3 +702,34 @@ button.map-time{cursor:pointer;font-family:var(--pixel)}button.map-time:hover,bu
 
 .cm-core{pointer-events:auto!important;z-index:1}.cm-core img{pointer-events:none}.cm.open-modes .cm-core,.cm.open-dex .cm-core,.cm.open-quests .cm-core{opacity:1}
 .cm.open-modes .cm-orbit{border-color:#7a5a30}
+
+/* Champs (terrain) dans la scène de combat */
+.terrain-fx{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.terrain-fx .tf-bg{position:absolute;inset:0;animation:tfFade .6s ease-out}
+.terrain-fx i{position:absolute;bottom:-4%;left:var(--x);width:calc(14px*var(--s));height:calc(14px*var(--s));animation:tfRise 2.4s linear var(--d) infinite;opacity:0}
+.terrain-tag{position:absolute;left:10px;bottom:10px;padding:4px 10px;border:2px solid #fff;font:700 12px var(--pixel,sans-serif);letter-spacing:.04em;color:#fff;background:#0009;text-shadow:0 1px 2px #000}
+@keyframes tfFade{from{opacity:0}to{opacity:1}}@keyframes tfRise{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-420px) scale(1.1) rotate(25deg);opacity:0}}
+/* Électrifié : arcs jaunes qui jaillissent du sol */
+[data-terrain=electric] .tf-bg{background:radial-gradient(ellipse at 50% 105%,#fff27acc,#ffd02a55 38%,transparent 68%),repeating-linear-gradient(90deg,#fff5 0 2px,transparent 2px 44px),repeating-linear-gradient(0deg,#ffe55c22 0 2px,transparent 2px 22px);box-shadow:inset 0 0 40px #ffe44acc;animation:tfFade .6s ease-out,tfFlick 1.1s steps(2) infinite}
+[data-terrain=electric] i{background:#fff27a;clip-path:polygon(55% 0,15% 55%,45% 55%,30% 100%,85% 38%,52% 38%);filter:drop-shadow(0 0 5px #ffe03a);animation-name:tfZap;animation-duration:1.3s}
+[data-terrain=electric] .terrain-tag{border-color:#ffe03a;color:#fff7b0;background:#4a3c00cc}
+@keyframes tfFlick{0%,100%{box-shadow:inset 0 0 40px #ffe44acc}50%{box-shadow:inset 0 0 70px #fff27aff}}
+@keyframes tfZap{0%{transform:translateY(0) scale(.5);opacity:0}8%{opacity:1}12%{opacity:.2}18%{opacity:1}100%{transform:translateY(-360px) scale(1.2);opacity:0}}
+/* Herbu : feuilles qui montent */
+[data-terrain=grass] .tf-bg{background:linear-gradient(0deg,#4fe06a88,#2f9e4a22 45%,transparent 70%);box-shadow:inset 0 -30px 50px #3fcf5a77}
+[data-terrain=grass] i{background:#7aff7a;border-radius:0 80% 0 80%;filter:drop-shadow(0 0 3px #2a8a3a)}
+[data-terrain=grass] .terrain-tag{border-color:#7aff7a;background:#0a3a14cc}
+/* Brumeux : brume rose qui dérive */
+[data-terrain=misty] .tf-bg{background:radial-gradient(ellipse at 20% 80%,#ffb0e8aa,transparent 55%),radial-gradient(ellipse at 80% 70%,#ffd0f2aa,transparent 55%),linear-gradient(0deg,#ff9fe055,transparent 60%);animation:tfFade .6s,tfDrift 6s ease-in-out infinite alternate}
+[data-terrain=misty] i{background:#ffe0f6;border-radius:50%;filter:blur(4px)}
+[data-terrain=misty] .terrain-tag{border-color:#ffb0e8;background:#4a1a3fcc}
+@keyframes tfDrift{from{background-position:0 0,0 0,0 0;filter:none}to{filter:brightness(1.15)}}
+/* Psychique : anneaux violets */
+[data-terrain=psychic] .tf-bg{background:repeating-radial-gradient(circle at 50% 100%,#d070ff55 0 8px,transparent 8px 40px),linear-gradient(0deg,#a050e088,transparent 65%);animation:tfFade .6s,tfPulse 2.4s ease-in-out infinite}
+[data-terrain=psychic] i{border:3px solid #f0a8ff;border-radius:50%;background:none;filter:drop-shadow(0 0 4px #c060ff)}
+[data-terrain=psychic] .terrain-tag{border-color:#f0a8ff;background:#3a1260cc}
+@keyframes tfPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+.reduce-motion .terrain-fx i,.reduce-motion .terrain-fx .tf-bg{animation:none!important}.reduce-motion .terrain-fx i{display:none}
+[data-terrain=electric] .terrain-fx i{width:calc(34px*var(--s));height:calc(46px*var(--s))}
+[data-terrain=grass] .terrain-fx i,[data-terrain=psychic] .terrain-fx i{width:calc(20px*var(--s));height:calc(20px*var(--s))}
+[data-terrain=misty] .terrain-fx i{width:calc(46px*var(--s));height:calc(46px*var(--s))}

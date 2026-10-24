@@ -1,6 +1,6 @@
 import {STAT_KEYS,normalizeEVs} from './training.js';
 import {weatherMult, hailHits} from './weather.js';
-import {V, POWER_FN, powerMod, FIXED_FX, CHARGE, SUN_INSTANT, SEMI, HITS_INVULN, RECHARGE, RAMPAGE, TRAP, SELF_KO, isSelfish, STATUS_FX, FX_NAMES, WEATHER_HEAL, weatherHealPct, fxUseful} from './moves-ext.js';
+import {V, grounded, terrainMult, POWER_FN, powerMod, FIXED_FX, CHARGE, SUN_INSTANT, SEMI, HITS_INVULN, RECHARGE, RAMPAGE, TRAP, SELF_KO, isSelfish, STATUS_FX, FX_NAMES, WEATHER_HEAL, weatherHealPct, fxUseful} from './moves-ext.js';
 import {NATURES, ABILITIES} from './traits.js';
 // Moteur de combat (fonctions pures, sans réseau ni DOM). Règles PROVISOIRES, inspirées des jeux :
 // - stats = formule avec IV/EV modernes, nature neutre, à partir des stats de base de PokéAPI ;
@@ -121,7 +121,7 @@ export function damage(attacker, defender, move, rand = Math.random, weather = n
   const a = effStat(attacker, ak, {ignoreNeg:crit, ignoreBrn:move.name === 'facade'}), d = effStat(defender, dk, {ignorePos:crit});
   const base = Math.floor(Math.floor(Math.floor(2 * attacker.level / 5 + 2) * movePower(attacker, defender, move, rand) * a / d) / 50) + 2;
   const stab = attacker.types.includes(move.type);
-  let dmg = Math.floor(base * (crit ? 1.5 : 1) * (stab ? 1.5 : 1) * eff * weatherMult(weather, move.type) * (opts.screen && !crit ? .5 : 1) * (0.85 + rand() * 0.15));
+  let dmg = Math.floor(base * (crit ? 1.5 : 1) * (stab ? 1.5 : 1) * eff * weatherMult(weather, move.type) * (opts.screen && !crit ? .5 : 1) * (opts.mult || 1) * (0.85 + rand() * 0.15));
   if (eff > 0) dmg = Math.max(1, dmg);
   return {hit:true, dmg, eff, stab, crit};
 }
@@ -260,6 +260,10 @@ function engine(b, events) {
   };
   const inflict = (f, side, code, m, src, srcSide) => {
     if (srcSide && srcSide !== side && S(side).safeguard > 0) { msg(`Rune Protect protège ${f.name} !`, f, side); return false; }
+    if (b.terrain && grounded(f)) {
+      if (b.terrain.id === 'misty') { msg(`Le champ brumeux protège ${f.name} !`, f, side); return false; }
+      if (b.terrain.id === 'electric' && code === 'slp') { msg(`Le champ électrique empêche ${f.name} de s’endormir !`, f, side); return false; }
+    }
     if (code === 'conf') { if (f.confused > 0 || !canInflict(f, code, m)) return false; f.confused = 2 + Math.floor(rand() * 4); msg(`${f.name} est confus !`, f, side); return true; }
     if (f.status || !canInflict(f, code, m)) return false;
     let turns = 0; if (code === 'slp') { turns = 1 + Math.floor(rand() * 3); if (f.ability === 'early-bird') turns = Math.max(1, Math.floor(turns / 2)); }
@@ -268,7 +272,7 @@ function engine(b, events) {
     if (f.ability === 'synchronize' && src && srcSide && ['psn', 'tox', 'brn', 'par'].includes(code) && !src.status && canInflict(src, code === 'tox' ? 'psn' : code)) { src.status = {type:code === 'tox' ? 'psn' : code, turns:0, n:1}; msg(`Synchro : ${src.name} est ${STATUS_FR[src.status.type]} !`, src, srcSide); }
     return true;
   };
-  const X = {b, rand, msg, stage, inflict, checkFaint:s => checkFaint(s), S};
+  const X = {b, rand, msg, stage, inflict, checkFaint:s => checkFaint(s), S, events};
   const E = {
     switched:false,
     entry(side, fresh = true) {
@@ -349,6 +353,7 @@ function engine(b, events) {
       // Cibles protégées ou hors d'atteinte
       if (foeTarget && move.name !== 'struggle' && move.name !== 'feint' && vd.protect) { evStatus(true); msg(`${d.name} se protège !`, d, dside); if (['jump-kick', 'high-jump-kick', 'supercell-slam'].includes(move.name)) this.crash(a, side); delete va.lock; return; }
       if (foeTarget && vd.invuln && !(HITS_INVULN[vd.invuln] || []).includes(move.name)) { evStatus(false); msg(`${d.name} est hors d’atteinte !`, d, dside); delete va.lock; return; }
+      if (foeTarget && b.terrain?.id === 'psychic' && (move.priority || 0) > 0 && grounded(d)) { evStatus(true); msg(`Le champ psychique protège ${d.name} !`, d, dside); return; }
       if (!sk && dmgKind(move) === null) { evStatus(true); msg('Mais rien ne se passe…', d, dside); return; }
       if (sk) { this.status(a, d, side, dside, move, sk, base, movedFirst); return; }
       if (move.name === 'dream-eater' && d.status?.type !== 'slp') { evStatus(true); msg('Mais ça échoue !', d, dside); return; }
@@ -363,7 +368,7 @@ function engine(b, events) {
       // Casse-Brique et consorts brisent les écrans avant de frapper
       if (['brick-break', 'psychic-fangs', 'raging-bull'].includes(move.name)) { const t = S(dside); if (t.reflect > 0 || t.lightscreen > 0 || t.auroraveil > 0) { t.reflect = t.lightscreen = t.auroraveil = 0; msg(`Les écrans de ${d.name} sont brisés !`, d, dside); } }
       const physical = move.cls === 'physical', sc = S(dside);
-      const opts = {screen:(physical ? sc.reflect : sc.lightscreen) > 0 || sc.auroraveil > 0, sureHit:!!vd.sureHitBy, critBoost:va.focus ? 2 : 0, defenderInvulnerable:false};
+      const opts = {mult:terrainMult(b.terrain, move, a, d), screen:(physical ? sc.reflect : sc.lightscreen) > 0 || sc.auroraveil > 0, sureHit:!!vd.sureHitBy, critBoost:va.focus ? 2 : 0, defenderInvulnerable:false};
       if (va.lockOn) { opts.sureHit = true; va.lockOn = false; }
       const sub = vd.sub > 0 && !['sonic-boom'].includes(move.name);
       let r, hits = 1;
@@ -485,6 +490,7 @@ function engine(b, events) {
         if (b.over) return;
         const f = A(side), v = V(f);
         if (f.leftovers && f.hp > 0 && f.hp < f.maxHp) { f.hp = Math.min(f.maxHp, f.hp + Math.max(1, Math.floor(f.maxHp / 16))); msg(`${f.name} récupère des PV grâce aux Restes !`, f, side); }
+        if (b.terrain?.id === 'grass' && f.hp > 0 && f.hp < f.maxHp && grounded(f)) { f.hp = Math.min(f.maxHp, f.hp + Math.max(1, Math.floor(f.maxHp / 16))); msg(`Le champ herbu soigne ${f.name} !`, f, side); }
         if (b.weather === 'hail' && f.hp > 0 && hailHits(f)) { f.hp = Math.max(0, f.hp - Math.max(1, Math.floor(f.maxHp / 16))); msg(`La grêle frappe ${f.name} !`, f, side); checkFaint(side); }
         if (b.weather === 'sand' && f.hp > 0 && !f.types.some(t => ['rock', 'ground', 'steel'].includes(t))) { f.hp = Math.max(0, f.hp - Math.max(1, Math.floor(f.maxHp / 16))); msg(`La tempête de sable frappe ${f.name} !`, f, side); checkFaint(side); }
         if (f.hp <= 0 || b.over) continue;
@@ -517,6 +523,7 @@ function engine(b, events) {
         }
       }
       if (b.weatherTurns > 0 && --b.weatherTurns === 0) { b.weather = b.baseWeather || null; msg('Le temps revient à la normale.', A('player'), 'player'); }
+      if (b.terrain && --b.terrain.turns <= 0) { const n = b.terrain.name; b.terrain = null; events.push({type:'terrain', terrain:null}); msg(`Le ${n.toLowerCase()} disparaît.`, A('player'), 'player'); }
       if (b.trickRoom > 0 && --b.trickRoom === 0) msg('Les dimensions retrouvent leur état normal.', A('player'), 'player');
     },
     tick(v) {
