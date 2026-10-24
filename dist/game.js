@@ -1,4 +1,4 @@
-import {rollShiny,formCount,selectedShiny,migrateShinies,recordForm as rawRecordForm,shinyBadge,SHINY_DENOMINATOR,getShinyDenominator,setShinyDenominator} from './shiny.js';
+import {rollShiny,formCount,selectedShiny,migrateShinies,recordForm as rawRecordForm,shinyBadge,shinyStar,SHINY_DENOMINATOR,getShinyDenominator,setShinyDenominator} from './shiny.js';
 import {bumpStreak,streakBonus as zoneStreakBonus,streakIn,streakLevel,streakNext,sanitizeStreak,emptyStreak} from './streak.js';
 import {incenseBonus,mountShop,mountItems,SHOPS,shopById,shopOpen,shopKills,setEliteSource,defaultInv,sanitizeInv,sanitizeKills,rarityBonus,xpMultiplier,xpMultiplierFor,ITEMS,slotsFor,setBonusSlots,hasReservedSlot,stoneTargets,isStack,stockOf,heldList,freeCopies,equipHeld,unequipHeld,useTm,statMultipliers,powerMultiplier,consumeHeld,healList,useHeal,hasHeld,moneyMultiplier,shinyDenominator,KILLS_TO_UNLOCK} from './shop.js';
 import {createTraining,migrateTraining,gainEVs,trainingSignature,mergeBestIVs,STAT_NAMES,STAT_KEYS} from './training.js';
@@ -219,7 +219,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-ex-zone],[
  save();renderExped($('#modal-body'));});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches?.('.ex .df-card[data-ex-dif]')){e.preventDefault();e.target.click();}});
 let gcCur='kanto',gcBusy=false,gcSlotShown={};
-const gcSpr=(id,c='gc-spr')=>`<img class="${c}" src="${spriteBW(id)}" alt="${pool[id-1].name}" onerror="this.onerror=null;this.src='${sprite(id)}'">`;
+const gcSpr=(id,c='gc-spr',shiny=false)=>`<img class="${c}" src="${spriteBW(id,shiny)}" alt="${pool[id-1].name}${shiny?' chromatique':''}" onerror="this.onerror=null;this.src='${sprite(id,shiny)}'">`;
 function renderSummon(body){
  const now=defiNow(),b=bannerById(gcCur),p=gcPool(b,now),f=gcFeat(p),pct=v=>String(v).replace('.',',');
  gcSlotShown[b.id]=gcSlot(b,now);
@@ -234,7 +234,7 @@ function summonResult(res,b){
  const best=Math.max(...res.map(r=>r.tier)),ov=document.createElement('div');ov.className='gc-ov';ov.setAttribute('role','dialog');ov.setAttribute('aria-label','Résultat de l’invocation');
  ov.innerHTML=`<img class="gc-ball" src="assets/balls/${b.ball}.png" alt=""><b class="gc-wait">Invocation en cours…</b>`;
  const host=$('#content-dialog').open?$('#content-dialog'):document.body;host.appendChild(ov);
- setTimeout(()=>{ov.innerHTML=`<div class="gc-flash" style="--fc:${GC_COL[best-1]}"></div><div class="gc-res${res.length===1?' one':''}">${res.map((r,i)=>`<div class="gc-rc${r.tier>=4?' big':''}" style="--rc:${GC_COL[r.tier-1]};--d:${i*.12}s">${gcSpr(r.id,'')}<b>${escHtml(pool[r.id-1].name)}${r.shiny?' ✦':''}</b><small>${GC_RAR[r.tier-1].toUpperCase()}</small>${r.isNew?'<em>NOUVEAU</em>':''}</div>`).join('')}</div><button class="gc-ok" type="button">OK</button>`;ov.querySelector('.gc-ok').focus();},state.reducedMotion?150:1500);
+ setTimeout(()=>{ov.innerHTML=`<div class="gc-flash" style="--fc:${GC_COL[best-1]}"></div><div class="gc-res${res.length===1?' one':''}">${res.map((r,i)=>`<div class="gc-rc${r.tier>=4?' big':''}${r.shiny?' shiny':''}" style="--rc:${GC_COL[r.tier-1]};--d:${i*.12}s">${r.shiny?'<i class="gc-glint a"></i><i class="gc-glint b"></i><i class="gc-glint c"></i>':''}${gcSpr(r.id,'',r.shiny)}<b>${r.shiny?shinyStar(16)+' ':''}${escHtml(pool[r.id-1].name)}</b>${r.shiny?'<span class="gc-shiny-tag">CHROMATIQUE</span>':''}<small>${GC_RAR[r.tier-1].toUpperCase()}</small>${r.isNew?'<em>NOUVEAU</em>':''}</div>`).join('')}</div><button class="gc-ok" type="button">OK</button>`;ov.querySelector('.gc-ok').focus();},state.reducedMotion?150:1500);
  ov.addEventListener('click',e=>{if(e.target.closest('.gc-ok')){ov.remove();gcBusy=false;if(view==='summon'&&$('#content-dialog').open)renderSummon($('#modal-body'));}});
 }
 function doSummon(n){

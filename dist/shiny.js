@@ -32,4 +32,6 @@ export function recordForm(state, id, shiny) {
  }
 }
 export const formProbability = (probability, shiny) => probability * (shiny ? 1 / denominator : 1 - 1 / denominator);
-export const shinyBadge = '<span class="shiny-badge">✦ Chromatique</span>';
+// Étoile chromatique des jeux Pokémon : étoile rouge à cinq branches, liseré sombre, reflet blanc.
+export const shinyStar = (size = 16, cls = 'shiny-star') => `<svg class="${cls}" viewBox="0 0 24 24" width="${size}" height="${size}" role="img" aria-label="Chromatique"><path d="M12 1.6l3.1 6.6 7.2.9-5.3 5 1.4 7.2L12 17.7l-6.4 3.6L7 14.1 1.7 9.1l7.2-.9z" fill="#1b0a0a" stroke="#1b0a0a" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 3.4l2.5 5.4 5.9.7-4.3 4.1 1.1 5.9L12 16.6 6.8 19.5l1.1-5.9L3.6 9.5l5.9-.7z" fill="#ef3b36"/><path d="M12 3.4l2.5 5.4L12 9.4 9.5 8.8z" fill="#ff8f86"/><path d="M8.2 11.2l-2 2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>`;
+export const shinyBadge = `<span class="shiny-badge">${shinyStar(13)} Chromatique</span>`;
