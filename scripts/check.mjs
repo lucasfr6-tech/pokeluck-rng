@@ -252,7 +252,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 }
 {
   const shop = await import('../dist/shop.js');
-  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,egg-grass,egg-fire,egg-water,egg-normal,egg-bug,auto,potion,antidote,paralyze-heal,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,egg-electric,egg-poison,egg-ground,egg-rock,egg-fighting,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band,water-stone') throw new Error('stock des boutiques');
+  if (shop.shopById('jade').stock.join() !== 'super,xp,egg,egg-fire,auto,potion,antidote,paralyze-heal,ct-water,ct-swift' || shop.shopById('sud').stock.join() !== 'hyper,egg-water,super-potion,burn-heal,full-heal,ct-thunder,ct-ice,oran,band,water-stone') throw new Error('stock des boutiques');
 }
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js'), bd = await import('../dist/battle-data.js');
