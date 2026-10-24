@@ -657,3 +657,20 @@ span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:
 .md-card img{width:44px;height:44px;image-rendering:pixelated;object-fit:contain}
 .md-card strong{font:700 18px 'Trebuchet MS',sans-serif}.md-card span{font-size:12px;color:#b6cede;line-height:1.45}
 .md-card em{justify-self:start;font-style:normal;font:700 12px sans-serif;background:var(--tone);color:#1a1000;border-radius:99px;padding:4px 14px}
+
+/* Cycle jour / crépuscule / nuit / matin */
+.map-time{flex:none;display:inline-flex;align-items:center;gap:5px;padding:1px 9px 1px 4px;border-radius:10px;background:#ffffff14;border:1px solid #ffffff44;color:#eef6ff;font:700 12px var(--pixel);white-space:nowrap}
+.map-time img{width:22px;height:22px;image-rendering:pixelated;object-fit:contain}
+.map-time[data-tod=night]{background:#2a2f7a66;border-color:#9aa7ff88;color:#cfd6ff}
+.map-time[data-tod=dusk]{background:#c2501f55;border-color:#ffb073aa;color:#ffd9bd}
+.map-time[data-tod=morning]{background:#ffd2a066;border-color:#ffe3b8cc;color:#fff1d9}
+.map-time[data-tod=day]{background:#ffe27a33;border-color:#ffe27a99;color:#fff3b8}
+.illustrated-map .exploration-image{transition:filter 1.2s}
+.illustrated-map:after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1.2s,background 1.2s}
+body[data-tod=night] .illustrated-map .exploration-image{filter:brightness(.5) saturate(.75) hue-rotate(12deg)}
+body[data-tod=night] .illustrated-map:after{opacity:1;background:radial-gradient(circle at 50% 38%,#2b3aa81c,#0a1240b8 85%),repeating-linear-gradient(0deg,#0000 0 3px,#00000012 3px 4px);mix-blend-mode:multiply}
+body[data-tod=dusk] .illustrated-map .exploration-image{filter:brightness(.82) saturate(1.15) sepia(.25) hue-rotate(-12deg)}
+body[data-tod=dusk] .illustrated-map:after{opacity:1;background:linear-gradient(180deg,#ff7a3a55,#b0306a40 60%,#4a1f6a66);mix-blend-mode:multiply}
+body[data-tod=morning] .illustrated-map .exploration-image{filter:brightness(1.06) saturate(.92) sepia(.12)}
+body[data-tod=morning] .illustrated-map:after{opacity:1;background:linear-gradient(180deg,#ffe9b84d,#ffd1d11f 55%,#0000);mix-blend-mode:screen}
+body[data-tod=night] .bld-art,body[data-tod=night] .bld-mon{filter:brightness(.85)}

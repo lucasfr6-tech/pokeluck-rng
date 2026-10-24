@@ -38,6 +38,6 @@ export function lineOf(id) { // de la forme de base à toutes ses évolutions, p
   return stages;
 }
 export function zonesOf(id) {
-  return zones.map(z => ({id:z.id, name:z.name, min:z.min, p:zonePool(z.id).find(e => e.id === id)?.probability || 0})).filter(z => z.p > 0).sort((a, b) => b.p - a.p);
+  return zones.map(z => ({id:z.id, name:z.name, min:z.min, p:zonePool(z.id,0,false).find(e => e.id === id)?.probability || 0})).filter(z => z.p > 0).sort((a, b) => b.p - a.p);
 }
 export const dexInfo = id => ({types:types[id], tier:tierOf(id), tierName:TIER_NAMES[tierOf(id)], power:powers[id - 1]});

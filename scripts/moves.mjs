@@ -113,3 +113,17 @@ ok('Choc Mental d’un clone, Requiem, Danse… ne plantent pas sur 400 tours al
   }
 });
 console.log(`OK : ${n} groupes de tests d’attaques avancées`);
+// ── Cycle jour / nuit ──
+{
+  const dc = await import('../dist/daycycle.js'), wd = await import('../dist/world.js');
+  const at = h => dc.periodAt(new Date(2026, 0, 1, h, 30)).id;
+  assert.deepEqual([5, 6, 10, 11, 17, 18, 20, 21, 23, 0].map(at), ['night', 'morning', 'morning', 'day', 'day', 'dusk', 'dusk', 'night', 'night', 'night']);
+  assert.equal(dc.currentPeriod(new Date(2026, 0, 1, 12), '?tod=night').id, 'night');
+  const p = id => wd.zonePool('mansion', 0, id ? dc.PERIODS[id] : null), ghost = pool => pool.filter(e => wd.types[e.id].includes('ghost')).reduce((n, e) => n + e.probability, 0);
+  assert.ok(ghost(p('night')) > ghost(p(null)) * 1.5, 'la nuit favorise les Spectres');
+  assert.ok(ghost(p('day')) <= ghost(p(null)) + 1e-9);
+  const fire = pool => pool.filter(e => wd.types[e.id].includes('fire')).reduce((n, e) => n + e.probability, 0);
+  assert.ok(fire(wd.zonePool('route', 0, dc.PERIODS.day)) > fire(wd.zonePool('route', 0, dc.PERIODS.night)));
+  const sum = wd.zonePool('mansion', 0, dc.PERIODS.night).reduce((n, e) => n + e.probability, 0); assert.ok(Math.abs(sum - 1) < 1e-9);
+  console.log('OK : cycle jour / crépuscule / nuit / matin');
+}

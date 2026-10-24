@@ -1,3 +1,4 @@
+import {PERIODS,PERIOD_ORDER} from './daycycle.js';
 // Wiki du jeu : toutes les règles, formules et pourcentages, rangés par catégories. Les valeurs viennent des modules du jeu pour rester exactes.
 import {zones, TIER_NAMES} from './world.js';
 import {ARENAS, ELITE, LEVEL_CAPS} from './arena.js';
@@ -40,6 +41,7 @@ export const WIKI = [
   {id: 'levels', icon: '', title: 'Niveaux & XP', cards: [
     {t: 'Monter de niveau', h: () => `<p>Passer du niveau <b>N</b> au niveau <b>N+1</b> coûte <b>N points d’XP</b>. Un Pokémon commence au niveau 5 (ou à son niveau d’évolution) et s’arrête au niveau <b>100</b>.</p>${li(['Un <b>doublon</b> tiré donne +1 XP.', 'Un <b>combat gagné</b> donne de l’XP au Pokémon qui l’a mené.'])}`},
     {t: 'XP d’un combat', h: () => `<p>XP = niveau du vaincu ÷ 8 × (niveau vaincu ÷ ton niveau)² × bonus de rareté. Le rapport de niveaux est borné entre ×0,2 et ×3 (un Pokémon bien plus fort rapporte beaucoup, un faible presque rien). Minimum 1 XP.</p>${table(['Rareté', ...TIER_NAMES.slice(1)], [['Bonus de rareté', ...XP_RARITY.map(x => '×' + String(x).replace('.', ','))]])}${li([`<b>Multi-XP</b> (boutique) : ×${String(XP_MULTIPLIER).replace('.', ',')} sur tous les combats, et les Pokémon de l’équipe qui n’ont pas combattu gagnent <b>la moitié</b> de l’XP.`, '<b>Œuf Chance</b> (objet tenu) : +50 % pour le porteur.', `<b>Dresseurs sauvages</b> : ×${String(TRAINER_XP).replace('.', ',')}.`])}`},
+    {t: 'Jour, crépuscule, nuit et matin', h: () => `<p>Le jeu suit l’heure de ton appareil. Chaque période favorise certains types de Pokémon sauvages, en plus du bonus de la zone, et change l’ambiance de la carte. La période en cours s’affiche à côté du niveau cible maximum.</p>${table(['Période','Heures','Types favorisés'],PERIOD_ORDER.map(k=>{const p=PERIODS[k];return [p.name,p.from+' h – '+p.to+' h',Object.entries(p.types).map(([t,m])=>t+' ×'+m).join(' · ')];}))}`},
     {t: 'Plafond de niveau et évolutions', h: () => `<p>Tes badges limitent le niveau maximum de tes Pokémon :</p>${table(['Badges', '0', '1', '2', '3', '4', '5', '6', '7', '8'], [['Niveau max', ...LEVEL_CAPS]])}<p>Chaque stade d’évolution a aussi son niveau maximum : un Pokémon qui atteint le niveau d’évolution <b>attend d’être tiré sous sa forme évoluée</b> (ou de recevoir la bonne pierre d’évolution) pour progresser.</p>`}
   ]},
   {id: 'stats', icon: '', title: 'Stats, IV, EV, natures', cards: [
