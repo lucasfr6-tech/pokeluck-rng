@@ -871,3 +871,10 @@ body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-
 .battle-log{height:2.5em;max-height:2.5em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;contain:layout paint}
 .battle{contain:layout}
 .move.ghost{visibility:hidden;pointer-events:none}
+/* Johto : liste des Pokémon manquants */
+.miss-box{margin:10px 0 2px;border:2px solid #2a4a6c;border-radius:12px;background:#0a1d33;padding:8px;text-align:left}
+.miss-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#ffd25a}.miss-head img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated}
+.miss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:6px;max-height:38vh;overflow:auto}
+.miss-c{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 2px;border:2px solid #1d3a5a;border-radius:8px;background:#102a46;text-align:center}
+.miss-c img{width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.miss-c b{font-size:11px;line-height:1.1}.miss-c small{font-size:10px;line-height:1.1;color:#9fc4e8}
+.battle{box-sizing:border-box;overflow:hidden}.move{overflow:hidden}

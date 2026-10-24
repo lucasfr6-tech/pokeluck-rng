@@ -54,6 +54,13 @@ export function createFight(ctx) {
   };
   const setWild = (hp, s = snapOf(bt.wild), max = s?.maxHp ?? bt.wild.maxHp) => { el.hpSt.innerHTML = chips(s); el.hpText.textContent = `PV ${fmt(hp)} / ${fmt(max)}`; bar(el.hpFill, hp, max); };
   const setCard = (f, hp = f.hp, s = snapOf(f)) => { el.cardSt.innerHTML = chips(s); const inf = ctx.info(f.id); el.cardImg.style.opacity = ''; if (el.cardImg.dataset.id !== String(f.id)) { el.cardImg.dataset.id = f.id; el.cardImg.src = ctx.backSprite(f.id); } el.cardImg.hidden = false; el.cardName.textContent = `${f.name} · Niv. ${inf.level}`; el.cardXp.style.width = inf.pct + '%'; el.cardXpText.textContent = inf.text; el.cardText.textContent = `PV ${fmt(hp)} / ${fmt(f.maxHp)}`; bar(el.cardFill, hp, f.maxHp); el.card.hidden = false; };
+  // Hauteur de la boîte de combat : mesurée une fois avec des attaques fantômes, puis verrouillée (rien ne bouge ensuite).
+  function lockBattle() {
+    if (el.battle.hidden) return;
+    const keep = el.moves.innerHTML; el.battle.style.height = ''; el.moves.innerHTML = GHOST_MOVES;
+    const h = el.battle.offsetHeight; if (h) el.battle.style.height = h + 'px'; el.moves.innerHTML = keep;
+  }
+  window.addEventListener('resize', () => { if (bt || boss) lockBattle(); });
   function renderMoves(enabled = true) {
     el.swBtn.disabled = !enabled || !bt || bt.team.filter(t => t.hp > 0).length < 2; $('#bag').disabled = !enabled || !bt;
     const f = activeFighter(bt);
@@ -228,7 +235,7 @@ export function createFight(ctx) {
     async startBoss(arena) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; boss = arena;
       el.flee.disabled = false; el.flee.textContent = 'Quitter'; el.flee.title = 'Quitter le combat sans récompense de victoire';
-      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = GHOST_MOVES; say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
+      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = GHOST_MOVES; lockBattle(); say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
       try {
         const ids = arena.defi ? arena.defi.team : ctx.team(), lv = id => ctx.level(id);
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
@@ -253,7 +260,7 @@ export function createFight(ctx) {
     async start(p, types, encounterTraining=createTraining()) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; wildLevel = ctx.wildLevel(p.id);
       el.flee.disabled = false; el.flee.textContent = 'Fuir'; el.flee.title = 'Fuir (Espace)';
-      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight'); el.moves.innerHTML = GHOST_MOVES; say('Préparation du combat…');
+      el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight'); el.moves.innerHTML = GHOST_MOVES; lockBattle(); say('Préparation du combat…');
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }

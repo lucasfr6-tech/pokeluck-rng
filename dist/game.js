@@ -540,11 +540,17 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-dextype]')
 
 $('#modal-body').addEventListener('click',e=>{const o=e.target.closest('[data-cd-open]');if(!o)return;candyUi.sel=+o.dataset.cdOpen;openView('candy');});
 
+// Pokémon de Kanto manquants pour le bonus : sprite + zone où ils sont le plus probables.
+function missingKantoHtml(){
+ const miss=[];for(let id=1;id<=151;id++)if(!(state.counts[id]>=1))miss.push(id);if(!miss.length)return '';
+ const best={};for(const z of zones.filter(z=>(z.region||'kanto')==='kanto')){for(const p of zonePool(z.id,0,null)){if(p.id<=151&&(!best[p.id]||p.probability>best[p.id].p))best[p.id]={p:p.probability,z:z.name};}}
+ return `<div class="miss-box"><div class="miss-head"><img src="assets/pokedex.png" alt=""><b>Il te manque ${miss.length} Pokémon</b></div><div class="miss-grid">${miss.map(id=>`<div class="miss-c" title="${escHtml(pool[id-1].name)}"><img src="${sprite(id)}" alt="${escHtml(pool[id-1].name)}" loading="lazy"><b>${escHtml(pool[id-1].name)}</b><small>${escHtml(best[id]?.z||'Introuvable en zone')}</small></div>`).join('')}</div></div>`;
+}
 async function johtoClick(){
  if(state.johto){mapNote(`Johto : passage enregistré${state.johto.boost?' avec le bonus de puissance +15 %':''}. La région sera jouable dans une prochaine mise à jour.`);return;}
  if(!eliteCleared(state.eliteDone)){mapNote('Bats le Champion de Kanto pour débloquer le passage vers Johto.');return;}
  const have=Object.keys(state.counts).filter(k=>+k>=1&&+k<=151).length,full=have>=151;
- const pick=await pickDialog({id:152,title:'Veux-tu partir pour Johto ?',intro:full?`Tu as capturé les <b>151 Pokémon</b> de Kanto : en partant maintenant, tes Pokémon gagnent un <b>bonus de puissance de +15 %</b>.`:`Tu n'as capturé que <b>${have} / 151</b> Pokémon de Kanto. Si tu pars maintenant, tu n'auras <b>pas le bonus de puissance de +15 %</b>, réservé à ceux qui ont les 151. Tu peux quand même passer si tu le souhaites.`,options:[{id:'go',name:'Partir pour Johto',detail:full?'Bonus de puissance +15 % (Pokédex de Kanto complet)':'Sans le bonus de +15 %',color:full?'#7fe3a1':'#ffb067',note:'Johto sera jouable dans une prochaine mise à jour'}],cancel:'Rester à Kanto'});
+ const pick=await pickDialog({id:152,title:'Veux-tu partir pour Johto ?',intro:(full?`Tu as capturé les <b>151 Pokémon</b> de Kanto : en partant maintenant, tes Pokémon gagnent un <b>bonus de puissance de +15 %</b>.`:`Tu n'as capturé que <b>${have} / 151</b> Pokémon de Kanto. Si tu pars maintenant, tu n'auras <b>pas le bonus de puissance de +15 %</b>, réservé à ceux qui ont les 151. Tu peux quand même passer si tu le souhaites.`)+missingKantoHtml(),options:[{id:'go',name:'Partir pour Johto',detail:full?'Bonus de puissance +15 % (Pokédex de Kanto complet)':'Sans le bonus de +15 %',color:full?'#7fe3a1':'#ffb067',note:'Johto sera jouable dans une prochaine mise à jour'}],cancel:'Rester à Kanto'});
  if(pick!=='go')return;
  state.johto={boost:full};save();render();renderZones();mapNote(full?'Direction Johto ! Bonus de puissance +15 % activé.':'Direction Johto ! Pas de bonus (Pokédex de Kanto incomplet).');
 }
