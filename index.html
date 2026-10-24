@@ -478,8 +478,8 @@ body:not([data-skin="light"]) .credit { color: #8094ad; }
 .aor { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: .78rem; font-weight: 800; } .aor::before, .aor::after { content: ""; flex: 1; height: 1px; background: var(--glass-brd); }
 .aoauth { display: grid; gap: 8px; } .oauth { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 900; }
 .oauth b { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: .8rem; }
-.box .btn.oauth.google { background: #fff; color: #1f1f1f; border-color: #fff; } .oauth.google b { background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0); color: #fff; }
-.box .btn.oauth.discord { background: #5865f2; color: #fff; border-color: #5865f2; } .oauth.discord b { background: rgba(255,255,255,.2); }
+.box .btn.oauth.google { background: #fff !important; color: #1f1f1f !important; border-color: #fff !important; } .oauth.google b { background: conic-gradient(#ea4335 0 25%, #fbbc05 0 50%, #34a853 0 75%, #4285f4 0); color: #fff; }
+.box .btn.oauth.discord { background: #5865f2 !important; color: #fff !important; border-color: #5865f2 !important; } .oauth.discord b { background: rgba(255,255,255,.2); }
 .aguest { opacity: .9; } .anote { margin: 0; text-align: center; font-size: .74rem; }
 .btn.wide { width: 100%; }
 .acct { display: inline-flex; align-items: center; gap: 6px; }
@@ -2568,7 +2568,7 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-194914';
+const BUILD_ID = '20261024-194933';
 let UPDATE_PENDING = false;
 // en plein niveau (partie en cours, pas encore l'écran de fin) : on attend la fin avant de recharger
 const inLevel = () => { try { return !!G && current === 'game' && $('#endScreen').hidden; } catch (e) { return false; } };
