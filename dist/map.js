@@ -60,7 +60,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
   const placed=[];
   path.forEach((n,i)=>{ // boutiques : posées juste sous l'étape qu'elles suivent
     if(n.kind!=='shop')return;
-    const prev=main.findIndex(m=>m.kind==='zone'&&m.id===shops.find(s=>s.id===n.id)?.after),a=pos[prev]||{x:50,y:50},b=pos[prev+1]||a;
+    const sh=shops.find(s=>s.id===n.id),prev=sh?.needElite?main.length-1:main.findIndex(m=>m.kind==='zone'&&m.id===sh?.after),a=pos[prev]||{x:50,y:50},b=pos[prev+1]||a;
     // Pose la boutique là où elle ne recouvre aucun rond : on teste plusieurs décalages et on garde le plus dégagé.
     const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,cands=[];
     for(const dy of [-12,-10,-8,8,10,12])for(const dx of [0,-4,4,-8,8])cands.push({x:mx+dx,y:my+dy});
@@ -69,7 +69,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
     const best=cands.filter(inMap).reduce((m,c)=>clear(c)>clear(m)?c:m,cands.filter(inMap)[0]||{x:mx,y:my+9});placed.push(best);
     const x=best.x,y=best.y;
     const s=shops.find(s=>s.id===n.id);
-    html+=`<button class="map-shop${s.open?' open':' closed'}${y<30?' below':''}" data-shop="${s.id}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%" aria-label="${esc(s.name)}${s.open?'':' (fermée : '+s.kills+' / '+s.need+' Pokémon vaincus)'}"><span class="map-shop-art"><img src="assets/bld/mart.png" alt="" draggable="false"></span>${s.open?'':`<span class="map-shop-lock" aria-hidden="true">${s.kills}/${s.need}</span>`}<span class="map-tooltip">${esc(s.name)}${s.open?'':' · '+s.kills+' / '+s.need}</span></button>`;
+    html+=`<button class="map-shop${s.open?' open':' closed'}${y<30?' below':''}" data-shop="${s.id}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%" aria-label="${esc(s.name)}${s.open?'':' (fermée : '+s.kills+' / '+s.need+' Pokémon vaincus)'}"><span class="map-shop-art"><img src="assets/bld/mart.png" alt="" draggable="false"></span>${s.open?'':`<span class="map-shop-lock" aria-hidden="true">${s.needElite?'Blue':s.kills+'/'+s.need}</span>`}<span class="map-tooltip">${esc(s.name)}${s.open?'':' · '+(s.needElite?'bats Blue':s.kills+' / '+s.need)}</span></button>`;
   });
   const cur=zones.find(z=>z.id===selected),curIdx=main.findIndex(m=>m.kind==='zone'&&m.id===selected);
   return `<div class="illustrated-map" role="group" aria-label="Carte interactive des destinations de Kanto">
