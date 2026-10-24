@@ -1,6 +1,6 @@
 // Dresseurs d'arène : sprite animé derrière le Pokémon adverse et lancer de Pokéball à chaque envoi (champions et joueur).
 const scene = () => document.querySelector('.scene');
-let trainerEl = null;
+let trainerEl = null, generation = 0;
 export function mountTrainer(arena) {
   unmountTrainer();
   const stage = document.getElementById('stage'); if (!stage || !arena) return;
@@ -9,7 +9,7 @@ export function mountTrainer(arena) {
   trainerEl.onerror = () => { trainerEl.hidden = true; };
   stage.prepend(trainerEl);
 }
-export function unmountTrainer() { trainerEl?.remove(); trainerEl = null; }
+export function unmountTrainer() { generation++; trainerEl?.remove(); trainerEl = null; scene()?.querySelectorAll('.fx-ball,.fx-flash,.attack-effect').forEach(el => { el.getAnimations().forEach(a => a.cancel()); el.remove(); }); }
 export function trainerThrow() { if (!trainerEl) return; trainerEl.classList.remove('throw'); void trainerEl.offsetWidth; trainerEl.classList.add('throw'); }
 
 const BALL = '<span class="fx-ball-top"></span><span class="fx-ball-line"></span><span class="fx-ball-core"></span>';
@@ -18,6 +18,7 @@ const rectIn = (el, host) => { const r = el.getBoundingClientRect(), h = host.ge
 // Lance une Pokéball de `from` vers le centre de `target`, puis fait apparaître le Pokémon (image `img`) en la faisant s'ouvrir.
 // side : 'foe' (le dresseur lance) ou 'ally' (le joueur). Résout quand le Pokémon est apparu. Sans mouvement si reduced.
 export async function sendOut({side, img, reduced = false, sound}) {
+  const current = generation;
   const host = scene(); if (!host || !img) return;
   if (reduced || !img.animate) { img.style.opacity = ''; return; }
   img.style.opacity = '0';
@@ -31,9 +32,10 @@ export async function sendOut({side, img, reduced = false, sound}) {
   const arc = Math.max(40, hr.height * .28), N = 12, frames = [];
   for (let i = 0; i <= N; i++) { const k = i / N; frames.push({transform: `translate(${start.x + (end.x - start.x) * k}px,${start.y + (end.y - start.y) * k - Math.sin(Math.PI * k) * arc}px) rotate(${k * (side === 'foe' ? -720 : 720)}deg)`, offset: k}); }
   await ball.animate(frames, {duration: 650, easing: 'linear', fill: 'forwards'}).finished.catch(() => {});
+  if (current !== generation) { ball.remove(); return; }
   const flash = document.createElement('span'); flash.className = 'fx-flash'; flash.style.cssText = `left:${end.x}px;top:${end.y}px`;
   host.appendChild(flash); ball.remove(); sound?.();
-  flash.animate([{transform: 'translate(-50%,-50%) scale(.2)', opacity: .95}, {transform: 'translate(-50%,-50%) scale(2.6)', opacity: 0}], {duration: 520, easing: 'ease-out'}).finished.finally(() => flash.remove());
+  flash.animate([{transform: 'translate(-50%,-50%) scale(.2)', opacity: .95}, {transform: 'translate(-50%,-50%) scale(2.6)', opacity: 0}], {duration: 520, easing: 'ease-out'}).finished.catch(() => {}).finally(() => flash.remove());
   img.style.opacity = '';
   await img.animate([{transform: 'scale(.05)', filter: 'brightness(4) saturate(0)', opacity: 1, offset: 0}, {transform: 'scale(1.12)', filter: 'brightness(1.6)', offset: .6}, {transform: 'scale(1)', filter: 'none', opacity: 1, offset: 1}], {duration: 520, easing: 'ease-out', transformOrigin: '50% 90%'}).finished.catch(() => {});
 }

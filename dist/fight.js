@@ -66,7 +66,15 @@ export function createFight(ctx) {
 
   function flash(img) { if (!img) return; img.classList.remove('hit'); void img.offsetWidth; img.classList.add('hit'); }
   async function play(events) {
+    const my = token, cancelled = Symbol('combat annulé');
+    const delay = async ms => {
+      if (my !== token) throw cancelled;
+      await wait(sd(ctx.reduced() ? Math.min(ms, 120) : ms));
+      if (my !== token) throw cancelled;
+    };
+    try {
     for (const e of events) {
+      if (my !== token) return;
       if (e.type === 'msg') {
         say(e.text);
         if (e.side === 'wild') setWild(e.snap.hp, e.snap); else { const f = bt.team.find(t => t.id === e.id); if (f && activeFighter(bt).id === e.id) setCard(f, e.snap.hp, e.snap); }
@@ -92,9 +100,11 @@ export function createFight(ctx) {
       else if (e.type === 'faint') { say(`${e.name} est K.O. !`); if (e.side === 'wild' && boss) { foeDown++; renderFoeBalls(); } const fi = e.side === 'wild' ? $('#result img') : el.cardImg; if (fi) fi.style.opacity = '.3'; await delay(900); }
       else if (e.type === 'switch') { const f = bt.team.find(t => t.name === e.name); setCard(f, e.hp, e.snap); say(`${e.name} entre au combat !`); if (boss) await sendOut({side: 'ally', img: el.cardImg, reduced: ctx.reduced()}); await delay(800); }
     }
+    } catch (error) { if (error !== cancelled) throw error; }
   }
 
   async function finish() {
+    el.flee.disabled = true;
     el.moves.innerHTML = '';
     const resolvedBattle=bt;
     const lost = bt.winner !== 'player';
@@ -193,7 +203,7 @@ export function createFight(ctx) {
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !el.swPanel.hidden) { e.preventDefault(); closeSwitch(); } });
 
-  el.flee.onclick = () => { if (!boss) ctx.onFlee(); };
+  el.flee.onclick = () => { if (starting || playing || (boss && !bt) || (bt && !bt.over)) ctx.onFlee(); };
   document.addEventListener('keydown', e => {
     if (!/^[1-4]$/.test(e.key) || playing || !bt || bt.over || document.querySelector('dialog[open]')) return;
     const b = el.moves.querySelectorAll('.move')[+e.key - 1]; if (b && !b.disabled) b.click();
@@ -216,6 +226,7 @@ export function createFight(ctx) {
     // Combat d'arène : le champion envoie ses Pokémon l'un après l'autre (équipe réelle, niveaux fixes).
     async startBoss(arena) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; boss = arena;
+      el.flee.disabled = false; el.flee.textContent = 'Quitter'; el.flee.title = 'Quitter le combat sans récompense de victoire';
       el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight', 'boss-fight'); el.moves.innerHTML = ''; say(`${arena.leader} veut se battre !`); mountTrainer(arena); $('#result').hidden = true; el.cardImg.hidden = true;
       try {
         const ids = arena.defi ? arena.defi.team : ctx.team(), lv = id => ctx.level(id);
@@ -232,13 +243,15 @@ export function createFight(ctx) {
         setCard(activeFighter(bt)); el.cardImg.style.opacity = '0';
         say(`${arena.leader} veut se battre ! Il envoie ${foes[0].fighter.name} !`); await sendOut({side: 'foe', img: $('#result img'), reduced: ctx.reduced()}); if (my !== token) return;
         say(`À toi, ${activeFighter(bt).name} !`); await sendOut({side: 'ally', img: el.cardImg, reduced: ctx.reduced()}); await wait(ctx.reduced() ? 150 : 500);
-        if (bt.intro.length) { playing = true; await play(bt.intro); playing = false; if (my !== token) return; }
+        if (my !== token) return;
+        if (bt.intro.length) { playing = true; await play(bt.intro); if (my !== token) return; playing = false; }
         say(`Que doit faire ${activeFighter(bt).name} ?`); renderMoves(true);
       } catch { if (my === token) say('Combat indisponible pour le moment.'); }
       finally { if (my === token) starting = false; }
     },
     async start(p, types, encounterTraining=createTraining()) {
       this.cancel(); const my = token; starting = true; autoSwitches = 0; wildLevel = ctx.wildLevel(p.id);
+      el.flee.disabled = false; el.flee.textContent = 'Fuir'; el.flee.title = 'Fuir (Espace)';
       el.battle.hidden = false; el.stage.classList.add('fighting'); setTerrain(null); document.body.classList.add('in-fight'); el.moves.innerHTML = ''; say('Préparation du combat…');
       try {
         const ids = ctx.team();
@@ -250,7 +263,7 @@ export function createFight(ctx) {
         this.wild = wild.fighter;
         el.hpName.textContent = `${p.name}${p.shiny?' ✦ Chromatique':''} · Niv. ${wildLevel}`; setWild(wild.fighter.hp); el.hp.hidden = false; renderFoeBalls();
         setCard(activeFighter(bt)); setWild(wild.fighter.hp);
-        if (bt.intro.length) { playing = true; await play(bt.intro); playing = false; if (my !== token) return; }
+        if (bt.intro.length) { playing = true; await play(bt.intro); if (my !== token) return; playing = false; }
         renderMoves(true);
         say(`${ctx.weatherText?.() || ''}Un ${p.name}${p.shiny?' chromatique':''} sauvage apparaît ! Que doit faire ${activeFighter(bt).name} ?`);
       } catch { if (my === token) say('Combat indisponible pour le moment.'); }

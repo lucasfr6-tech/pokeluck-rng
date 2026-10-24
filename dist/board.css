@@ -40,7 +40,7 @@
 body[data-theme=light] .arena-mon{background:#d5e8f8;color:#203e5a;border-color:#a5c4de}
 .v-badge{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:#ffd27c}.v-badge img{width:36px;height:36px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 0 5px #ffd27c)}.v-tm{color:#9fe6dd;font-weight:700}
 /* Pas de fuite contre un champion */
-body.boss-fight .scene>.flee{display:none!important}
+body.boss-fight .scene>.battle:not([hidden])~.flee{display:block;min-height:40px;padding:8px 16px;z-index:30}
 /* Équipe : panneau étroit à côté de la carte → 2 colonnes × 3 rangées, cartes compactes */
 @media(min-width:701px) and (min-height:621px){
   .game .team-panel{container-type:size;container-name:team}

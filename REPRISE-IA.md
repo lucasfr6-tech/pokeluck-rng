@@ -178,3 +178,8 @@ Index : sélecteur Normale / Chromatique à côté de À découvrir. Il se combi
 - Choisir/Changer cible précisément A ou B. Annuler conserve le duo et sa progression ; confirmer un remplacement relance l’œuf. Retirer conserve le comportement existant.
 - Styles isolés dans dist/pension.css ; mécanique setParent dans dist/pension.js. Aucune modification des règles de reproduction ni du format de sauvegarde.
 - Validation : suite npm test, build, remplacement et éclosion réels dans une sauvegarde locale isolée, recherche, IV, thèmes jour/nuit et largeur 390 px sans débordement.
+
+## Quitter les combats de dresseurs
+- Bouton Quitter disponible contre rival, dresseurs, champions et défis, dès la préparation et pendant les attaques. Abandon sans récompense de victoire, mode Auto arrêté, série du Conseil interrompue.
+- Les lectures asynchrones du combat et les animations d’envoi sont invalidées à la sortie. Retour à la carte utilisable. Tests npm test/build et sorties pendant introduction/attaque vérifiés sur sauvegarde locale isolée.
+
