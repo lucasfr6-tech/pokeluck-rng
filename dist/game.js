@@ -110,7 +110,7 @@ async function pickTm(id){const sp=await getSpecies(id),known=await knownNames(i
   const pick=await pickDialog({id,title:`Une CT pour ${pool[id-1].name}`,intro:'La CT est consommée quand l’attaque est apprise.',options});if(!pick)return;
   const t=ITEMS[pick],r=await moveRecord(id);let at=r.known.length<4?r.known.length:await chooseMove(id,t.move);if(at===null)return;r.known[at]=t.move;useTm(state,pick);state.stats.tmUsed=(state.stats.tmUsed||0)+1;save();render();openProfile(id);}
 // Doublon = Bonbons de l'espèce (+1, +5 si chromatique). Les formes équipées changent le sprite, les types, les stats.
-function recordForm(st,id,shiny){const dup=!!st.counts[id];rawRecordForm(st,id,shiny);if(dup&&st===state)addCandy(state.candy,id,shiny?CANDY_PER_SHINY_DUPLICATE:CANDY_PER_DUPLICATE);}
+function recordForm(st,id,shiny){const dup=!!st.counts[id];rawRecordForm(st,id,shiny);if(st!==state)return;const t=tierOf(id),n=Math.max(t===5?3:t===4?2:dup?CANDY_PER_DUPLICATE:0,dup&&shiny?CANDY_PER_SHINY_DUPLICATE:0);if(n)addCandy(state.candy,id,n);}
 const formOf=id=>activeForm(state.forms,id);
 const frontId=id=>formOf(id)?.fid||id;
 const typesOf=id=>formOf(id)?.types||types[id];

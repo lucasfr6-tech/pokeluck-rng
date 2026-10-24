@@ -47,7 +47,12 @@ let periodSource=()=>null;export const setPeriodSource=fn=>{periodSource=typeof 
 export function zonePool(id,rarityBonus=0,period=undefined){const per=period===undefined?periodSource():period||null;const zone0=zones.find(z=>z.id===id)||zones[0],zone={...zone0,shares:adjustedShares(zone0.shares,rarityBonus)};
  const entries=pool.filter(p=>zone.shares[tierOf(p.id)-1]>0).map(p=>({...p,power:powers[p.id-1],tier:tierOf(p.id),probability:p.probability*(types[p.id].some(t=>zone.bonus.includes(t))?3:1)*timeMult(types[p.id],per)}));
  const sums={};for(const p of entries)sums[p.tier]=(sums[p.tier]||0)+p.probability;
- return entries.map(p=>({...p,probability:zone.shares[p.tier-1]*p.probability/sums[p.tier]}));}
+ const all=entries.map(p=>({...p,probability:zone.shares[p.tier-1]*p.probability/sums[p.tier]}));
+ // Plancher de rareté : un légendaire n'est jamais plus fréquent que 1 sur 200, boosts de chance compris. Le surplus retourne aux autres Pokémon.
+ const cap=1/LEGENDARY_MAX_ODDS,over=all.filter(p=>p.tier===5&&p.probability>cap);if(!over.length)return all;
+ const freed=over.reduce((n,p)=>n+p.probability-cap,0),rest=all.filter(p=>!(p.tier===5&&p.probability>cap)).reduce((n,p)=>n+p.probability,0);
+ return all.map(p=>p.tier===5&&p.probability>cap?{...p,probability:cap}:{...p,probability:p.probability*(1+freed/rest)});}
+export const LEGENDARY_MAX_ODDS=200;
 export function draw(entries,random=Math.random()){let sum=0;for(const p of entries){sum+=p.probability;if(random<sum)return p;}return entries.at(-1);}
 // Points de vie de la rencontre : valeur PROVISOIRE (10 × puissance), à définir avec le créateur.
 export const maxHp=power=>power*10;
