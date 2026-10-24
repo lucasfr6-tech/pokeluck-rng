@@ -2530,7 +2530,7 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-171728';
+const BUILD_ID = '20261024-172217';
 let UPDATE_PENDING = false;
 // en plein niveau (partie en cours, pas encore l'écran de fin) : on attend la fin avant de recharger
 const inLevel = () => { try { return !!G && current === 'game' && $('#endScreen').hidden; } catch (e) { return false; } };
@@ -5061,6 +5061,7 @@ function closePause() { paused = false; $('#pauseScreen').hidden = true; }
 function renderPause() {
   const items = [
     ['resume', 'Reprendre', ''], ['speed', 'Vitesse', `×${speed}`], ['dmg', 'Chiffres de dégâts', SAVE.opts.dmg ? 'Oui' : 'Non'],
+    ...(autoKey(G.cfg) ? [['auto', `Auto : niveau suivant (${AUTO_LABEL[autoKey(G.cfg)]})`, autoOn(autoKey(G.cfg)) ? '☑ Oui' : '☐ Non']] : []),
     ['restart', 'Recommencer', ''], ['quit', quitArmed ? 'Quitter ? Appuie encore pour confirmer' : 'Quitter la partie', quitArmed ? (G.cfg.inf ? 'Record gardé' : 'Sans récompense') : ''],
   ];
   $('#pauseBox').innerHTML = `<h2><span class="ball" aria-hidden="true"></span>Pause</h2>
@@ -5072,6 +5073,7 @@ function pauseAct(k) {
   if (k === 'resume') return closePause();
   if (k === 'speed') { speed = nextSpeed(); renderHud(); }
   if (k === 'dmg') { SAVE.opts.dmg = !SAVE.opts.dmg; persist(); }
+  if (k === 'auto') setAuto(autoKey(G.cfg), !autoOn(autoKey(G.cfg)));
   if (k === 'restart') { closePause(); pokeWipe(() => startGame(G.cfg)); return; }
   if (k === 'quit') { if (!quitArmed) { quitArmed = true; } else {
     closePause();
