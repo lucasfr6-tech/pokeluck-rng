@@ -7,6 +7,7 @@ import {effectiveness} from './battle.js';
 
 export const SLOT_MS = 6 * 3600 * 1000;
 export const EPOCH = Date.UTC(2026, 0, 1);
+export const DEFI_LEVELS = [25, 50, 100]; // niveau des adversaires par palier ; tes Pokémon gardent leur niveau
 export const DEFI_LEVEL = 50;
 export const TIER_IDS = ['bronze', 'argent', 'or'];
 export const TIER_NAMES = ['Bronze', 'Argent', 'Or'];
