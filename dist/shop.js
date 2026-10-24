@@ -44,7 +44,7 @@ export const ITEMS = {
   band:   {id:'band',   kind:'held', stack:true, name:'Ceinture Force', price:20000, sprite:SPRITE('focus-sash'), effect:'Survit à un coup fatal avec 1 PV (si PV pleins) · usage unique', desc:'Comme dans les jeux : si le porteur a tous ses PV et reçoit une attaque qui devrait le mettre K.O., il tient avec 1 PV. La ceinture est alors consommée.'},
   auto:   {id:'auto',   kind:'passive', name:'Mode Auto',  price:30000,  sprite:SPRITE('vs-seeker'), effect:'Combats automatiques (bouton AUTO)', desc:'Débloque le bouton AUTO sous la zone : une fois activé, les rencontres se lancent seules et ton Pokémon choisit l’attaque la plus efficace contre l’adversaire. Tu l’actives ou le coupes quand tu veux.'},
   egg:    {id:'egg',    kind:'held', stack:true, name:'Œuf Chance', price:12000, sprite:SPRITE('lucky-egg'), xp:1.5, effect:'XP gagnée +50 % pour le porteur', desc:'Comme dans les jeux : le Pokémon qui le porte gagne 50 % d’XP en plus après chaque combat. Parfait pour faire monter ton Pokémon préféré au début de l’aventure.'},
-  incense:{id:'incense',kind:'incense',stack:true,name:'Encens Chance',price:25000,sprite:SPRITE('luck-incense'),effect:'Pendant 30 min : raretés +50 %',desc:'À allumer depuis le sac : pendant 30 minutes, les raretés supérieures sortent plus souvent, comme avec une Hyper Ball presque aussi puissante. Se cumule avec ta Ball et ta série de victoires. Un seul encens à la fois.'},
+  incense:{id:'incense',kind:'incense',stack:true,name:'Encens Chance',price:25000,sprite:SPRITE('luck-incense'),effect:'Pendant 5 min : raretés +50 %',desc:'À allumer depuis le sac : pendant 5 minutes, les raretés supérieures sortent plus souvent, comme avec une Hyper Ball presque aussi puissante. Se cumule avec ta Ball et ta série de victoires. Un seul encens à la fois.'},
   chroma: {id:'chroma', kind:'passive', name:'Charme Chroma', price:3000000, sprite:SPRITE('shiny-charm'), effect:'Chromatiques ×4 : 1 sur 1 024', desc:'Actif dès l’achat : la chance de rencontrer un chromatique est multipliée par 4, de 1 sur 4 096 à 1 sur 1 024.'}
 };
 export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024, KILLS_TO_UNLOCK = 3;
@@ -61,7 +61,7 @@ export const zoneName = id => zones.find(z => z.id === id)?.name || id;
 // Évolutions par pierre : renvoie [{stone, to}] pour une espèce.
 export const stoneTargets = id => Object.values(ITEMS).filter(i => i.kind === 'stone' && i.evolves[id]).map(i => ({stone:i.id, to:i.evolves[id]}));
 export const defaultInv = () => ({owned:{}, ball:'poke', stock:{}, held:{}, incenseUntil:0});
-export const INCENSE_MS = 30 * 60 * 1000, INCENSE_BONUS = .5;
+export const INCENSE_MS = 5 * 60 * 1000, INCENSE_BONUS = .5;
 export const incenseLeft = (inv, now = Date.now()) => Math.max(0, (inv.incenseUntil || 0) - now);
 export const incenseBonus = (inv, now = Date.now()) => incenseLeft(inv, now) > 0 ? INCENSE_BONUS : 0;
 export function lightIncense(state, now = Date.now()) {
