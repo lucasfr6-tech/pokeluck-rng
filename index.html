@@ -1708,11 +1708,11 @@ function ensureTower(id, awaken = 0) {
     slow: st.slow ? L(st.slow).map((v, i) => Math.min(.7, v + i * .04)) : undefined, dot: st.dot, burn: st.burn, crit: st.crit, stun: st.stun,
     targets: st.targets ? (st.targets >= 3 ? [2, 2, 3, 3] : [st.targets, st.targets, st.targets + 1, st.targets + 1]) : undefined,
     domain: domainOf(id), passives: passivesFor(id), floor, rarMult: .62 * sMult * (1 + .08 * awaken), awaken, cost: rarityCost(r, effBst), unlock: 1, moves: st.moves, desc: st.desc};
-  if (sp.form === 'farm') Object.assign(TDEF[k], {farm: true, cost: FARM_COST, moves: ['Jackpot', 'Jackpot', 'Pluie d’Or', 'Pluie d’Or'], desc: 'Ne combat pas : farme des ₽ toutes les 3 s pendant les vagues, plus une prime à chaque vague.'});
+  if (sp.form === 'farm') Object.assign(TDEF[k], {farm: true, cost: FARM_COST, moves: ['Jackpot', 'Jackpot', 'Pluie d’Or', 'Pluie d’Or'], desc: 'Ne combat pas : farme des ₽ toutes les 3 s pendant les vagues, plus une prime à chaque vague. 3 poses max.'});
   return k;
 }
 // ---------- Pokémon Farmer : génère des ₽ pendant les vagues ----------
-const FARMER_ID = '52~farm', FARM_COST = 380, FARM_TICK = 3, FARM_BASE = 18, FARM_WAVE = 40;
+const FARMER_ID = '52~farm', FARM_MAX = 3, FARM_COST = 380, FARM_TICK = 3, FARM_BASE = 18, FARM_WAVE = 40;
 const FARM_LV = [1, 1.45, 2, 2.7, 3.6, 4.8, 6.4];
 const farmTraitK = t => { const tr = t && t.trait ? TRAITS[t.trait] : null; return 1 + (tr && tr.farm || 0); };
 const farmGold = G => (G && G.cfg && G.cfg.gold) || 1;
@@ -1860,7 +1860,7 @@ function traitText(tr) {
   if (tr.dmg) a.push(`+${Math.round(tr.dmg * 100)} % dégâts`);
   if (tr.rate) a.push(`+${Math.round(tr.rate * 100)} % vitesse d’attaque`);
   if (tr.range) a.push(`+${Math.round(tr.range * 100)} % portée`);
-  if (tr.farm) a.push(`Farmer : +${Math.round(tr.farm * 100)} % de ₽ farmés`);
+  if (tr.farm) a.push(`Farmer : +${Math.round(tr.farm * 100)} % de ₽ farmés (il reste limité à ${FARM_MAX} poses)`);
   for (const [k, v] of tr.pas || []) a.push(PASSIVE_KINDS[k].txt(v));
   if (tr.domain) a.push('devient Hybride : touche le sol ET les airs');
   const L = traitLimit(tr); a.push(L === 1 ? 'une seule pose possible' : `${L} poses max`);
@@ -1873,6 +1873,7 @@ function towerDomain(t, d) { d = d || TDEF[t.key]; const tr = towerTrait(t); ret
 const PLACE_LIMIT = [6, 5, 4, 3, 3, 3, 3, 2, 2, 2, 1, 1];
 function placeLimit(G, k) {
   const d = TDEF[k]; if (d.starter) return 1;
+  if (d.farm) return FARM_MAX; // Farmer : toujours 3 poses max, quel que soit son trait
   const tr = G && G.traits && d.pid != null ? TRAITS[G.traits[d.pid]] : null;
   return tr ? traitLimit(tr) : PLACE_LIMIT[d.rarity || 0];
 }
@@ -2531,7 +2532,7 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-172538';
+const BUILD_ID = '20261024-172702';
 let UPDATE_PENDING = false;
 // en plein niveau (partie en cours, pas encore l'écran de fin) : on attend la fin avant de recharger
 const inLevel = () => { try { return !!G && current === 'game' && $('#endScreen').hidden; } catch (e) { return false; } };
