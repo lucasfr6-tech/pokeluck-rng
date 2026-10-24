@@ -529,3 +529,8 @@ body.reduce-motion .ach-title b,body.reduce-motion .ach-near-card,body.reduce-mo
 .df-none{color:#b6cede;font-weight:600}
 @media(max-width:900px){.df-hero{grid-template-columns:1fr}.df-cards{grid-template-columns:1fr}.df-dock{grid-template-columns:1fr}}
 body.reduce-motion .df-cd b,body.reduce-motion .df-hero-s .df-spr{animation:none}
+
+/* Œuf Chance en pixel art à la place de l'œuf CSS */
+span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:112px!important;border:0!important;border-radius:0!important;background:url(assets/oeuf-chance.png) center/contain no-repeat!important;image-rendering:pixelated;box-shadow:none!important;filter:drop-shadow(0 8px 0 rgba(0,0,0,.35))}
+.cm-egg{width:52px!important;height:52px!important}
+.pg-ring .pg-shell{transform:scale(1.9)}
