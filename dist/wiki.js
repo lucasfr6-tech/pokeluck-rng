@@ -80,7 +80,7 @@ export const WIKI = [
     {t: 'Les 7 classes', h: () => `<p>${TRAINER_CLASSES.map(c => esc(c.name)).join(' · ')}.</p>`}
   ]},
   {id: 'shop', icon: '', title: 'Boutiques & objets', cards: [
-    {t: 'Les boutiques', h: () => `<p>Trois boutiques sont posées sur la carte. Chacune ouvre quand tu as vaincu <b>${KILLS_TO_UNLOCK} Pokémon</b> dans la zone qui la précède : ${SHOPS.map(s => esc(s.name)).join(', ')}.</p>`},
+    {t: 'Les boutiques', h: () => `<p>Quatre boutiques sont posées sur la carte. Chacune ouvre quand tu as vaincu <b>${KILLS_TO_UNLOCK} Pokémon</b> dans la zone qui la précède : ${SHOPS.map(s => esc(s.name)).join(', ')}.</p>`},
     {t: 'Boules & bonus passifs', h: () => table(['Objet', 'Prix', 'Effet'], ['super', 'hyper', 'xp', 'rune', 'auto', 'chroma'].map(k => [esc(ITEMS[k].name), money(ITEMS[k].price), esc(ITEMS[k].effect)]))},
     {t: 'Soins, objets tenus, CT et pierres', h: () => li([`<b>Potions et soins de statut</b> : utilisables en combat (de ${money(ITEMS.antidote.price)} à ${money(ITEMS['max-potion'].price)}).`, '<b>Objets tenus</b> : Restes, Baie Oran, Ceinture Force, Œuf Chance — un seul par Pokémon.', '<b>CT</b> : apprennent une attaque ; certaines sont des récompenses d’arène.', '<b>Pierres d’évolution</b> : Feu, Eau, Foudre, Plante, Lune.'])}
   ]},

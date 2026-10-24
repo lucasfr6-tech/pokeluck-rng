@@ -316,7 +316,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
 {
   const shop = await import('../dist/shop.js'), bt = await import('../dist/battle.js');
   // Pièce Rune et Charme Chroma ne sont plus en vente
-  for (const sh of shop.SHOPS) if (sh.stock.includes('rune') || sh.stock.includes('chroma')) throw new Error('Pièce Rune et Charme Chroma retirés des boutiques');
+  for (const sh of shop.SHOPS) if (sh.stock.includes('chroma')) throw new Error('Charme Chroma retiré des boutiques');
   // Baie Oran : +10 PV à 50 % de PV ou moins, une seule fois, jamais au-dessus de 50 %
   const mk = berry => bt.makeFighter({id:25, name:'P', level:30, types:['normal'], base:bt.DEFAULT_BASE, moves:[], training:{}, berry});
   const hit = pw => ({name:'x', power:pw, acc:100, type:'normal', cls:'physical'}), splash = {name:'splash', power:null, acc:100, type:'normal', cls:'status', fr:'Éclaboussure'};
@@ -489,7 +489,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   for (const s of stones) for (const [from, to] of Object.entries(s.evolves)) assert.equal(P.evolvesFrom[to], +from, `${s.id} : ${from} → ${to} est une vraie évolution`);
   assert.deepEqual(sh.stoneTargets(133).map(t => t.to).sort(), [134, 135, 136]); assert.equal(sh.stoneTargets(25)[0].to, 26); assert.equal(sh.stoneTargets(4).length, 0);
   for (const id of ['fire-stone', 'water-stone']) assert.ok(sh.SHOPS.some(x => x.stock.includes(id)), id + ' est en vente'); // Foudre, Plante, Lune : prévues plus tard
-  assert.equal(sh.SHOPS.length, 3, 'trois boutiques pour l’instant');
+  assert.equal(sh.SHOPS.length, 4, 'quatre boutiques'); assert.ok(sh.shopById('indigo').stock.includes('rune') && sh.shopById('indigo').after === 'victory', 'Pièce Rune à la boutique avant Giovanni');
   console.log('OK : 5 pierres d’évolution, évolutions valides, Évoli (3 pierres), boutiques.');
 }
 {
