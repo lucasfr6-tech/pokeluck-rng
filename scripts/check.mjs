@@ -694,3 +694,13 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   console.log('OK défis');
 }
 { const P = await import('../dist/pension.js'); const e = P.eggNeed(10, 11), m = P.eggNeed(10, 150), l = P.eggNeed(144, 145); assert.ok(e < m && m < l, 'plus les parents sont rares, plus l’éclosion est longue'); assert.equal(l, 300); console.log('OK : éclosion de la pension selon la rareté des parents.'); }
+{
+  const S = await import('../dist/streak.js'), sh = await import('../dist/shop.js');
+  const st = S.emptyStreak(); for (let i = 0; i < 14; i++) S.bumpStreak(st, 'route'); assert.equal(S.streakBonus(S.streakIn(st, 'route')), 0);
+  S.bumpStreak(st, 'route'); assert.equal(S.streakBonus(st.n), .05); S.bumpStreak(st, 'forest'); assert.equal(st.n, 1, 'changer de zone remet la série à zéro'); assert.equal(S.streakIn(st, 'route'), 0);
+  assert.ok(Math.abs(S.streakBonus(540) - .4) < 1e-9 && S.streakBonus(100000) < .41, 'bonus de série plafonné à +40 %');
+  const state = {money: 99999, inv: sh.defaultInv()}; assert.equal(sh.buyItem(state, 'incense').ok, true); const t = 1e12;
+  assert.equal(sh.lightIncense(state, t), true); assert.equal(sh.incenseBonus(state.inv, t + 1000), .5); assert.equal(sh.incenseBonus(state.inv, t + sh.INCENSE_MS), 0); assert.equal(sh.lightIncense(state, t + 5), false);
+  assert.ok(sh.shopById('indigo').stock.includes('incense') && !sh.shopById('indigo').stock.includes('thunder-stone'));
+  console.log('OK : encens (30 min, +50 %) et série de victoires (paliers lents, +40 % max).');
+}

@@ -536,3 +536,5 @@ span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:
 .pg-shell{transform-origin:center!important;margin:0!important;background-position:center!important}
 .pg-ring .pg-shell{width:190px!important;height:190px!important}
 .cm span.pg-shell.cm-egg{width:64px!important;height:64px!important;margin:0!important}
+
+.inc-go{margin-left:auto;padding:8px 16px;border-radius:12px;border:0;border-bottom:4px solid #b06a10;background:#ffb02e;color:#10283f;font:800 13px system-ui;cursor:pointer}.inc-on{margin-left:auto;font:800 12px system-ui;color:#7fe3a1;font-style:normal}

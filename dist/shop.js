@@ -43,6 +43,7 @@ export const ITEMS = {
   band:   {id:'band',   kind:'held', stack:true, name:'Ceinture Force', price:20000, sprite:SPRITE('focus-sash'), effect:'Survit à un coup fatal avec 1 PV (si PV pleins) · usage unique', desc:'Comme dans les jeux : si le porteur a tous ses PV et reçoit une attaque qui devrait le mettre K.O., il tient avec 1 PV. La ceinture est alors consommée.'},
   auto:   {id:'auto',   kind:'passive', name:'Mode Auto',  price:30000,  sprite:SPRITE('vs-seeker'), effect:'Combats automatiques (bouton AUTO)', desc:'Débloque le bouton AUTO sous la zone : une fois activé, les rencontres se lancent seules et ton Pokémon choisit l’attaque la plus efficace contre l’adversaire. Tu l’actives ou le coupes quand tu veux.'},
   egg:    {id:'egg',    kind:'held', stack:true, name:'Œuf Chance', price:12000, sprite:SPRITE('lucky-egg'), xp:1.5, effect:'XP gagnée +50 % pour le porteur', desc:'Comme dans les jeux : le Pokémon qui le porte gagne 50 % d’XP en plus après chaque combat. Parfait pour faire monter ton Pokémon préféré au début de l’aventure.'},
+  incense:{id:'incense',kind:'incense',stack:true,name:'Encens Chance',price:25000,sprite:SPRITE('luck-incense'),effect:'Pendant 30 min : raretés +50 %',desc:'À allumer depuis le sac : pendant 30 minutes, les raretés supérieures sortent plus souvent, comme avec une Hyper Ball presque aussi puissante. Se cumule avec ta Ball et ta série de victoires. Un seul encens à la fois.'},
   chroma: {id:'chroma', kind:'passive', name:'Charme Chroma', price:3000000, sprite:SPRITE('shiny-charm'), effect:'Chromatiques ×4 : 1 sur 1 024', desc:'Actif dès l’achat : la chance de rencontrer un chromatique est multipliée par 4, de 1 sur 4 096 à 1 sur 1 024.'}
 };
 export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024, KILLS_TO_UNLOCK = 3;
@@ -52,13 +53,20 @@ export const SHOPS = [
   {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','paralyze-heal','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
   {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band','water-stone'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'},
   {id:'ouest', name:'Boutique des Îles Écume', after:'seafoam', before:'mansion', beforeLabel:'l’arène de Morgane', at:{x:50,y:50}, stock:['hyper-potion','max-potion','ice-heal','leftovers','ct-blizzard','ct-doubleedge','fire-stone'], hello:'Bienvenue ! Avant l’arène de Morgane, mieux vaut être bien équipé.'},
-  {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['rune','awakening','moon-stone','thunder-stone','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
+  {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['rune','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
 export const zoneName = id => zones.find(z => z.id === id)?.name || id;
 // Évolutions par pierre : renvoie [{stone, to}] pour une espèce.
 export const stoneTargets = id => Object.values(ITEMS).filter(i => i.kind === 'stone' && i.evolves[id]).map(i => ({stone:i.id, to:i.evolves[id]}));
-export const defaultInv = () => ({owned:{}, ball:'poke', stock:{}, held:{}});
+export const defaultInv = () => ({owned:{}, ball:'poke', stock:{}, held:{}, incenseUntil:0});
+export const INCENSE_MS = 30 * 60 * 1000, INCENSE_BONUS = .5;
+export const incenseLeft = (inv, now = Date.now()) => Math.max(0, (inv.incenseUntil || 0) - now);
+export const incenseBonus = (inv, now = Date.now()) => incenseLeft(inv, now) > 0 ? INCENSE_BONUS : 0;
+export function lightIncense(state, now = Date.now()) {
+  const inv = state.inv; if (stockOf(inv, 'incense') < 1 || incenseLeft(inv, now) > 0) return false;
+  inv.stock.incense -= 1; if (inv.stock.incense <= 0) delete inv.stock.incense; inv.incenseUntil = now + INCENSE_MS; return true;
+}
 // Pokémon qui possèdent une méga-évolution (Gen. 1) : ils portent deux objets, les autres un seul.
 export const MEGA_SPECIES = [3, 6, 9, 15, 18, 65, 80, 94, 115, 127, 130, 142, 150];
 // Un seul emplacement pour les objets classiques (Ceinture Force, Baie, etc.) : jamais deux.
@@ -71,6 +79,7 @@ export const isStack = id => ITEMS[id]?.stack === true;
 export function sanitizeInv(raw) {
   const inv = defaultInv();
   if (raw && typeof raw === 'object') {
+    if (Number.isFinite(raw.incenseUntil) && raw.incenseUntil > 0) inv.incenseUntil = raw.incenseUntil;
     for (const id of Object.keys(ITEMS)) if (id !== 'poke' && raw.owned?.[id] === true) inv.owned[id] = true;
     if (ITEMS[raw.ball]?.kind === 'ball' && (raw.ball === 'poke' || inv.owned[raw.ball])) inv.ball = raw.ball;
     if (raw.stock && typeof raw.stock === 'object') for (const id of Object.keys(ITEMS)) if (isStack(id) && Number.isSafeInteger(raw.stock[id]) && raw.stock[id] > 0) inv.stock[id] = Math.min(raw.stock[id], 9999);
@@ -180,7 +189,7 @@ export function mountShop(container, {getState, shopId, onChange}) {
 const stackList = inv => {
   const rows = Object.values(ITEMS).filter(i => i.stack && stockOf(inv, i.id) > 0).map(i => {
     const holders = i.kind === 'held' ? Object.entries(inv.held).filter(([, l]) => l.includes(i.id)).length : 0;
-    return `<div class="bag-item stack">${icon(i, 64)}<span><b>${esc(i.name)}</b><small>${esc(i.effect)}${holders ? ' · porté ×' + holders : ''}</small></span><em class="qty">×${stockOf(inv, i.id)}</em></div>`;
+    return `<div class="bag-item stack">${icon(i, 64)}<span><b>${esc(i.name)}</b><small>${esc(i.effect)}${holders ? ' · porté ×' + holders : ''}</small></span><em class="qty">×${stockOf(inv, i.id)}</em>${i.kind === 'incense' ? (incenseLeft(inv) > 0 ? `<em class="inc-on">ALLUMÉ · ${Math.ceil(incenseLeft(inv) / 60000)} min</em>` : '<button type="button" class="inc-go" data-incense>Allumer</button>') : ''}</div>`;
   });
   return rows.length ? rows.join('') : '<p class="bag-empty">Ton sac est vide. Les boutiques vendent des potions, des CT et des objets à faire porter à tes Pokémon.</p>';
 };
@@ -193,7 +202,7 @@ export function mountItems(container, {getState, onChange}) {
     <section><h3>Sac · CT et objets à porter</h3>${stackList(inv)}</section>
     <section><h3>Objets actifs</h3>${passives.length ? passives.map(p => `<div class="bag-item">${icon(p, 64)}<span><b>${esc(p.name)}</b><small>${esc(p.effect)}</small></span><em>ACTIF</em></div>`).join('') : '<p class="bag-empty">Aucun objet actif pour l’instant. Les boutiques de la carte en vendent : repère le logo 🛒 sur le chemin.</p>'}</section>`;
   }
-  root.onclick = e => {const b = e.target.closest('[data-ball]'); if (b && equipBall(getState(), b.dataset.ball)) {onChange(); render();}};
+  root.onclick = e => {if (e.target.closest('[data-incense]') && lightIncense(getState())) {onChange(); render(); return;} const b = e.target.closest('[data-ball]'); if (b && equipBall(getState(), b.dataset.ball)) {onChange(); render();}};
   render();
   return {refresh: render};
 }
