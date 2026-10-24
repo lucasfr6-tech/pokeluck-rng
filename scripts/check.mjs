@@ -704,3 +704,8 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.ok(sh.shopById('indigo').stock.includes('incense') && !sh.shopById('indigo').stock.includes('thunder-stone'));
   console.log('OK : encens (30 min, +50 %) et série de victoires (paliers lents, +40 % max).');
 }
+{ // Détecte les erreurs de syntaxe (ex. identifiant déclaré deux fois) qui laisseraient le jeu bloqué au chargement.
+  const {readdirSync} = await import('node:fs'), {execFileSync} = await import('node:child_process');
+  for (const f of readdirSync('dist').filter(n => n.endsWith('.js'))) execFileSync(process.execPath, ['--check', 'dist/' + f], {stdio: 'pipe'});
+  console.log('OK : syntaxe de tous les fichiers du jeu.');
+}
