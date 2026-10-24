@@ -2532,12 +2532,13 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-172702';
+const BUILD_ID = '20261024-183006';
 let UPDATE_PENDING = false;
 // en plein niveau (partie en cours, pas encore l'écran de fin) : on attend la fin avant de recharger
 const inLevel = () => { try { return !!G && current === 'game' && $('#endScreen').hidden; } catch (e) { return false; } };
 (function autoUpdate() {
-  if (!/github\.io$/.test(location.hostname)) return;
+  // version en ligne (GitHub Pages ou pokédéfense.com) : pas dans Claude ni en fichier local
+  if (location.protocol === 'file:' || /claude|anthropic/.test(location.hostname)) return;
   const check = async () => {
     if (UPDATE_PENDING) return;
     try {
