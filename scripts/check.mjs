@@ -583,8 +583,8 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 {
   const P = await import('../dist/pension.js'), dc = P.blankDaycare();
   assert.equal(P.deposit(dc, 25, 10), true); assert.equal(dc.egg, null); assert.equal(P.deposit(dc, 25, 10), false);
-  assert.equal(P.deposit(dc, 4, 10), true); assert.deepEqual(dc.egg, {start: 10, need: P.EGG_NEED}); assert.equal(P.deposit(dc, 7, 10), false);
-  assert.equal(P.eggProgress(dc, 10 + P.EGG_NEED - 1), P.EGG_NEED - 1); assert.equal(P.eggReady(dc, 10 + P.EGG_NEED - 1), false); assert.equal(P.eggReady(dc, 10 + P.EGG_NEED), true);
+  assert.equal(P.deposit(dc, 4, 10), true); assert.deepEqual(dc.egg, {start: 10, need: P.eggNeed(25, 4)}); assert.equal(P.deposit(dc, 7, 10), false);
+  assert.equal(P.eggProgress(dc, 10 + P.eggNeed(25, 4) - 1), P.eggNeed(25, 4) - 1); assert.equal(P.eggReady(dc, 10 + P.eggNeed(25, 4) - 1), false); assert.equal(P.eggReady(dc, 10 + P.eggNeed(25, 4)), true);
   assert.equal(P.hatchSpecies(dc, () => .1), 25); assert.equal(P.hatchSpecies(dc, () => .9), 4); assert.equal(P.baseForm(6), 4);
   const ta = {ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}}, tb = {ivs: {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0}};
   const t = P.inheritIVs(ta, tb, () => .3); assert.ok(Object.values(t.ivs).every(v => v === 31)); // .3 < .5 : parent A, pas de mutation (.3 > .2)
@@ -604,7 +604,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(P.setParent(targeted,'b',25,40),true);
   assert.equal(targeted.a,18); assert.equal(targeted.b,25);
   assert.equal(P.eggProgress(targeted,40),0);
-  assert.equal(P.eggReady(targeted,100),true);
+  assert.equal(P.eggReady(targeted,40+P.eggNeed(18,25)),true);
   console.log('OK : Pension (dépôt, remplacement ciblé, œuf, progression, éclosion, IV hérités, chance de chromatique).');
 }
 {
@@ -693,3 +693,4 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual(teamOf(d,'fire',counts),[4]);assert.deepEqual(sanitizeDefis({picks:{fire:[4,4,150,'x',999]},slot:'a',claimed:{or:true,foo:true}}),{picks:{fire:[4]},slot:-1,claimed:{or:true}});
   console.log('OK défis');
 }
+{ const P = await import('../dist/pension.js'); const e = P.eggNeed(10, 11), m = P.eggNeed(10, 150), l = P.eggNeed(144, 145); assert.ok(e < m && m < l, 'plus les parents sont rares, plus l’éclosion est longue'); assert.equal(l, 300); console.log('OK : éclosion de la pension selon la rareté des parents.'); }

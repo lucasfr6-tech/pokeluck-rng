@@ -1,8 +1,12 @@
 // Pension Pokémon : deux Pokémon déposés produisent un œuf qui éclot après N victoires. IV hérités, chromatique plus probable.
 import {STAT_KEYS, normalizeTraining} from './training.js';
 import {evolvesFrom} from './pokemon.js';
+import {tierOf} from './world.js';
 
-export const EGG_NEED = 60;          // victoires nécessaires à l'éclosion
+export const EGG_NEED = 60;          // victoires de base (deux Communs) ; voir eggNeed
+// Victoires nécessaires : somme du coût de chaque parent selon sa rareté (Communs 30 … Légendaires 150).
+export const EGG_COST = [0, 30, 40, 60, 90, 150];
+export const eggNeed = (a, b) => (EGG_COST[tierOf(a)] || 30) + (EGG_COST[tierOf(b)] || 30);
 export const MUTATION = .2;          // chance qu'un IV hérité soit retiré au hasard
 export const SHINY_BASE = 8;         // multiplicateur de chance de chromatique d'un œuf de pension
 export const SHINY_PER_PARENT = 2;   // ×2 de plus par parent possédant une forme chromatique
@@ -20,7 +24,7 @@ export const baseForm = id => { let r = id; while (evolvesFrom[r]) r = evolvesFr
 export function deposit(dc, id, wins) {
   if (!validId(id) || dc.a === id || dc.b === id) return false;
   if (!dc.a) dc.a = id; else if (!dc.b) dc.b = id; else return false;
-  if (dc.a && dc.b && !dc.egg) dc.egg = {start: wins, need: EGG_NEED};
+  if (dc.a && dc.b && !dc.egg) dc.egg = {start: wins, need: eggNeed(dc.a, dc.b)};
   return true;
 }
 export function withdraw(dc, id) { if (dc.a === id) dc.a = null; else if (dc.b === id) dc.b = null; else return false; dc.egg = null; return true; }
@@ -28,7 +32,7 @@ export function withdraw(dc, id) { if (dc.a === id) dc.a = null; else if (dc.b =
 export function setParent(dc, slot, id, wins) {
   if (!['a','b'].includes(slot) || !validId(id) || !Number.isFinite(wins) || wins < 0 || dc.a === id || dc.b === id) return false;
   dc[slot] = id;
-  dc.egg = dc.a && dc.b ? {start:wins, need:EGG_NEED} : null;
+  dc.egg = dc.a && dc.b ? {start:wins, need:eggNeed(dc.a, dc.b)} : null;
   return true;
 }
 export const eggProgress = (dc, wins) => dc.egg ? Math.max(0, Math.min(dc.egg.need, wins - dc.egg.start)) : 0;
