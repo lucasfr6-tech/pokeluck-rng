@@ -594,3 +594,32 @@ span.pg-shell,.pg-egg .pg-shell,.pg-ring .pg-shell{width:112px!important;height:
 .vm-ring{width:clamp(72px,min(9vw,12.5vh),112px)}.v-list li.vm small{display:none}.v-list li.vm{gap:3px}
 .v-card:not(.lost){padding:10px 22px 12px}.v-card:not(.lost) h2{display:inline-block;margin-right:14px}.v-card:not(.lost)>p,.v-card:not(.lost)>.v-money{display:inline-block;margin:0 12px 2px 0;font-size:14px}
 .vm-up,.vm-best,.vm-tag{font-size:9px;padding:1px 8px}.v-list li.vm .new-move{padding:2px 6px}
+
+/* ===== Carte A : mini-villes et bâtiments (remplace les ronds) ===== */
+.illustrated-map{container-type:inline-size}
+.illustrated-map .map-spot{--b:clamp(26px,4.9cqw,84px);width:var(--b)!important;aspect-ratio:1!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;animation:none!important;filter:none;overflow:visible}
+.illustrated-map .map-spot.spot-arena{--b:clamp(28px,5.2cqw,90px)}
+.illustrated-map .map-spot.spot-elite{--b:clamp(30px,5.4cqw,96px)}
+.illustrated-map .map-spot.spot-elite.champion{--b:clamp(40px,8cqw,140px)}
+.illustrated-map .map-spot:after,.illustrated-map .map-spot.current::before{display:none!important}
+.illustrated-map .map-spot:hover,.illustrated-map .map-spot:focus-visible{transform:translate(-50%,-50%) scale(1.12);background:none!important}
+.illustrated-map .map-spot.locked .bld-art,.illustrated-map .map-spot.locked .bld-mon{filter:grayscale(.8) brightness(.72)}
+.bld-art{position:absolute;inset:0;display:block;filter:drop-shadow(0 .3cqw .2cqw #0009)}
+.bld-art svg{display:block;width:100%;height:100%;overflow:visible}
+.bld-art.photo{inset:-60% 8% 0 8%}
+.bld-art.photo img{width:100%;height:100%;object-fit:contain;object-position:bottom;image-rendering:pixelated}
+.bld-mon{position:absolute;right:-30%;bottom:-6%;width:68%;height:68%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 .2cqw .15cqw #0009);pointer-events:none}
+.spot-elite .bld-mon{width:80%;height:80%;right:-38%}.spot-elite.champion .bld-mon{width:70%;height:70%;right:-30%}
+.bld-lbl{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:.2cqw;white-space:nowrap;font:700 clamp(8px,.85cqw,13px)/1 system-ui,sans-serif;color:#fff;background:#0c141ccc;border:1px solid #fff5;border-radius:99px;padding:.3em .8em;pointer-events:none}
+.bld-tag{position:absolute;left:50%;bottom:calc(100% + .15cqw);transform:translateX(-50%);white-space:nowrap;font:800 clamp(7px,.72cqw,11px)/1 system-ui,sans-serif;letter-spacing:.04em;color:#0c141c;background:#fde047;border:1px solid #0c141c;border-radius:99px;padding:.25em .7em;pointer-events:none}
+.spot-arena .bld-tag{background:#ff6b80;color:#fff}.spot-arena.won .bld-tag{background:#4ade80;color:#0c141c}
+.spot-elite .bld-tag{background:#c4a3ff;color:#1a0b3a}.spot-elite.champion .bld-tag{background:#fde047;color:#3a2a00}
+.map-spot.current .bld-tag{background:#fde047;color:#3a2a00;animation:here-bob .9s ease-in-out infinite}
+.map-spot:not(.current):not(.spot-arena):not(.spot-elite) .bld-tag{display:none}
+.map-spot.current .bld-art{filter:drop-shadow(0 0 .8cqw #ffd24a)}
+.map-spot.spot-elite:not(.locked) .bld-art{filter:drop-shadow(0 0 1cqw #a78bfa)}
+.map-spot.current .map-tooltip{display:none}
+@container (max-width:760px){.bld-lbl{display:none}.bld-tag{display:none}.map-spot.current .bld-tag{display:block;font-size:8px}}
+.illustrated-map .map-shop{width:clamp(22px,3.6cqw,60px)}
+.map-shop-art{background:none!important;border:0!important;padding:0!important;border-radius:0!important}
+.map-shop-art img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}

@@ -1,10 +1,19 @@
 import {zones} from './world.js';
+import {buildingSvg} from './buildings.js';
+import {spriteBW} from './pokemon.js';
 import {ARENAS,ELITE,arenaById,eliteById,buildPath} from './arena.js';
 
 // Carte du voyage : l'illustration de Kanto avec un parcours en serpentin de 24 petits ronds (16 zones + 8 arènes),
 // 8 par rangée, reliés par un trait fléché. Les arènes sont d'une autre couleur (rouge), le champion est plus grand.
 // Aucun texte sur la carte : le nom apparaît au survol. Coordonnées en % de la largeur (x) et de la hauteur (y).
 const SHOP_ICON='<svg viewBox="0 0 40 40" aria-hidden="true"><path class="sh-roof" d="M4 16 L8 6 H32 L36 16 Z"/><path class="sh-stripe" d="M12 6 L11 16 M20 6 V16 M28 6 L29 16"/><rect class="sh-wall" x="6" y="16" width="28" height="18"/><rect class="sh-door" x="16" y="22" width="8" height="12"/><rect class="sh-win" x="8" y="20" width="6" height="6"/><rect class="sh-win" x="26" y="20" width="6" height="6"/></svg>';
+const ZONE_ART={route:'hut',route2:'hut',route3:'hut',route4:'hut',forest:'cabin',cave:'cave',rocktunnel:'cave',ceruleancave:'cave',bridge:'bridge',tower:'tower',safari:'tent',power:'plant',seafoam:'ice',mansion:'mansion',victory:'gate',league:'palace'};
+const ZONE_MON={route:19,route2:16,forest:12,route3:21,cave:35,route4:27,bridge:129,rocktunnel:74,tower:92,safari:111,power:100,seafoam:87,mansion:58,ceruleancave:150,victory:67,league:142};
+const ELITE_MON={olga:131,aldo:106,agatha:94,peter:149,blue:18};
+const ARENA_COL=['#b8a038','#6890f0','#f8d030','#78c850','#a040a0','#f85888','#f08030','#e0c068'];
+const ELITE_COL=['#98d8d8','#c03028','#705898','#7038f8','#fde047'];
+const mon=id=>id?`<img class="bld-mon" src="${spriteBW(id)}" alt="" draggable="false" loading="lazy" onerror="this.remove()">`:'';
+const bld=(art,id,label,tag,extra='')=>`<span class="bld-art${extra}" aria-hidden="true">${art}</span>${mon(id)}<span class="bld-lbl">${esc(label)}</span>${tag?`<span class="bld-tag">${tag}</span>`:''}`;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 export const ROW_SIZE=8;
 export const ASPECT=1.6; // largeur / hauteur de la carte
@@ -32,13 +41,13 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
     if(n.kind==='zone'){
       const z=zones.find(z=>z.id===n.id),acc=info.zones?.[n.id]||{ok:true},cur=n.id===selected;
       const need=acc.ok?`niveau ${z.min}+`:acc.reason==='badge'?`badge n°${acc.arena.n} requis (${acc.arena.leader})`:`niveau ${acc.need} requis`;
-      html+=`<button class="map-spot${cur?' current':''}${acc.ok?'':' locked'}${side(p)}" data-zone="${n.id}" aria-label="${esc(z.name)} (${need})" aria-pressed="${cur}" ${busy?'disabled':''} style="${style}"><span class="map-spot-dot" aria-hidden="true"></span><span class="map-tooltip">${i+1} · ${esc(z.name)}<small>${acc.ok?'Niv. '+z.min+'+':'🔒 '+esc(need)}</small></span></button>`;
+      html+=`<button class="map-spot${cur?' current':''}${acc.ok?'':' locked'}${side(p)}" data-zone="${n.id}" aria-label="${esc(z.name)} (${need})" aria-pressed="${cur}" ${busy?'disabled':''} style="${style}">${bld(z.id==='league'?'<img src="assets/bld-tour.png" alt="">':buildingSvg(ZONE_ART[z.id]),ZONE_MON[z.id],z.name,cur?'TU ES ICI':'',z.id==='league'?' photo':'')}<span class="map-tooltip">${i+1} · ${esc(z.name)}<small>${acc.ok?'Niv. '+z.min+'+':'🔒 '+esc(need)}</small></span></button>`;
     }else if(n.kind==='elite'){
       const m=eliteById(n.id),ac=info.elite||{},done=!!ac.members?.[m.id];
-      html+=`<button class="map-spot spot-elite${m.champion?' champion':''}${done?' won':''}${ac.ok||ac.done?'':' locked'}${side(p)}" data-elite="${m.id}" aria-label="Conseil des 4 : ${esc(m.leader)}${done?' (battu)':''}" style="${style}"><span class="map-spot-dot" aria-hidden="true"></span><span class="map-tooltip">${m.champion?'Champion':'Conseil des 4'} · ${esc(m.leader)}<small>${done?'Vaincu ✓':'Niv. '+m.ace+(ac.ok?'':' · 🔒')}</small></span></button>`;
+      html+=`<button class="map-spot spot-elite${m.champion?' champion':''}${done?' won':''}${ac.ok||ac.done?'':' locked'}${side(p)}" data-elite="${m.id}" aria-label="Conseil des 4 : ${esc(m.leader)}${done?' (battu)':''}" style="${style}">${bld(buildingSvg(m.champion?'crown':'pagoda',ELITE_COL[Math.min(4,ELITE.indexOf(m))]),ELITE_MON[m.id]||ELITE_MON[String(m.leader).toLowerCase()],m.leader+(m.champion?' · Champion':''),m.champion?'CHAMPION':'CONSEIL')}<span class="map-tooltip">${m.champion?'Champion':'Conseil des 4'} · ${esc(m.leader)}<small>${done?'Vaincu ✓':'Niv. '+m.ace+(ac.ok?'':' · 🔒')}</small></span></button>`;
     }else{
       const a=arenaById(n.id),st=info.arenas?.[n.id]||{},won=!!st.won,champ=a.n===ARENAS.length;
-      html+=`<button class="map-spot spot-arena${won?' won':''}${st.ok||won?'':' locked'}${champ?' champion':''}${side(p)}" data-arena="${a.id}" aria-label="${champ?'Champion':'Arène'} de ${esc(a.city)} : ${esc(a.leader)}${won?' (battu)':''}" style="${style}"><span class="map-spot-dot" aria-hidden="true"></span><span class="map-tooltip">${champ?'Champion':'Arène'} · ${esc(a.leader)}<small>${won?'Badge obtenu ✓':'Niv. '+a.ace+(st.ok?'':' · 🔒')}</small></span></button>`;
+      html+=`<button class="map-spot spot-arena${won?' won':''}${st.ok||won?'':' locked'}${champ?' champion':''}${side(p)}" data-arena="${a.id}" aria-label="${champ?'Champion':'Arène'} de ${esc(a.city)} : ${esc(a.leader)}${won?' (battu)':''}" style="${style}">${bld(buildingSvg('gym',ARENA_COL[a.n-1]),0,a.city+' · '+a.leader,won?'BADGE':'ARÈNE')}${st.ok||won?'':''}<span class="map-tooltip">${champ?'Champion':'Arène'} · ${esc(a.leader)}<small>${won?'Badge obtenu ✓':'Niv. '+a.ace+(st.ok?'':' · 🔒')}</small></span></button>`;
     }
   });
   main.forEach((n,i)=>{ // rival : petit sprite posé à côté de l'arène dont il vient d'être battu
@@ -58,7 +67,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
     const best=cands.filter(inMap).reduce((m,c)=>clear(c)>clear(m)?c:m,cands.filter(inMap)[0]||{x:mx,y:my+9});placed.push(best);
     const x=best.x,y=best.y;
     const s=shops.find(s=>s.id===n.id);
-    html+=`<button class="map-shop${s.open?' open':' closed'}${y<30?' below':''}" data-shop="${s.id}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%" aria-label="${esc(s.name)}${s.open?'':' (fermée : '+s.kills+' / '+s.need+' Pokémon vaincus)'}"><span class="map-shop-art">${SHOP_ICON}</span>${s.open?'':`<span class="map-shop-lock" aria-hidden="true">${s.kills}/${s.need}</span>`}<span class="map-tooltip">${esc(s.name)}${s.open?'':' · '+s.kills+' / '+s.need}</span></button>`;
+    html+=`<button class="map-shop${s.open?' open':' closed'}${y<30?' below':''}" data-shop="${s.id}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%" aria-label="${esc(s.name)}${s.open?'':' (fermée : '+s.kills+' / '+s.need+' Pokémon vaincus)'}"><span class="map-shop-art"><img src="assets/bld-boutique.png" alt="" draggable="false"></span>${s.open?'':`<span class="map-shop-lock" aria-hidden="true">${s.kills}/${s.need}</span>`}<span class="map-tooltip">${esc(s.name)}${s.open?'':' · '+s.kills+' / '+s.need}</span></button>`;
   });
   const cur=zones.find(z=>z.id===selected),curIdx=main.findIndex(m=>m.kind==='zone'&&m.id===selected);
   return `<div class="illustrated-map" role="group" aria-label="Carte interactive des destinations de Kanto">
