@@ -2076,7 +2076,7 @@ function advCfg(loc, ch, diff, cleared = 0) {
     tier: Math.floor(ch / 2), final: ch === ADV_CHAPTERS - 1, giant: ch === 4 || ch === 9, sky: ch % 5 === 2,
     layout: 1000 + loc * 100 + ch, seed: loc * 53 + ch * 11 + 5, biome: zone.biome, dmgBonus: 1 + .05 * cleared, hpMult: STORY_HP[diff] || 1,
     jetMult: +(({easy: 1, normal: 1.3, hard: 1.7, expert: 2.3}[diff] || 1) * (1 + .1 * loc)).toFixed(2), noAir: diff === 'easy',
-    money: ({easy: 1500, normal: 1200, hard: 900, expert: 700}[diff] || 1000) + loc * 200 + ch * 40};
+    money: ({easy: 1100, normal: 900, hard: 700, expert: 550}[diff] || 800) + loc * 150 + ch * 30};
 }
 
 // Capsules de trait : très rares. Seulement en Difficile et Expert, chance qui monte avec le lieu et le chapitre.
@@ -2527,7 +2527,7 @@ function powerSim(key, lv = 3, secs = 40, vs) {
 // ======================================================================
 const SAVE_KEY = 'bp-save-v2';
 // ---------- Mises à jour automatiques (version en ligne sur GitHub Pages) ----------
-const BUILD_ID = '20261024-171015';
+const BUILD_ID = '20261024-171416';
 (function autoUpdate() {
   if (!/github\.io$/.test(location.hostname)) return;
   let shown = false;
