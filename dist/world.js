@@ -48,13 +48,13 @@ export function zonePool(id,rarityBonus=0,period=undefined){const per=period===u
  const entries=pool.filter(p=>zone.shares[tierOf(p.id)-1]>0).map(p=>({...p,power:powers[p.id-1],tier:tierOf(p.id),probability:p.probability*(types[p.id].some(t=>zone.bonus.includes(t))?3:1)*timeMult(types[p.id],per)}));
  const sums={};for(const p of entries)sums[p.tier]=(sums[p.tier]||0)+p.probability;
  // Légendaires : plus l'espèce est forte, plus elle est rare (Mewtwo bien plus rare qu'un oiseau), et le palier entier est réduit. La chance (balls, Pokédex, encens…) agit toujours dessus.
- const legW=p=>p.tier===5?Math.pow((baseTotals[p.id-1]||580)/580,-LEGENDARY_STRENGTH_EXP)*(p.id===151?.5:1):1;
+ const legW=p=>p.tier===5?Math.pow((baseTotals[p.id-1]||580)/580,-LEGENDARY_STRENGTH_EXP)*(p.id===151?.55:p.id<=146?1.3:1):1;
  for(const p of entries)if(p.tier===5)p.probability*=legW(p);
  sums[5]=entries.filter(p=>p.tier===5).reduce((n,p)=>n+p.probability,0);
  let all=entries.map(p=>({...p,probability:zone.shares[p.tier-1]*p.probability/sums[p.tier]*(p.tier===5?LEGENDARY_SCALE:1)}));
  {const leg=all.filter(p=>p.tier===5).reduce((n,p)=>n+p.probability,0),rest=1-leg,others=all.filter(p=>p.tier!==5).reduce((n,p)=>n+p.probability,0);if(others>0)all=all.map(p=>p.tier===5?p:{...p,probability:p.probability*rest/others});}
  return all;}
-export const LEGENDARY_MAX_ODDS=200,LEGENDARY_SCALE=.22,LEGENDARY_STRENGTH_EXP=-1;
+export const LEGENDARY_MAX_ODDS=200,LEGENDARY_SCALE=.28,LEGENDARY_STRENGTH_EXP=-1;
 export function draw(entries,random=Math.random()){let sum=0;for(const p of entries){sum+=p.probability;if(random<sum)return p;}return entries.at(-1);}
 // Points de vie de la rencontre : valeur PROVISOIRE (10 × puissance), à définir avec le créateur.
 export const maxHp=power=>power*10;
