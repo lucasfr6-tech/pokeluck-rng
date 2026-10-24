@@ -114,10 +114,10 @@ console.log(`OK : 151 espèces, puissances, ${zones.length} zones normalisées, 
 
 // Les limites de paliers et les préférences héritées ne doivent pas produire de progression invalide.
 const {powerProgress,normalizePreferences}=await import('../dist/preferences.js');
-assert.equal(powerProgress(99999).index,0);assert.equal(powerProgress(100000).index,1);
-assert.equal(powerProgress(1000000).index,2);assert.equal(powerProgress(6e6).index,3);assert.equal(powerProgress(2e7).index,4);assert.equal(powerProgress(4e7).index,5);
-assert.equal(powerProgress(100000).percent,0);assert.equal(powerProgress(4e7).next,null);
-assert.equal(powerProgress(50000).remaining,50000);assert.equal(powerProgress(50000).percent,50);
+assert.equal(powerProgress(149999).index,0);assert.equal(powerProgress(150000).index,1);
+assert.equal(powerProgress(2e6).index,2);assert.equal(powerProgress(12e6).index,3);assert.equal(powerProgress(4e7).index,4);assert.equal(powerProgress(1e8).index,5);
+assert.equal(powerProgress(150000).percent,0);assert.equal(powerProgress(1e8).next,null);
+assert.equal(powerProgress(100000).remaining,50000);assert.equal(powerProgress(75000).percent,50);
 for(const n of [-100,0,1,99999,100000,1e6,1e8,1e9,1e14,NaN]){const p=powerProgress(n);assert.ok(p.percent>=0&&p.percent<=100&&Number.isFinite(p.percent));}
 assert.equal(normalizePreferences({theme:'light',quality:'eco',volume:0,sound:false}).volume,0);
 assert.equal(normalizePreferences({sound:false}).sound,false);
@@ -502,7 +502,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.deepEqual(M.newlyDone({'draw-1':true}, m1).map(a => a.id).sort(), ['dex-10', 'draw-100']);
   assert.deepEqual(M.progressOf(M.achievementById('draw-1000'), {draws:250}), {cur:250, target:1000, done:false});
   assert.deepEqual(M.sanitizeAch({'draw-1':true, bad:true, 'draw-100':1}), {'draw-1':true}); assert.deepEqual(M.sanitizeStats({purchases:3, tmUsed:-1, x:5, heals:1.5}), {purchases:3});
-  assert.deepEqual([0, 9e4, 1e5, 1e6, 6e6, 2e7, 4e7, 1e9].map(M.powerRankOf), [0, 0, 1, 2, 3, 4, 5, 5]);
+  assert.deepEqual([0, 1.4e5, 1.5e5, 2e6, 12e6, 4e7, 1e8, 1e9].map(M.powerRankOf), [0, 0, 1, 2, 3, 4, 5, 5]);
   console.log('OK : 50 succès (4 rangs), progression, déblocage unique, sanitation.');
 }
 { for (const z of zones) for (const r of [0, .5, .999]) { const l = wildLevelZone(z.id, () => r); assert.ok(l >= z.min && l <= z.min + 2, 'niveau sauvage de zone ' + z.id); }
@@ -522,7 +522,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(E.fmtCountdown(65000), '01:05'); assert.equal(E.fmtCountdown(3725000), '1:02:05');
   assert.deepEqual(T.sanitizeTeams(null), [null, null, null]); assert.deepEqual(T.sanitizeTeams([{ids:[4, 4, 7, 999, 'x']}, {ids:[]}, 3])[0].ids, [4, 7]); assert.equal(T.sanitizeTeams([{ids:[4]}, {ids:[]}, 3])[1], null);
   assert.deepEqual(T.loadableTeam({ids:[4, 7, 25]}, {4:1, 25:2}), [4, 25]); assert.ok(T.sameTeam([1, 2], [1, 2]) && !T.sameTeam([1, 2], [2, 1]));
-  const A = await import('../dist/arena.js'); assert.equal(A.ELITE.at(-1).id, 'blue'); assert.equal(A.ELITE.at(-1).champion, true); assert.equal(A.elitePrize(A.ELITE.at(-1), true), 130000);
+  const A = await import('../dist/arena.js'); assert.equal(A.ELITE.at(-1).id, 'blue'); assert.equal(A.ELITE.at(-1).champion, true); assert.equal(A.elitePrize(A.ELITE.at(-1), true), 26000);
   assert.equal(A.eliteCleared({olga:true, aldo:true, agatha:true, peter:true}), false); assert.equal(A.eliteCleared({olga:true, aldo:true, agatha:true, peter:true, blue:true}), true);
   console.log('OK : météo (soleil, pluie, grêle), événements déterministes, équipes sauvegardées, champion Blue.');
 }
@@ -709,4 +709,16 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   const {readdirSync} = await import('node:fs'), {execFileSync} = await import('node:child_process');
   for (const f of readdirSync('dist').filter(n => n.endsWith('.js'))) execFileSync(process.execPath, ['--check', 'dist/' + f], {stdio: 'pipe'});
   console.log('OK : syntaxe de tous les fichiers du jeu.');
+}
+
+{ // Formes : Bonbons, achat, équipement, puissance
+  const F = await import('../dist/forms.js'); const {trainingPower} = await import('../dist/power.js');
+  const st = {counts:{6:2, 3:1}, candy:{6:200}, forms:F.blankForms()};
+  assert.equal(F.canBuy(st, 6, 'megax', 69).reason, 'level'); assert.equal(F.canBuy(st, 3, 'mega', 80).reason, 'candy'); assert.equal(F.canBuy(st, 9, 'mega', 80).reason, 'missing');
+  assert.ok(F.buyForm(st, 6, 'megax', 70).ok); assert.equal(st.candy[6], 50); assert.equal(F.canBuy(st, 6, 'megax', 70).reason, 'owned');
+  assert.equal(F.equipForm(st, 6, 'megay'), false); assert.ok(F.equipForm(st, 6, 'megax')); assert.equal(F.activeKey(st.forms, 6), 'megax');
+  assert.ok(F.formPowerMult(6, 'megax') > 1.4 && F.formPowerMult(6, 'dyna') === 1.25 && F.formPowerMult(6, null) === 1);
+  assert.ok(Math.abs(trainingPower({ivs:{a:31,b:31}, evs:{a:252, b:252, c:6}}) - 1.32) < 1e-9);
+  assert.deepEqual(F.sanitizeForms({owned:{'6:megax':true,'9:mega':true}, active:{6:'megax'}}, {6:1}).owned, {'6:megax':true});
+  console.log('OK : formes, Bonbons, achat, équipement et puissance.');
 }

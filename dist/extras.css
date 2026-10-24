@@ -813,3 +813,29 @@ button.map-time{cursor:pointer;font-family:var(--pixel)}button.map-time:hover,bu
 @keyframes gc-spin{to{transform:rotate(360deg)}}@keyframes gc-bob{50%{transform:translateY(-10px)}}@keyframes gc-shake{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}@keyframes gc-flash{0%{opacity:.9}100%{opacity:0}}@keyframes gc-pop{to{opacity:1;transform:none}}
 body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-motion .gc-side{animation:none}
 @media(max-width:900px){.gc-poster{grid-template-columns:1fr}.gc-title{font-size:40px}.gc-res{grid-template-columns:repeat(2,1fr)}}
+
+/* ---- Bonbons : Méga-Gemmes et Dynamax ---- */
+.cd{display:flex;flex-direction:column;gap:14px;width:100%}
+.cd-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cd-wallet{display:inline-flex;gap:10px;align-items:center;padding:8px 18px;border-radius:16px;background:#2a1030aa;border:3px solid #ff7ab8;color:#fff}
+.cd-wallet img{width:40px;height:40px;image-rendering:pixelated}.cd-wallet small{display:block;font:700 11px system-ui;color:#ffc4e0}.cd-wallet b{font:900 22px system-ui}
+.cd-sort{display:flex;gap:8px;align-items:center;color:#eef6ff;font:800 14px system-ui}
+.cd-sort select{padding:8px 12px;border-radius:12px;border:2px solid #3b6280;background:#0b1a28;color:#eef6ff;font:700 14px system-ui}
+.cd-main{display:grid;grid-template-columns:minmax(260px,1fr) minmax(320px,1.3fr);gap:16px;align-items:start}
+.cd-list{display:flex;flex-direction:column;gap:8px;max-height:62vh;overflow:auto;padding-right:4px}
+.cd-row{--tc:#3b6280;display:grid;grid-template-columns:56px 1fr auto auto;gap:10px;align-items:center;padding:6px 12px;border-radius:16px;border:3px solid var(--tc);background:#14304a;color:#eef6ff;cursor:pointer;text-align:left}
+.cd-row img{width:56px;height:56px;image-rendering:pixelated}.cd-row b{display:block;font:800 15px system-ui}.cd-row small{color:#9fc3e0;font:600 12px system-ui}.cd-row em{font:900 15px system-ui;color:#ffc4e0;font-style:normal}
+.cd-row.sel{background:#1f4a73;box-shadow:0 0 0 3px #fff3}.cd-row.locked{opacity:.5;filter:grayscale(.7)}
+.cd-tag{font:800 10px system-ui;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:#3b6280;font-style:normal}.cd-tag.ok{background:#7fe3a1;color:#0b2a1a}
+.cd-detail{position:sticky;top:0;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:20px;border:3px solid #ff7ab8;background:linear-gradient(160deg,#3a1647,#14304a)}
+.cd-hero{display:flex;gap:14px;align-items:center;color:#fff}.cd-hero>img{width:112px;height:112px;image-rendering:pixelated}.cd-hero h3{margin:0;font:900 22px system-ui}.cd-hero p{margin:4px 0;color:#cfe3f5}
+.cd-bal{display:inline-flex;align-items:center;gap:6px;font:800 14px system-ui;color:#ffc4e0}.cd-bal img{width:28px;height:28px;image-rendering:pixelated}
+.cd-forms{display:flex;flex-direction:column;gap:10px}
+.cd-form{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:16px;background:#0b1a28cc;border:2px solid #3b6280;color:#eef6ff}
+.cd-form.own{border-color:#7fe3a1}.cd-form.on{border-color:#ffd27c;box-shadow:0 0 14px #ffd27c55}
+.cd-item{width:48px;height:48px;image-rendering:pixelated}.cd-fi h4{margin:0;font:900 15px system-ui}.cd-fi h4 em{font:800 11px system-ui;color:#7fe3a1;font-style:normal}.cd-fi p{margin:3px 0;font:600 13px system-ui;color:#cfe3f5}.cd-fi small{color:#9fc3e0}
+.cd-btn{padding:10px 16px;border-radius:14px;border:3px solid #3b6280;background:#14304a;color:#eef6ff;font:900 13px system-ui;cursor:pointer;white-space:nowrap}
+.cd-btn.buy{background:#ff7ab8;border-color:#fff;color:#3a0d28}.cd-btn.go{background:#6ec0ff;border-color:#fff;color:#10283f}.cd-btn.off{background:#3b6280}.cd-btn:disabled{opacity:.55;cursor:not-allowed}
+.cd-how{padding:14px 18px;border-radius:18px;border:2px dashed #ff7ab8;background:#0b1a28aa;color:#eef6ff}.cd-how h4{margin:0 0 6px}.cd-how ul{margin:0;padding-left:18px;font:600 13px system-ui;display:grid;gap:4px}
+.cd-pf{display:flex;gap:12px;align-items:center;margin:10px 0;padding:10px 14px;border-radius:16px;border:2px solid #ff7ab8;background:#2a1030aa;color:#fff}.cd-pf img{width:36px;height:36px;image-rendering:pixelated}.cd-pf span{flex:1}.cd-pf b{display:block}.cd-pf small{color:#ffc4e0}
+@media(max-width:900px){.cd-main{grid-template-columns:1fr}.cd-detail{position:static}}

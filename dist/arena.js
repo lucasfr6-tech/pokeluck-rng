@@ -66,7 +66,7 @@ export const ELITE = [
   eliteDef(5, {id:'blue', leader:'Blue', title:'Blue, Champion de la Ligue', type:'varié', champion:true, trainer:'blue-gen1champion', alts:['blue-gen3champion','blue-gen1rbchampion','blue'], ace:100, real:[[18, 100], [65, 100], [112, 100], [59, 100], [103, 100], [9, 100]], quote:'Je suis le Champion ! Montre-moi que tu mérites ce titre !'})
 ];
 export const eliteById = id => ELITE.find(m => m.id === id);
-export const elitePrize = (m, first) => Math.round(5000 * (8 + m.n) * (m.champion ? 2 : 1) * (first ? 1 : .1));
+export const elitePrize = (m, first) => Math.round(1000 * (8 + m.n) * (m.champion ? 2 : 1) * (first ? 1 : .1));
 export const sanitizeElite = raw => { const out = {}; if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const m of ELITE) if (raw[m.id] === true) out[m.id] = true; return out; };
 export const eliteCleared = done => ELITE.every(m => done?.[m.id]);
 export const hasLegendary = ids => (ids || []).some(id => tierOf(+id) === 5);

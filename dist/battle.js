@@ -131,9 +131,10 @@ export const SHINY_BOOST = 1.5;
 // `mult` : un nombre (toutes les stats) ou un objet {stat: multiplicateur} (objets tenus, chromatique).
 export const boostStats = (stats, mult) => mult === 1 ? stats : Object.fromEntries(Object.entries(stats).map(([k, v]) => [k, Math.floor(v * (typeof mult === 'number' ? mult : (mult?.[k] ?? 1)))]));
 
-export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false, berry = false, nature = null, ability = null, leftovers = false}) {
+export const DYNAMAX_HP = 1.5, DYNAMAX_DMG = 1.5, DYNAMAX_TURNS = 3;
+export function makeFighter({id, name, level, types, base, moves, training, boost = 1, sash = false, berry = false, nature = null, ability = null, leftovers = false, dynamax = false}) {
   const stats = boostStats(computeStats(base, level, training, nature), boost);
-  return {id, name, level, types, stats, moves, pp:Object.fromEntries(moves.map(m => [m.name, ppOf(m)])), hp:stats.hp, maxHp:stats.hp, sash, berry, leftovers, ability, status:null, confused:0, flinched:false, vol:{}, stages:{atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}};
+  return {id, name, level, types, stats, moves, pp:Object.fromEntries(moves.map(m => [m.name, ppOf(m)])), hp:stats.hp, maxHp:stats.hp, sash, berry, leftovers, ability, status:null, confused:0, flinched:false, vol:{}, stages:{atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}, dynaForm:!!dynamax, dynaUsed:false};
 }
 
 // Expérience gagnée par chaque participant en battant un Pokémon sauvage (provisoire).
@@ -249,7 +250,9 @@ function engine(b, events) {
     E.entry('player'); E.switched = true; return false;
   };
   const S = side => ((b.sides ??= {player:{}, wild:{}})[side]);
-  const drop = f => { f.stages = {atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}; f.confused = 0; f.flinched = false; f.vol = {}; };
+  // Dynamax : PV ×1,5 et dégâts ×1,5 pendant 3 tours, une seule fois par combat ; les PV reviennent en proportion.
+  const endDyna = (f, side, silent) => { const v = f.vol; if (!(v && v.dyna > 0)) return; const ratio = f.hp / f.maxHp; f.maxHp = v.dynaMax; f.hp = f.hp > 0 ? Math.max(1, Math.ceil(ratio * f.maxHp)) : 0; v.dyna = 0; if (!silent) msg(`${f.name} retrouve sa taille normale.`, f, side); };
+  const drop = f => { endDyna(f, null, true); f.stages = {atk:0, def:0, spa:0, spd:0, spe:0, acc:0, eva:0}; f.confused = 0; f.flinched = false; f.vol = {}; };
   const stage = (f, side, key, delta, fromFoe) => {
     if (fromFoe && delta < 0 && S(side).mist > 0) { msg(`La brume protège ${f.name} !`, f, side); return; }
     if (fromFoe && delta < 0 && (f.ability === 'clear-body' || (f.ability === 'hyper-cutter' && key === 'atk') || (f.ability === 'keen-eye' && key === 'acc'))) { msg(`${abilityFrName(f)} de ${f.name} empêche la baisse de ${STAT_FR[key]} !`, f, side); return; }
@@ -278,6 +281,7 @@ function engine(b, events) {
     entry(side, fresh = true) {
       const f = A(side); if (b.over) return;
       V(f).turns = 0;
+      if (f.dynaForm && !f.dynaUsed && f.hp > 0) { f.dynaUsed = true; const v = V(f), ratio = f.hp / f.maxHp; v.dyna = DYNAMAX_TURNS; v.dynaMax = f.maxHp; f.maxHp = Math.floor(f.maxHp * DYNAMAX_HP); f.hp = Math.min(f.maxHp, Math.max(1, Math.ceil(ratio * f.maxHp))); msg(`${f.name} se Dynamaxe !`, f, side); }
       if (fresh) {
         const s = S(side), grounded = !f.types.includes('flying') && f.ability !== 'levitate';
         if (s.rocks) { f.hp = Math.max(0, f.hp - Math.max(1, Math.floor(f.maxHp * effectiveness('rock', f.types) / 8))); msg(`Des pierres pointues blessent ${f.name} !`, f, side); if (checkFaint(side)) return; }
@@ -368,7 +372,7 @@ function engine(b, events) {
       // Casse-Brique et consorts brisent les écrans avant de frapper
       if (['brick-break', 'psychic-fangs', 'raging-bull'].includes(move.name)) { const t = S(dside); if (t.reflect > 0 || t.lightscreen > 0 || t.auroraveil > 0) { t.reflect = t.lightscreen = t.auroraveil = 0; msg(`Les écrans de ${d.name} sont brisés !`, d, dside); } }
       const physical = move.cls === 'physical', sc = S(dside);
-      const opts = {mult:terrainMult(b.terrain, move, a, d), screen:(physical ? sc.reflect : sc.lightscreen) > 0 || sc.auroraveil > 0, sureHit:!!vd.sureHitBy, critBoost:va.focus ? 2 : 0, defenderInvulnerable:false};
+      const opts = {mult:terrainMult(b.terrain, move, a, d) * (va.dyna > 0 ? DYNAMAX_DMG : 1), screen:(physical ? sc.reflect : sc.lightscreen) > 0 || sc.auroraveil > 0, sureHit:!!vd.sureHitBy, critBoost:va.focus ? 2 : 0, defenderInvulnerable:false};
       if (va.lockOn) { opts.sureHit = true; va.lockOn = false; }
       const sub = vd.sub > 0 && !['sonic-boom'].includes(move.name);
       let r, hits = 1;
@@ -512,6 +516,7 @@ function engine(b, events) {
         }
       }
       for (const side of ['player', 'wild']) this.tick(V(A(side)));
+      for (const side of ['player', 'wild']) { const f = A(side), v = V(f); if (v.dyna > 0 && f.hp > 0 && --v.dyna === 0) endDyna(f, side); }
       if (b.over) return;
       // Effets de côté : vœu, attaques différées, écrans, météo
       for (const side of ['player', 'wild']) {

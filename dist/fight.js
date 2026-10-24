@@ -15,11 +15,11 @@ export const typeColor = t => COLORS[t] || COLORS.normal;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = n => n.toLocaleString('fr-FR');
 
-export async function buildFighter(spec, level, types, id, name, training, knownNames, boost = 1, sash = false, berry = false, trait = null, leftovers = false) {
+export async function buildFighter(spec, level, types, id, name, training, knownNames, boost = 1, sash = false, berry = false, trait = null, leftovers = false, form = null) {
   const sp = await getSpecies(id);
   const moves = await getMoves(knownNames || knownMoves(sp.learnset, level));
   const t = trait || randomTraits(), list = sp.abilities || [], ability = list.length ? list[Math.min(t.s, list.length - 1)] : null;
-  return {fighter: makeFighter({id, name, level, types, base: sp.stats || DEFAULT_BASE, moves,training,boost,sash,berry,leftovers,nature:t.n,ability}), learnset: sp.learnset};
+  return {fighter: makeFighter({id, name, level, types, base: form?.base || sp.stats || DEFAULT_BASE, moves,training,boost,sash,berry,leftovers,nature:t.n,ability,dynamax:!!form?.dynamax}), learnset: sp.learnset};
 }
 
 // ctx : {team(), level(id), name(id), types(id), backSprite(id), reduced(), addXp(id, amount) → {before, after}}
@@ -233,7 +233,7 @@ export function createFight(ctx) {
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
         const [foes, mine] = await Promise.all([
           Promise.all(arena.team.map(([id, lvl]) => buildFighter(null, lvl, ctx.types(id), id, ctx.foeName?.(id) || String(id), createTraining()))),
-          Promise.all(ids.map(async id => buildFighter(null, lv(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id))))]);
+          Promise.all(ids.map(async id => buildFighter(null, lv(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id), ctx.form?.(id))))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), foes[0].fighter, undefined, foes.slice(1).map(f => f.fighter));
@@ -256,7 +256,7 @@ export function createFight(ctx) {
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
-        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id)))]);
+        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id), ctx.form?.(id)))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), wild.fighter); bt.weather = ctx.weather?.() || null;
