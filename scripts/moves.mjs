@@ -165,3 +165,23 @@ console.log(`OK : ${n} groupes de tests d’attaques avancées`);
   const rw = X.rollReward({...r}, Math.random, 1); assert2.ok(rw.money > 0 && rw.items.length > 0);
   console.log('OK : expéditions (puissance min., départ/retour, affinités, sauvegarde)');
 }
+
+// ---- Invocations ----
+{
+  const G = await import('../dist/gacha.js'); const W = await import('../dist/world.js');
+  const assert3 = (await import('node:assert/strict')).default;
+  const now = Date.UTC(2026, 9, 24, 12, 0, 0);
+  const k = G.bannerById('kanto'), s = G.bannerById('spec');
+  const pk = G.poolOf(k, now), ps = G.poolOf(s, now);
+  assert3.deepEqual(pk.map(x => x.length), [5, 4, 3, 2, 1]); assert3.deepEqual(ps.map(x => x.length), [3, 5, 4, 5, 3]);
+  assert3.equal(new Set(ps.flat()).size, 20, 'vingt Pokémon différents');
+  pk.forEach((l, i) => l.forEach(id => assert3.equal(W.tierOf(id), i + 1)));
+  assert3.deepEqual(G.poolOf(k, now + 60000), pk, 'même rotation = même bannière');
+  assert3.notDeepEqual(G.poolOf(k, now + 2 * 3600 * 1000).flat(), pk.flat(), 'la bannière change au bout de 2 h');
+  assert3.equal(k.one * 10, k.ten); assert3.equal(k.rates.reduce((a, b) => a + b, 0).toFixed(1), '100.0'); assert3.equal(k.rates[4], .3);
+  assert3.equal(G.endsAt(k, now) - now, 2 * 3600 * 1000 - 0); // 12:00 pile : nouvelle rotation de 2 h
+  let leg = 0, N = 200000; for (let i = 0; i < N; i++) if (G.pullOne(k, pk).tier === 5) leg++;
+  assert3.ok(leg / N > .002 && leg / N < .004, 'légendaire ≈ 0,3 %');
+  for (let i = 0; i < 2000; i++) assert3.ok(G.pullTen(k, pk).some(o => o.tier >= 3), '×10 : au moins un Rare');
+  console.log('OK : invocations (bannières, rotation, taux, garanti ×10)');
+}
