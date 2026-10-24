@@ -92,7 +92,7 @@ const d=damage(A,B,mv,()=>0.5);assert.ok(d.hit&&d.stab&&d.eff===2&&d.dmg>0);
 assert.equal(damage(A,B,{...mv,acc:50},()=>0.9).hit,false);
 assert.equal(isUsable({power:null,cls:'status'}),false);
 const bt=createBattle([A],B,()=>0.1);let guard=0;while(!bt.over&&guard++<50)takeTurn(bt,mv);
-assert.equal(bt.winner,'player');assert.equal(B.hp,0);assert.equal(xpReward(48,48),6);assert.ok(xpReward(48,54)<xpReward(48,48));assert.ok(xpReward(48,54)<=5,'Rattata niv. 48 face à niv. 54 : bien moins d’un niveau');assert.ok(xpReward(48,48,5)>xpReward(48,48,1)*3,'rare > commun');assert.ok(xpReward(48,48,3)>xpReward(48,48,1));assert.equal(xpReward(1),1);assert.ok(xpReward(60,30)>xpReward(30,30));
+assert.equal(bt.winner,'player');assert.equal(B.hp,0);assert.equal(xpReward(48,48),31);assert.ok(xpReward(48,54)<xpReward(48,48));assert.ok(xpReward(48,54)<=30,'Rattata niv. 48 face à niv. 54 : bien moins d’un niveau');assert.ok(xpReward(48,48,5)>xpReward(48,48,1)*3,'rare > commun');assert.ok(xpReward(48,48,3)>xpReward(48,48,1));assert.equal(xpReward(1),1);assert.ok(xpReward(60,30)>xpReward(30,30));
 // IA : Pikachu face à Carapuce choisit Éclair plutôt que Vive-Attaque ; il ne gaspille pas un coup sans effet.
 const pika=makeFighter({id:25,name:'Pikachu',level:10,types:['electric'],base:{hp:35,atk:55,def:40,spa:50,spd:50,spe:90},moves:[{name:'quick-attack',fr:'Vive-Attaque',power:40,acc:100,type:'normal',cls:'physical'},{name:'thunder-shock',fr:'Éclair',power:40,acc:100,type:'electric',cls:'special'},{name:'growl',fr:'Rugissement',power:null,acc:100,type:'normal',cls:'status'}]});
 const squirtle=makeFighter({id:7,name:'Carapuce',level:10,types:['water'],base:{hp:44,atk:48,def:65,spa:50,spd:64,spe:43},moves:[]});
@@ -489,7 +489,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   for (const s of stones) for (const [from, to] of Object.entries(s.evolves)) assert.equal(P.evolvesFrom[to], +from, `${s.id} : ${from} → ${to} est une vraie évolution`);
   assert.deepEqual(sh.stoneTargets(133).map(t => t.to).sort(), [134, 135, 136]); assert.equal(sh.stoneTargets(25)[0].to, 26); assert.equal(sh.stoneTargets(4).length, 0);
   for (const id of ['fire-stone', 'water-stone']) assert.ok(sh.SHOPS.some(x => x.stock.includes(id)), id + ' est en vente'); // Foudre, Plante, Lune : prévues plus tard
-  assert.equal(sh.SHOPS.length, 4, 'quatre boutiques'); assert.ok(sh.shopById('indigo').stock.includes('rune') && sh.shopById('indigo').after === 'victory', 'Pièce Rune à la boutique avant Giovanni');
+  assert.equal(sh.SHOPS.length, 5, 'quatre boutiques'); assert.ok(sh.shopById('indigo').stock.includes('rune') && sh.shopById('indigo').after === 'victory', 'Pièce Rune à la boutique avant Giovanni');
   console.log('OK : 5 pierres d’évolution, évolutions valides, Évoli (3 pierres), boutiques.');
 }
 {
@@ -585,12 +585,13 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.equal(P.deposit(dc, 25, 10), true); assert.equal(dc.egg, null); assert.equal(P.deposit(dc, 25, 10), false);
   assert.equal(P.deposit(dc, 4, 10), true); assert.deepEqual(dc.egg, {start: 10, need: P.eggNeed(25, 4)}); assert.equal(P.deposit(dc, 7, 10), false);
   assert.equal(P.eggProgress(dc, 10 + P.eggNeed(25, 4) - 1), P.eggNeed(25, 4) - 1); assert.equal(P.eggReady(dc, 10 + P.eggNeed(25, 4) - 1), false); assert.equal(P.eggReady(dc, 10 + P.eggNeed(25, 4)), true);
-  assert.equal(P.hatchSpecies(dc, () => .1), 25); assert.equal(P.hatchSpecies(dc, () => .9), 4); assert.equal(P.baseForm(6), 4);
+  assert.equal(P.hatchSpecies(dc, () => .1), 25); assert.equal(P.hatchSpecies(dc, () => .9), 4);
   const ta = {ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}}, tb = {ivs: {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0}};
   const t = P.inheritIVs(ta, tb, () => .3); assert.ok(Object.values(t.ivs).every(v => v === 31)); // .3 < .5 : parent A, pas de mutation (.3 > .2)
   assert.ok(Object.values(P.inheritIVs(ta, tb, () => .7).ivs).every(v => v === 0));
   assert.ok(Object.values(P.inheritIVs(ta, tb, () => .1).ivs).every(v => v >= 0 && v <= 31));
   assert.equal(P.shinyMultiplier({a: 1, b: 2}, {}), 8); assert.equal(P.shinyMultiplier({a: 1, b: 2}, {1: 1}), 16); assert.equal(P.shinyMultiplier({a: 1, b: 2}, {1: 1, 2: 3}), 32);
+  P.setParent(dc, "a", 6, 10); assert.equal(P.hatchSpecies(dc, () => .1), 6); P.setParent(dc, "a", 25, 10);
   assert.equal(P.withdraw(dc, 25), true); assert.equal(dc.egg, null);
   assert.deepEqual(P.sanitizeDaycare({a: 4, b: 4, egg: {start: 1, need: 5}}), {a: 4, b: null, egg: null}); assert.equal(P.sanitizeDaycare({a: 4, b: 5, egg: {start: 1, need: 5}}).egg.need, 5);
   const targeted = P.blankDaycare();

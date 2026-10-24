@@ -45,6 +45,7 @@ export const ITEMS = {
   auto:   {id:'auto',   kind:'passive', name:'Mode Auto',  price:30000,  sprite:SPRITE('vs-seeker'), effect:'Combats automatiques (bouton AUTO)', desc:'Débloque le bouton AUTO sous la zone : une fois activé, les rencontres se lancent seules et ton Pokémon choisit l’attaque la plus efficace contre l’adversaire. Tu l’actives ou le coupes quand tu veux.'},
   egg:    {id:'egg',    kind:'held', stack:true, name:'Œuf Chance', price:12000, sprite:SPRITE('lucky-egg'), xp:1.5, effect:'XP gagnée +50 % pour le porteur', desc:'Comme dans les jeux : le Pokémon qui le porte gagne 50 % d’XP en plus après chaque combat. Parfait pour faire monter ton Pokémon préféré au début de l’aventure.'},
   incense:{id:'incense',kind:'incense',stack:true,name:'Encens Chance',price:25000,sprite:SPRITE('luck-incense'),effect:'Pendant 5 min : raretés +50 %',desc:'À allumer depuis le sac : pendant 5 minutes, les raretés supérieures sortent plus souvent, comme avec une Hyper Ball presque aussi puissante. Se cumule avec ta Ball et ta série de victoires. Un seul encens à la fois.'},
+  turbo:  {id:'turbo',  kind:'passive', name:'Turbo ×2', price:20000, sprite:SPRITE('quick-claw'), effect:'Combats ×2 : attaques, animations et Pokéball deux fois plus rapides', desc:'Actif dès l’achat : un bouton ×2 apparaît sous la zone. Une fois enclenché, les combats, les attaques, les animations et la rotation de la Pokéball vont deux fois plus vite. Tu peux le couper à tout moment.'},
   chroma: {id:'chroma', kind:'passive', name:'Charme Chroma', price:3000000, sprite:SPRITE('shiny-charm'), effect:'Chromatiques ×4 : 1 sur 1 024', desc:'Actif dès l’achat : la chance de rencontrer un chromatique est multipliée par 4, de 1 sur 4 096 à 1 sur 1 024.'}
 };
 export const XP_MULTIPLIER = 1.5, MONEY_MULTIPLIER = 2, CHARM_DENOMINATOR = 1024, KILLS_TO_UNLOCK = 3;
@@ -54,6 +55,7 @@ export const SHOPS = [
   {id:'jade',  name:'Boutique de la Forêt',   after:'forest', before:'route3', at:{x:35,y:23}, stock:['super','xp','egg','auto','potion','antidote','paralyze-heal','ct-water','ct-swift'], hello:'Bienvenue ! Une Super Ball et un Multi-XP, et ton aventure file plus vite.'},
   {id:'sud',   name:'Boutique de la Centrale', after:'route4', before:'power',  at:{x:63,y:78}, stock:['hyper','super-potion','burn-heal','full-heal','ct-thunder','ct-ice','oran','band','water-stone'], hello:'Bienvenue ! Ici, on équipe les dresseurs qui voient loin.'},
   {id:'ouest', name:'Boutique des Îles Écume', after:'seafoam', before:'mansion', beforeLabel:'l’arène de Morgane', at:{x:50,y:50}, stock:['hyper-potion','max-potion','ice-heal','leftovers','ct-blizzard','ct-doubleedge','fire-stone'], hello:'Bienvenue ! Avant l’arène de Morgane, mieux vaut être bien équipé.'},
+  {id:'ligue', name:'Boutique du Champion', after:'league', needElite:'blue', needLabel:'Bats le Champion Blue', at:{x:50,y:50}, stock:['turbo'], hello:'Bienvenue, Champion ! Le Turbo ×2 fait filer tes combats deux fois plus vite, à prix d’ami.'},
   {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['safari','rune','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
 ];
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
@@ -106,7 +108,9 @@ export const rarityBonus = inv => ITEMS[inv.ball]?.bonus || 0;
 export const xpMultiplier = inv => inv.owned.xp ? XP_MULTIPLIER : 1;
 export const moneyMultiplier = inv => inv.owned.rune ? MONEY_MULTIPLIER : 1;
 export const shinyDenominator = inv => inv.owned.chroma ? CHARM_DENOMINATOR : 4096;
-export const shopKills = (kills, shop) => Math.min(KILLS_TO_UNLOCK, kills[shop.after] || 0);
+let eliteSrc = () => ({});
+export const setEliteSource = f => { eliteSrc = f; };
+export const shopKills = (kills, shop) => shop.needElite ? (eliteSrc()?.[shop.needElite] ? KILLS_TO_UNLOCK : 0) : Math.min(KILLS_TO_UNLOCK, kills[shop.after] || 0);
 export const shopOpen = (kills, shop) => shopKills(kills, shop) >= KILLS_TO_UNLOCK;
 export function buyItem(state, id) {
   const item = ITEMS[id];
@@ -167,10 +171,10 @@ export function mountShop(container, {getState, shopId, onChange}) {
   const root = container.querySelector('.shop');
   function render() {
     const state = getState(), open = shopOpen(state.kills, shop), item = ITEMS[selected], own = !isStack(selected) && owns(state.inv, selected), afford = state.money >= item.price;
-    const say = !open ? `Désolé, la boutique n’ouvre pas encore. Bats ${KILLS_TO_UNLOCK} Pokémon de la zone « ${zoneName(shop.after)} » : ${shopKills(state.kills, shop)} / ${KILLS_TO_UNLOCK}.` : message || shop.hello;
+    const say = !open ? `Désolé, la boutique n’ouvre pas encore. ${shop.needElite ? shop.needLabel + ' pour entrer.' : `Bats ${KILLS_TO_UNLOCK} Pokémon de la zone « ${zoneName(shop.after)} » : ${shopKills(state.kills, shop)} / ${KILLS_TO_UNLOCK}.`}` : message || shop.hello;
     root.innerHTML = `<aside class="shop-clerk"><img class="clerk-sprite" src="${CLERK_SPRITE}" alt="Vendeur du Pokémart" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'clerk-fallback',textContent:'🧑‍💼'}))"><p class="clerk-bubble" role="status">« ${esc(say)} »</p></aside>
     <section class="shop-main"><header class="shop-top"><span class="shop-label">${esc(shop.name)} · entre ${esc(zoneName(shop.after))} et ${esc(shop.beforeLabel || zoneName(shop.before))}</span><span class="shop-money" aria-label="Pokédollars"><span class="shop-coin" aria-hidden="true">₽</span>${esc(fmtMoney(state.money))}</span></header>
-    ${open ? '' : `<div class="shop-locked"><b>🔒 Fermée</b> · ${shopKills(state.kills, shop)} / ${KILLS_TO_UNLOCK} Pokémon vaincus en ${esc(zoneName(shop.after))}<span class="shop-lockbar"><i style="width:${shopKills(state.kills, shop) / KILLS_TO_UNLOCK * 100}%"></i></span></div>`}
+    ${open ? '' : `<div class="shop-locked"><b>🔒 Fermée</b> · ${shop.needElite ? esc(shop.needLabel) : `${shopKills(state.kills, shop)} / ${KILLS_TO_UNLOCK} Pokémon vaincus en ${esc(zoneName(shop.after))}<span class="shop-lockbar"><i style="width:${shopKills(state.kills, shop) / KILLS_TO_UNLOCK * 100}%"></i></span>`}</div>`}
     <div class="shop-shelf ${open ? '' : 'closed'}">${shop.stock.map(id => {const it = ITEMS[id], qty = isStack(id) ? stockOf(state.inv, id) : 0, has = isStack(id) ? false : owns(state.inv, id), ok = state.money >= it.price; return `<button type="button" class="shop-item${id === selected ? ' sel' : ''}${has ? ' own' : ''}" data-item="${id}" aria-pressed="${id === selected}" ${open ? '' : 'disabled'}><span class="shop-art">${icon(it, 96)}</span><span class="shop-tag"><b>${esc(it.name)}</b><span class="${has ? 'own' : ok ? '' : 'poor'}">${has ? '✓ Possédé' : fmtMoney(it.price)}</span>${qty ? `<small class="shop-qty">Dans ton sac : ×${qty}</small>` : ''}</span></button>`;}).join('')}</div>    <footer class="shop-buy"><div class="shop-desc"><b>${esc(item.name)}</b> · ${esc(item.desc)}<small>${esc(item.effect)}</small></div>${own ? '<span class="shop-owned">✓ Déjà acquis</span>' : `<button type="button" class="shop-buy-btn" data-buy ${open && afford ? '' : 'disabled'}>${!open ? 'Fermée' : afford ? 'Acheter · ' + fmtMoney(item.price) : 'Manque ' + fmtMoney(item.price - state.money)}</button>`}</footer></section>`;
   }
   root.onclick = e => {

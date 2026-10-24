@@ -37,7 +37,7 @@ export function setParent(dc, slot, id, wins) {
 }
 export const eggProgress = (dc, wins) => dc.egg ? Math.max(0, Math.min(dc.egg.need, wins - dc.egg.start)) : 0;
 export const eggReady = (dc, wins) => !!dc.egg && eggProgress(dc, wins) >= dc.egg.need;
-export const hatchSpecies = (dc, rand = Math.random) => baseForm(rand() < .5 ? dc.a : dc.b);
+export const hatchSpecies = (dc, rand = Math.random) => rand() < .5 ? dc.a : dc.b;  // l’œuf donne l’espèce exacte d’un parent
 // Chaque IV vient de l'un des deux parents ; avec une chance MUTATION il est retiré au hasard.
 export function inheritIVs(ta, tb, rand = Math.random) {
   const ivs = {};

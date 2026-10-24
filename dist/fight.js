@@ -8,6 +8,7 @@ import {playAttackEffect} from './effects.js';
 import {mountTrainer, unmountTrainer, sendOut} from './trainer-fx.js';
 
 const $ = s => document.querySelector(s);
+import {sd} from './speed.js';
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const COLORS = {normal:'#a8a77a',fire:'#ee8130',water:'#6390f0',electric:'#f7d02c',grass:'#7ac74c',ice:'#96d9d6',fighting:'#c22e28',poison:'#a33ea1',ground:'#e2bf65',flying:'#a98ff3',psychic:'#f95587',bug:'#a6b91a',rock:'#b6a136',ghost:'#735797',dragon:'#6f35fc',dark:'#705746',steel:'#b7b7ce',fairy:'#d685ad'};
 export const typeColor = t => COLORS[t] || COLORS.normal;
@@ -36,7 +37,7 @@ export function createFight(ctx) {
     fx.innerHTML = '<span class="tf-bg"></span>' + Array.from({length: 10}, (_, i) => `<i style="--i:${i};--x:${(i * 37 + 8) % 92}%;--d:${(i * 0.37) % 2.2}s;--s:${.8 + (i % 4) * .22}"></i>`).join('') + `<b class="terrain-tag">${TERRAIN_LABEL[id]}</b>`;
     scene.dataset.terrain = id;
   }
-  const delay = ms => wait(ctx.reduced() ? Math.min(ms, 120) : ms);
+  const delay = ms => wait(sd(ctx.reduced() ? Math.min(ms, 120) : ms));
   const bar = (fill, hp, max) => { const r = max ? hp / max : 0; fill.style.width = Math.max(0, r * 100) + '%'; fill.dataset.level = r > .5 ? 'high' : r > .2 ? 'mid' : 'low'; };
   const say = text => { el.log.textContent = text; };
   const chips = s => s ? `${s.status ? `<i class="st-chip st-${s.status}">${STATUS_TAG[s.status]}</i>` : ''}${s.conf ? '<i class="st-chip st-conf">CONF</i>' : ''}` : '';

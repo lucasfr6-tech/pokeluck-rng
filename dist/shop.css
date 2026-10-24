@@ -112,3 +112,5 @@ dialog.pick .learn-move:disabled{opacity:.55;cursor:not-allowed}
 .gear-reserved{cursor:default;border:2px dashed #b48cff;background:#1d1a3a;opacity:.85}
 .gear-reserved .gear-plus{background:#3a2d66;color:#d9c2ff;font-size:18px}
 .gear-reserved small{color:#c6b4ee}
+#turbo-toggle.on{border-color:#f0b429;background:#3a2c0a;box-shadow:0 0 0 2px #f0b42944}
+#turbo-toggle.on b{background:#f0b429;color:#2a1c00}

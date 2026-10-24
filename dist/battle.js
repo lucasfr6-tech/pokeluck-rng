@@ -141,7 +141,7 @@ export function makeFighter({id, name, level, types, base, moves, training, boos
 // et s'il est plus faible, malus jusqu'à ×0,5. Ex. : sauvage niv. 30 contre un niveau 8 → 90 XP ; niv. 5 contre niv. 5 → 5 XP.
 // XP gagnée : niveau de l'adversaire ÷ 8, ×(écart de niveau)² (un adversaire plus faible rapporte très peu, plus fort beaucoup), ×bonus de rareté.
 export const XP_RARITY = [1, 1.3, 1.7, 2.3, 4];
-export const xpReward = (wildLevel, ownLevel = wildLevel, tier = 1) => Math.max(1, Math.round(wildLevel / 8 * Math.min(3, Math.max(0.2, (wildLevel / Math.max(1, ownLevel)) ** 2)) * (XP_RARITY[Math.min(5, Math.max(1, tier)) - 1] || 1)));
+export const xpReward = (wildLevel, ownLevel = wildLevel, tier = 1) => Math.max(1, Math.round(wildLevel * (3 + wildLevel / 10) / 12 * Math.min(3, Math.max(0.2, (wildLevel / Math.max(1, ownLevel)) ** 2)) * (XP_RARITY[Math.min(5, Math.max(1, tier)) - 1] || 1)));
 
 // `queue` : adversaires suivants (combat d'arène : le champion envoie ses Pokémon un par un).
 export function createBattle(team, wild, rand = Math.random, queue = []) {
