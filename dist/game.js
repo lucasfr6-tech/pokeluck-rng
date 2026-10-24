@@ -23,7 +23,7 @@ import {victoryMoney,COMBAT_MONEY,captureMoney,fmtMoney,sanitizeMoney} from './m
 import {createFight,typeColor} from './fight.js';
 import {fallbackSprite} from './trainer-fx.js';
 import {WEATHER,weatherOf} from './weather.js';
-import {currentPeriod,PERIODS} from './daycycle.js';
+import {currentPeriod,PERIODS,PERIOD_ORDER,timeMult} from './daycycle.js';
 import {blankPlay,sanitizePlay,recordDraw,recordWin,recordLoss,addTime,favoriteZone,topZones,fmtDuration,sanitizeShinyLog,logShiny,shinyAverage} from './stats.js';
 import {playEncounterFx} from './encounter-fx.js';
 import {mountWiki} from './wiki.js';
@@ -336,6 +336,20 @@ function render(){checkAchievements();ensureQuests();{const r=$('#roll');if(r)r.
 let backdropKey='';
 const tierText=z=>z.shares.map((x,i)=>x?TIER_NAMES[i+1]+' '+(x*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %':'').filter(Boolean).join(' · ');
 let shownPeriod='';
+const stoneUrl=s=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${s}.png`;
+const pad2=n=>String(n).padStart(2,'0');
+function todNext(now,p){const h=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;let left=((p.to-h)%24+24)%24;const s=Math.round(left*3600),hh=Math.floor(s/3600),mm=Math.floor(s%3600/60);return hh>0?`${hh} h ${pad2(mm)} min`:`${mm} min`;}
+function renderTod(){const now=new Date(),p=currentPeriod(now),zone=zones.find(z=>z.id===state.zone);
+ const badge=(t,m)=>`<span class="td-type" style="--tc:${typeColor(t)}">${TYPE_FR[t]||t}<b>×${m}</b></span>`;
+ const hit=zonePool(state.zone).filter(e=>timeMult(types[e.id],p)>1).sort((a,b)=>b.probability-a.probability).slice(0,6);
+ $('#tod-body').innerHTML=`<div class="td-head" data-tod="${p.id}"><img src="${stoneUrl(p.stone)}" alt=""><div><small>MOMENT DE LA JOURNÉE</small><h2 id="tod-title">${p.name}</h2></div><button class="td-close" id="tod-close" aria-label="Fermer">×</button></div>
+ <div class="td-clock"><div><small>HEURE LOCALE</small><strong>${pad2(now.getHours())}:${pad2(now.getMinutes())}</strong></div><div><small>PROCHAIN CHANGEMENT</small><strong>${todNext(now,p)}</strong></div></div>
+ <p class="td-now">${p.text}</p>
+ <div class="td-zone"><small>DANS CETTE ZONE · ${escHtml(zone.name).toUpperCase()}</small>${hit.length?`<div class="td-mons">${hit.map(e=>`<span title="${escHtml(e.name)}"><img src="${spriteBW(e.id)}" alt="${escHtml(e.name)}" onerror="this.onerror=null;this.src='${sprite(e.id)}'"><b>×${timeMult(types[e.id],p)}</b></span>`).join('')}</div>`:'<p class="td-none">Aucun Pokémon de cette zone n’est favorisé à cette heure.</p>'}</div>
+ <div class="td-grid">${PERIOD_ORDER.map(k=>{const q=PERIODS[k];return `<div class="td-card${q.id===p.id?' now':''}" data-tod="${q.id}"><div class="td-ct"><img src="${stoneUrl(q.stone)}" alt=""><div><strong>${q.name}</strong><span>${pad2(q.from)} h – ${pad2(q.to)} h</span></div></div><div class="td-types">${Object.entries(q.types).map(([t,m])=>badge(t,m)).join('')}</div>${q.id===p.id?'<em>EN COURS</em>':''}</div>`;}).join('')}</div>
+ <p class="td-foot">L’heure vient de ton appareil. Ces bonus s’ajoutent à ceux de la zone.</p>`;
+ $('#tod-close').onclick=()=>$('#tod-dialog').close();}
+{const b=document.getElementById('map-time');if(b)b.onclick=()=>{renderTod();$('#tod-dialog').showModal();};$('#tod-dialog').addEventListener('click',e=>{if(e.target.id==='tod-dialog')e.target.close();});setInterval(()=>{if($('#tod-dialog').open)renderTod();},30000);}
 function applyPeriod(force){const p=currentPeriod();document.body.dataset.tod=p.id;const el=document.getElementById('map-time');if(el&&(force||shownPeriod!==p.id)){el.innerHTML=`<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${p.stone}.png" alt="" onerror="this.remove()"><b>${p.name}</b>`;el.title=p.text;el.dataset.tod=p.id;}if(shownPeriod&&shownPeriod!==p.id){shownPeriod=p.id;try{renderZones();}catch{}}shownPeriod=p.id;}
 setInterval(()=>{if(!document.hidden)applyPeriod();},20000);
 function renderZones(){const zone=zones.find(z=>z.id===state.zone);$('#location-chip').textContent=zone.name;{const sn=streakIn(state.streak,state.zone),nx=streakNext(sn);$('#active-bonus').textContent=`${zone.note} · ${currentPeriod().name} · Niv. sauvages de la zone · ${tierText(zone)} · Série ${sn}${streakLevel(sn)?' (raretés +'+Math.round(zoneStreakBonus(sn)*100)+' %)':''}${nx?' · palier à '+nx:' · maximum'}`;}$('#map-place').textContent=zone.name;$('#map-cap').textContent='Niv. cible max '+levelCap(state.badges);$('#map-mount').innerHTML=mapMarkup(state.zone,busy,shopStates(),mapInfo());const key=state.zone+':'+state.reducedMotion;if(backdropKey!==key){backdropKey=key;$('#scenery').style.backgroundImage=`url("${backgroundFor(state.zone)}")`;$('#scenery').setAttribute('aria-label','Décor : '+zone.name);wanderers.setZone(state.zone);}wanderers.setReduced(state.reducedMotion||prefersReduced());}
@@ -429,7 +443,7 @@ initializeSpriteCentering();
 const compassMenu=$('#menu-drawer');
 const cm=$('#cm'),cmHint=$('#cm-hint'),CM_GROUPS={dex:'Ouvre le Pokédex, ou choisis Statistiques ou Chromatiques.',quests:'Ouvre les quêtes, ou choisis Succès.',modes:'Choisis un mode de jeu.'};
 function cmClose(){cm.classList.remove('open-dex','open-quests','open-modes');cmHint.textContent='Choisis une destination.';}
-cm.addEventListener('click',e=>{const b=e.target.closest('.cm-b');if(!b)return;e.stopImmediatePropagation();const g=b.dataset.grp;
+cm.addEventListener('click',e=>{if(!e.target.closest('.cm-b')&&(e.target.closest('.cm-core')||e.target===cm)){if(cm.className.includes('open-'))cmClose();return;}const b=e.target.closest('.cm-b');if(!b)return;e.stopImmediatePropagation();const g=b.dataset.grp;
   if(b.classList.contains('cm-sub')){cmClose();openView(b.dataset.view);return;}
   if(g&&!cm.classList.contains('open-'+g)){cmClose();cm.classList.add('open-'+g);cmHint.textContent=CM_GROUPS[g];return;}
   cmClose();openView(b.dataset.view);},true);
