@@ -356,7 +356,7 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   assert.equal(bt.statusKind(thunderWave), 'ail'); assert.ok(bt.isUsable(thunderWave));
   const growl = bd.parseMove({name:'growl', accuracy:100, type:{name:'normal'}, damage_class:{name:'status'}, meta:{category:{name:'net-good-stats'}}, stat_changes:[{change:-1, stat:{name:'attack'}}], target:{name:'all-opponents'}});
   assert.equal(bt.statusKind(growl), 'stat'); assert.deepEqual(growl.statChanges, [['atk', -1]]);
-  assert.equal(bt.isUsable({name:'splash', cls:'status', power:null}), false);
+  assert.equal(bt.isUsable({name:'inconnue', cls:'status', power:null}), false); assert.ok(bt.isUsable({name:'splash', cls:'status', power:null}));
   const sp = bd.parseSpecies({id:25, stats:[], moves:[], abilities:[{slot:3, is_hidden:true, ability:{name:'lightning-rod'}}, {slot:1, is_hidden:false, ability:{name:'static'}}]});
   assert.deepEqual(sp.abilities, ['static']);
   // Natures : +10 % / −10 %, jamais sur les PV

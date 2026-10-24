@@ -2,7 +2,7 @@
   "scripts": {
     "start": "node serveur.cjs",
     "build": "node scripts/build.cjs",
-    "test": "node scripts/check.mjs"
+    "test": "node scripts/check.mjs && node scripts/moves.mjs"
   },
   "type": "module",
   "private": true,

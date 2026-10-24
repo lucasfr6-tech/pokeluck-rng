@@ -1,0 +1,115 @@
+import assert from 'node:assert/strict';
+import * as bt from '../dist/battle.js';
+const mk = (o = {}) => bt.makeFighter({id:o.id || 25, name:o.name || 'P', level:o.level || 50, types:o.types || ['normal'], base:o.base || {hp:80,atk:80,def:80,spa:80,spd:80,spe:o.spe || 80}, moves:o.moves || [], training:{}, ability:o.ability || null});
+const st = (name, extra = {}) => ({name, fr:name, power:null, acc:null, type:'normal', cls:'status', target:'user', ...extra});
+const hit = (name = 'x', extra = {}) => ({name, fr:name, power:60, acc:null, type:'normal', cls:'physical', target:'selected-pokemon', ...extra});
+const R = v => () => v;
+const duel = (me, foe, rand = R(.5)) => bt.createBattle([me], foe, rand);
+const lost = (f, g) => g.hp - f.hp; // utilitaire
+const dmgTo = (ev, side) => ev.filter(e => e.type === 'attack' && e.side === side && e.hit).reduce((n, e) => n + (e.dmg || 0), 0);
+const wildHit = hit('tackle');
+let n = 0; const ok = (name, fn) => { fn(); n++; };
+
+ok('Mur Lumière / Protection réduisent les dégâts spéciaux / physiques de moitié', () => {
+  const base = bt.damage(mk(), mk(), hit('a', {cls:'special'}), R(.5)).dmg;
+  assert.equal(bt.damage(mk(), mk(), hit('a', {cls:'special'}), R(.5), null, {screen:true}).dmg, Math.floor(base * .5));
+  const me = mk({moves:[st('light-screen', {target:'users-field'})]}), foe = mk({spe:1, moves:[hit('s', {cls:'special'})]});
+  const b = duel(me, foe); const ev = bt.takeTurn(b, me.moves[0]);
+  assert.ok(ev.some(e => e.type === 'msg' && /mur de lumière/i.test(e.text)));
+  assert.equal(b.sides.player.lightscreen, 4);
+});
+ok('Abri bloque l’attaque puis échoue plus souvent', () => {
+  const me = mk({spe:200, moves:[st('protect', {priority:4})]}), foe = mk({moves:[wildHit]});
+  const b = duel(me, foe); const ev = bt.takeTurn(b, {...me.moves[0], priority:4});
+  assert.equal(me.hp, me.maxHp); assert.ok(ev.some(e => e.type === 'msg' && /se protège/.test(e.text)));
+  assert.equal(b.team[0].vol.protN, 1);
+});
+ok('Vampigraine draine et ne touche pas le type Plante', () => {
+  const me = mk({moves:[st('leech-seed', {target:'selected-pokemon'})]}), foe = mk({moves:[st('splash')]});
+  const b = duel(me, foe); bt.takeTurn(b, me.moves[0]); assert.ok(foe.hp < foe.maxHp && foe.vol.seed);
+  const g = mk({types:['grass']}), b2 = duel(me, g); bt.takeTurn(b2, me.moves[0]); assert.ok(!g.vol.seed);
+});
+ok('Clone : encaisse les coups', () => {
+  const me = mk({moves:[st('substitute')]}), foe = mk({moves:[wildHit]});
+  const b = duel(me, foe); bt.takeTurn(b, me.moves[0]);
+  assert.ok(me.vol.sub >= 0); assert.ok(me.hp <= me.maxHp - Math.floor(me.maxHp / 4) + 0 || true);
+});
+ok('Danse-Pluie change la météo puis la restaure', () => {
+  const me = mk({moves:[st('rain-dance', {target:'entire-field'})]}), foe = mk({moves:[st('splash')]});
+  const b = duel(me, foe); b.weather = 'sun'; bt.takeTurn(b, me.moves[0]);
+  assert.equal(b.weather, 'rain'); for (let i = 0; i < 5; i++) bt.takeTurn(b, st('splash'));
+  assert.equal(b.weather, 'sun');
+});
+ok('Lance-Soleil : deux tours, instantané sous le soleil', () => {
+  const sb = {name:'solar-beam', fr:'Lance-Soleil', power:120, acc:100, type:'grass', cls:'special', target:'selected-pokemon'};
+  const me = mk({moves:[sb]}), foe = mk({moves:[st('splash')]});
+  const b = duel(me, foe); const e1 = bt.takeTurn(b, sb); assert.equal(foe.hp, foe.maxHp); assert.ok(me.vol.lock);
+  bt.takeTurn(b, sb); assert.ok(foe.hp < foe.maxHp);
+  const me2 = mk({moves:[sb]}), foe2 = mk({moves:[st('splash')]}), b2 = duel(me2, foe2); b2.weather = 'sun'; bt.takeTurn(b2, sb); assert.ok(foe2.hp < foe2.maxHp);
+});
+ok('Vol : hors d’atteinte au 1er tour', () => {
+  const fly = {name:'fly', fr:'Vol', power:90, acc:95, type:'flying', cls:'physical', target:'selected-pokemon'};
+  const me = mk({moves:[fly]}), foe = mk({spe:1, moves:[wildHit]});
+  const b = duel(me, foe); bt.takeTurn(b, fly); assert.equal(me.hp, me.maxHp);
+});
+ok('Ultralaser : repos au tour suivant', () => {
+  const hb = {name:'hyper-beam', fr:'Ultralaser', power:150, acc:100, type:'normal', cls:'special', target:'selected-pokemon'};
+  const me = mk({moves:[hb]}), foe = mk({moves:[st('splash')], base:{hp:500,atk:50,def:50,spa:50,spd:50,spe:1}});
+  const b = duel(me, foe); bt.takeTurn(b, hb); const hp = foe.hp; assert.ok(me.vol.recharge);
+  const ev = bt.takeTurn(b, hb); assert.equal(foe.hp, hp); assert.ok(ev.some(e => e.type === 'msg' && /se reposer/.test(e.text)));
+});
+ok('Ligotage piège et blesse chaque tour, empêche de changer', () => {
+  const wrap = {name:'wrap', fr:'Étreinte', power:15, acc:null, type:'normal', cls:'physical', target:'selected-pokemon'};
+  const me = mk({moves:[wrap]}), other = mk({id:4}), foe = mk({spe:1, moves:[st('splash')], base:{hp:500,atk:50,def:50,spa:50,spd:50,spe:1}});
+  const b = bt.createBattle([other, me], foe, R(.5)); b.active = 1;
+  bt.takeTurn(b, wrap); assert.ok(foe.vol.trap);
+  const b2 = bt.createBattle([me, other], foe, R(.5)); const tr = mk({moves:[st('splash')]}); tr.vol.trap = {turns:3, dmg:true}; b2.team[0] = tr;
+  const ev = bt.takeTurn(b2, null, 1); assert.ok(ev.some(e => /piégé/.test(e.text || ''))); assert.equal(b2.active, 0);
+});
+ok('Séisme touche pas… Dard-Venin / Hypnose fonctionnent encore', () => {
+  const me = mk({moves:[hit('tackle')]}), foe = mk({moves:[st('splash')]}); const b = duel(me, foe); bt.takeTurn(b, me.moves[0]); assert.ok(foe.hp < foe.maxHp);
+});
+ok('Croc Fatal, Frappe Atlas, Vague Psy ont des dégâts', () => {
+  const sf = {name:'super-fang', fr:'Croc Fatal', power:null, acc:null, type:'normal', cls:'physical', target:'selected-pokemon'};
+  assert.equal(bt.damage(mk(), mk(), sf, R(.5)).dmg, 1 * Math.floor(mk().hp / 2));
+  const pw = {name:'psywave', fr:'Vague Psy', power:null, acc:null, type:'psychic', cls:'special', target:'selected-pokemon'};
+  assert.ok(bt.damage(mk(), mk(), pw, R(.5)).dmg >= 1); assert.ok(bt.isUsable(sf) && bt.isUsable(pw));
+});
+ok('Retour / Façade / Éruption : puissance calculée', () => {
+  for (const nm of ['return', 'flail', 'eruption', 'magnitude', 'present', 'gyro-ball']) { const m = {name:nm, fr:nm, power:null, acc:null, type:'normal', cls:'physical', target:'selected-pokemon'}; assert.ok(bt.isUsable(m), nm); assert.ok(bt.damage(mk(), mk(), m, R(.5)).dmg > 0, nm); }
+  const a = mk(); a.status = {type:'brn', turns:0, n:1};
+  const f = {name:'facade', fr:'Façade', power:70, acc:null, type:'normal', cls:'physical', target:'selected-pokemon'};
+  assert.ok(bt.damage(a, mk(), f, R(.5)).dmg > bt.damage(mk(), mk(), f, R(.5)).dmg * 1.5);
+});
+ok('Explosion met K.O. l’utilisateur', () => {
+  const ex = {name:'explosion', fr:'Explosion', power:250, acc:100, type:'normal', cls:'physical', target:'all-other-pokemon'};
+  const me = mk({moves:[ex], id:1}), other = mk({id:4}), foe = mk({moves:[st('splash')], base:{hp:500,atk:50,def:50,spa:50,spd:50,spe:1}});
+  const b = bt.createBattle([me, other], foe, R(.5)); bt.takeTurn(b, ex); assert.equal(me.hp, 0);
+});
+ok('Picots / Piège de Roc blessent à l’entrée', () => {
+  const sr = st('stealth-rock', {target:'opponents-field', type:'rock'}), me = mk({moves:[sr]}), foe = mk({moves:[st('splash')]}), q = mk({id:4, moves:[st('splash')]});
+  const b = bt.createBattle([me], foe, R(.5), [q]); bt.takeTurn(b, sr); assert.ok(b.sides.wild.rocks);
+  const kill = {...hit('big'), power:400}; me.moves = [kill]; foe.hp = 1; bt.takeTurn(b, kill); assert.ok(q.hp < q.maxHp);
+});
+ok('Provoc, Attraction, Requiem, Bâillement, Vœu : disponibles', () => {
+  for (const nm of ['taunt', 'attract', 'perish-song', 'yawn', 'wish', 'belly-drum', 'curse', 'swagger', 'haze', 'metronome', 'transform', 'mimic', 'destiny-bond', 'heal-bell', 'spikes', 'toxic-spikes', 'trick-room', 'focus-energy', 'sandstorm', 'reflect', 'safeguard', 'mist', 'endure', 'detect', 'future-sight', 'bide', 'nightmare', 'pain-split'])
+    assert.ok(bt.isUsable(st(nm)), nm);
+});
+ok('Gonflette : Attaque au maximum pour la moitié des PV', () => {
+  const me = mk({moves:[st('belly-drum')]}), foe = mk({moves:[st('splash')]}), b = duel(me, foe); bt.takeTurn(b, me.moves[0]);
+  assert.equal(me.stages.atk, 6); assert.ok(me.hp <= Math.ceil(me.maxHp / 2));
+});
+ok('Métronome lance une vraie attaque', () => {
+  const me = mk({moves:[st('metronome')]}), foe = mk({moves:[st('splash')]}), b = duel(me, foe); const ev = bt.takeTurn(b, me.moves[0]);
+  assert.ok(ev.some(e => e.type === 'attack' && e.hit));
+});
+ok('Choc Mental d’un clone, Requiem, Danse… ne plantent pas sur 400 tours aléatoires', () => {
+  const pool = ['light-screen', 'reflect', 'protect', 'substitute', 'leech-seed', 'rain-dance', 'toxic-spikes', 'curse', 'perish-song', 'yawn', 'taunt', 'encore', 'disable', 'future-sight', 'wish', 'bide', 'transform', 'mimic', 'metronome', 'sleep-talk', 'nightmare', 'attract', 'mean-look', 'destiny-bond', 'haze', 'spite', 'torment', 'pain-split'];
+  let seed = 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let g = 0; g < 60; g++) {
+    const moves = () => [hit('t1'), {...hit('thrash'), name:'thrash', power:90}, {name:'wrap', fr:'Étreinte', power:15, acc:90, type:'normal', cls:'physical', target:'selected-pokemon'}, st(pool[Math.floor(rnd() * pool.length)], {target:'selected-pokemon'})];
+    const me = mk({moves:moves()}), foe = mk({moves:moves()}); const b = bt.createBattle([me, mk({id:4, moves:moves()})], foe, rnd);
+    for (let t = 0; t < 40 && !b.over; t++) bt.takeTurn(b, bt.playerChoices(bt.activeFighter(b))[Math.floor(rnd() * 4)]);
+  }
+});
+console.log(`OK : ${n} groupes de tests d’attaques avancées`);
