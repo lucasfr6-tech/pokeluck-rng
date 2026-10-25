@@ -1,4 +1,4 @@
-import {zones} from './world.js';
+import {findZone} from './world.js';
 import {spriteBW} from './pokemon.js';
 import {ARENAS,ELITE,arenaById,eliteById,buildPath} from './arena.js';
 
@@ -6,11 +6,11 @@ import {ARENAS,ELITE,arenaById,eliteById,buildPath} from './arena.js';
 // 8 par rangée, reliés par un trait fléché. Les arènes sont d'une autre couleur (rouge), le champion est plus grand.
 // Aucun texte sur la carte : le nom apparaît au survol. Coordonnées en % de la largeur (x) et de la hauteur (y).
 const SHOP_ICON='<svg viewBox="0 0 40 40" aria-hidden="true"><path class="sh-roof" d="M4 16 L8 6 H32 L36 16 Z"/><path class="sh-stripe" d="M12 6 L11 16 M20 6 V16 M28 6 L29 16"/><rect class="sh-wall" x="6" y="16" width="28" height="18"/><rect class="sh-door" x="16" y="22" width="8" height="12"/><rect class="sh-win" x="8" y="20" width="6" height="6"/><rect class="sh-win" x="26" y="20" width="6" height="6"/></svg>';
-const ZONE_IMG={route:['hut-a'],route2:['hut-b'],route3:['hut-c'],route4:['hut-d'],forest:['forest'],cave:['cave','filter:grayscale(.5) brightness(1.2)'],rocktunnel:['cave'],ceruleancave:['cave','filter:hue-rotate(190deg) saturate(1.3) brightness(1.2)'],seafoam:['cave','filter:hue-rotate(175deg) saturate(.6) brightness(1.7)'],bridge:['bridge',' wide'],tower:['tower',' pagoda'],safari:['safari',' wide'],power:['power',' mid'],mansion:['mansion',' mid'],victory:['gate',' wide'],league:['league',' wide']};
+const ZONE_IMG={route:['hut-a'],route2:['hut-b'],route3:['hut-c'],route4:['hut-d'],forest:['forest'],cave:['cave','filter:grayscale(.5) brightness(1.2)'],rocktunnel:['cave'],ceruleancave:['cave','filter:hue-rotate(190deg) saturate(1.3) brightness(1.2)'],seafoam:['cave','filter:hue-rotate(175deg) saturate(.6) brightness(1.7)'],bridge:['bridge',' wide'],tower:['tower',' pagoda'],safari:['safari',' wide'],power:['power',' mid'],mansion:['mansion',' mid'],victory:['gate',' wide'],league:['league',' wide'],route29:['hut-a'],route31:['hut-b'],tourchetiflor:['tower',' pagoda'],ruinesalpha:['gate',' wide'],puitsramoloss:['cave','filter:hue-rotate(60deg) brightness(1.1)'],boischenes:['forest'],parcnaturel:['safari',' wide'],tourcendree:['tower',' pagoda','filter:hue-rotate(-30deg) saturate(1.4)'],tourferraille:['tower',' pagoda','filter:hue-rotate(150deg) saturate(.8)'],chenal40:['bridge',' wide'],pharoliville:['power',' mid'],montcreuset:['cave'],routeglace:['cave','filter:hue-rotate(175deg) saturate(.6) brightness(1.7)'],laccolere:['bridge',' wide'],antredragon:['cave','filter:hue-rotate(250deg) saturate(1.3) brightness(1.1)'],montargente:['cave','filter:grayscale(.5) brightness(1.4)']};
 const zoneArt=id=>{const[f,x='']=ZONE_IMG[id]||['hut-a'];return `<img src="assets/bld/${f}.png" alt=""${x.startsWith('filter')?` style="${x}"`:''}>`};
 const zoneCls=id=>{const x=(ZONE_IMG[id]||[])[1]||'';return x.startsWith('filter')?'':x};
-const ZONE_MON={route:19,route2:16,forest:12,route3:21,cave:35,route4:27,bridge:129,rocktunnel:74,tower:92,safari:111,power:100,seafoam:87,mansion:58,ceruleancave:150,victory:67,league:142};
-const ELITE_MON={olga:131,aldo:106,agatha:94,peter:149,blue:18};
+const ZONE_MON={route:19,route2:16,forest:12,route3:21,cave:35,route4:27,bridge:129,rocktunnel:74,tower:92,safari:111,power:100,seafoam:87,mansion:58,ceruleancave:150,victory:67,league:142,route29:161,route31:165,tourchetiflor:92,ruinesalpha:201,puitsramoloss:79,boischenes:153,parcnaturel:123,tourcendree:126,tourferraille:250,chenal40:226,pharoliville:181,montcreuset:107,routeglace:220,laccolere:130,antredragon:148,montargente:249};
+const ELITE_MON={olga:131,aldo:106,agatha:94,peter:149,blue:18,clement:178,kogaj:169,aldoj:68,marion:197,peterj:149};
 const ARENA_IMG=['arena-a','arena-b','arena-c','arena-d','arena-e','arena-f','arena-c','arena-a'];
 const ARENA_COL=['#b8a038','#6890f0','#f8d030','#78c850','#a040a0','#f85888','#f08030','#e0c068'];
 const ELITE_COL=['#98d8d8','#c03028','#705898','#7038f8','#fde047'];
@@ -34,14 +34,15 @@ function trailSvg(pos,cur){
   }
   return `<svg class="map-route" viewBox="0 0 ${100*ASPECT} 100" aria-hidden="true">${out}</svg>`;
 }
-export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}},region={open:false,done:false}){
+export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}},region={open:false,done:false,id:'kanto'}){
+  const johto=region.id==='johto';
   const path=buildPath(shops),main=path.filter(n=>n.kind!=='shop'),pos=main.map((_,i)=>spotPosition(i));
   const side=p=>(p.x>72?' edge-r':p.x<28?' edge-l':'')+(p.y<30?' below':'');
   let html='';
   main.forEach((n,i)=>{
     const p=pos[i],style=`left:${p.x}%;top:${p.y}%`;
     if(n.kind==='zone'){
-      const z=zones.find(z=>z.id===n.id),acc=info.zones?.[n.id]||{ok:true},cur=n.id===selected;
+      const z=findZone(n.id),acc=info.zones?.[n.id]||{ok:true},cur=n.id===selected;
       const need=acc.ok?`niveau ${z.min}+`:acc.reason==='badge'?`badge n°${acc.arena.n} requis (${acc.arena.leader})`:`niveau ${acc.need} requis`;
       html+=`<button class="map-spot${cur?' current':''}${acc.ok?'':' locked'}${side(p)}" data-zone="${n.id}" aria-label="${esc(z.name)} (${need})" aria-pressed="${cur}" ${busy?'disabled':''} style="${style}">${bld(zoneArt(z.id),ZONE_MON[z.id],z.name,cur?'TU ES ICI':'',zoneCls(z.id))}<span class="map-tooltip">${i+1} · ${esc(z.name)}<small>${acc.ok?'Niv. '+z.min+'+':'🔒 '+esc(need)}</small></span></button>`;
     }else if(n.kind==='elite'){
@@ -49,7 +50,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
       html+=`<button class="map-spot spot-elite${m.champion?' champion':''}${done?' won':''}${ac.ok||ac.done?'':' locked'}${side(p)}" data-elite="${m.id}" aria-label="Conseil des 4 : ${esc(m.leader)}${done?' (battu)':''}" style="${style}">${bld(`<img src="assets/bld/${m.champion?'palais':'tour'}.png" alt="" style="${m.champion?'':'filter:hue-rotate('+[0,-50,60,110][Math.max(0,ELITE.indexOf(m))%4]+'deg)'}">`,ELITE_MON[m.id]||ELITE_MON[String(m.leader).toLowerCase()],m.leader+(m.champion?' · Champion':''),m.champion?'CHAMPION':'CONSEIL',m.champion?' tall':' tower')}<span class="map-tooltip">${m.champion?'Champion':'Conseil des 4'} · ${esc(m.leader)}<small>${done?'Vaincu ✓':'Niv. '+m.ace+(ac.ok?'':' · 🔒')}</small></span></button>`;
     }else{
       const a=arenaById(n.id),st=info.arenas?.[n.id]||{},won=!!st.won,champ=a.n===ARENAS.length;
-      html+=`<button class="map-spot spot-arena${won?' won':''}${st.ok||won?'':' locked'}${champ?' champion':''}${side(p)}" data-arena="${a.id}" aria-label="${champ?'Champion':'Arène'} de ${esc(a.city)} : ${esc(a.leader)}${won?' (battu)':''}" style="${style}">${bld(`<img src="assets/bld/${ARENA_IMG[a.n-1]}.png" alt="">`,0,a.city+' · '+a.leader,won?'BADGE':'ARÈNE','',a.n)}<span class="map-tooltip">${champ?'Champion':'Arène'} · ${esc(a.leader)}<small>${won?'Badge obtenu ✓':'Niv. '+a.ace+(st.ok?'':' · 🔒')}</small></span></button>`;
+      html+=`<button class="map-spot spot-arena${won?' won':''}${st.ok||won?'':' locked'}${champ?' champion':''}${side(p)}" data-arena="${a.id}" aria-label="${champ?'Champion':'Arène'} de ${esc(a.city)} : ${esc(a.leader)}${won?' (battu)':''}" style="${style}">${bld(`<img src="assets/bld/${ARENA_IMG[a.n-1]}.png" alt="">`,0,a.city+' · '+a.leader,won?'BADGE':'ARÈNE','',a.n+(a.region==='johto'?8:0))}<span class="map-tooltip">${champ?'Champion':'Arène'} · ${esc(a.leader)}<small>${won?'Badge obtenu ✓':'Niv. '+a.ace+(st.ok?'':' · 🔒')}</small></span></button>`;
     }
   });
   main.forEach((n,i)=>{ // rival : petit sprite posé à côté de l'arène dont il vient d'être battu
@@ -71,13 +72,13 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
     const s=shops.find(s=>s.id===n.id);
     html+=`<button class="map-shop${s.open?' open':' closed'}${y<30?' below':''}" data-shop="${s.id}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%" aria-label="${esc(s.name)}${s.open?'':' (fermée : '+s.kills+' / '+s.need+' Pokémon vaincus)'}"><span class="map-shop-art"><img src="assets/bld/mart.png" alt="" draggable="false"></span>${s.open?'':`<span class="map-shop-lock" aria-hidden="true">${s.needElite?'Blue':s.kills+'/'+s.need}</span>`}<span class="map-tooltip">${esc(s.name)}${s.open?'':' · '+(s.needElite?'bats Blue':s.kills+' / '+s.need)}</span></button>`;
   });
-  const cur=zones.find(z=>z.id===selected),curIdx=main.findIndex(m=>m.kind==='zone'&&m.id===selected);
-  return `<div class="illustrated-map" role="group" aria-label="Carte interactive des destinations de Kanto">
-    <img class="exploration-image" src="assets/kanto-exploration.png" alt="" draggable="false">
+  const cur=findZone(selected),curIdx=main.findIndex(m=>m.kind==='zone'&&m.id===selected);
+  return `<div class="illustrated-map" role="group" aria-label="Carte interactive des destinations de ${johto?'Johto':'Kanto'}">
+    <img class="exploration-image" src="assets/${johto?'johto-exploration.jpg':'kanto-exploration.png'}" alt="" draggable="false">
     ${trailSvg(pos,curIdx)}
     <span class="map-water" aria-hidden="true"></span><span class="map-glint g1" aria-hidden="true"></span><span class="map-glint g2" aria-hidden="true"></span>
     ${html}
-    <button type="button" class="map-johto${region.done?' done':region.open?' open':' closed'}" data-region="johto" aria-label="${region.done?'Johto : passage enregistré':region.open?'Passer à Johto':'Johto : bats le Champion de Kanto pour débloquer'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 4 12l16 9z"/></svg><span>Johto</span></button>
+    ${johto?`<button type="button" class="map-johto back open" data-region="kanto" aria-label="Retourner à Kanto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 4 12l16 9z"/></svg><span>Kanto</span></button>`:`<button type="button" class="map-johto${region.done?' done':region.open?' open':' closed'}" data-region="johto" aria-label="${region.done?'Aller à Johto':region.open?'Passer à Johto':'Johto : bats le Champion de Kanto pour débloquer'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3 4 12l16 9z"/></svg><span>Johto</span></button>`}
     <span class="sr-only">Destination actuelle : ${esc(cur?.name||'Route 1')}. Choisis un rond sur la carte pour voyager ou défier un champion.</span>
   </div>`;
 }

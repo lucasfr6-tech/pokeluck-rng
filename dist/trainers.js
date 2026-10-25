@@ -1,6 +1,6 @@
 // Dresseurs sauvages (rencontres aléatoires dans une zone) et rival (revient après chaque arène). Pure donnée, sans DOM.
 import {zonePool, draw, tierOf} from './world.js';
-import {wildLevelZone} from './levels.js';
+import {wildLevelZone, MAX_LEVEL} from './levels.js';
 import {victoryMoney} from './money.js';
 import {ARENAS, arenaPrize} from './arena.js';
 
@@ -21,7 +21,7 @@ export const TRAINER_XP = 1.5;
 // Dresseur sauvage de la zone : 2 ou 3 Pokémon tirés dans la zone, niveau de zone +1.
 export function wildTrainerFor(zoneId, rand = Math.random) {
   const cls = TRAINER_CLASSES[Math.floor(rand() * TRAINER_CLASSES.length)], first = cls.names[Math.floor(rand() * cls.names.length)];
-  const entries = zonePool(zoneId,0,false), size = rand() < .5 ? 2 : 3, lvl = Math.min(100, wildLevelZone(zoneId, rand) + 1), team = [];
+  const entries = zonePool(zoneId,0,false), size = rand() < .5 ? 2 : 3, lvl = Math.min(MAX_LEVEL, wildLevelZone(zoneId, rand) + 1), team = [];
   for (let i = 0; i < size; i++) team.push([draw(entries, rand()).id, lvl]);
   return {trainer: true, id: 'trainer-' + cls.id, leader: `${cls.name} ${first}`, title: `${cls.name} sauvage`, sprite: `assets/trainers/${cls.file}.png`, alts: [], team, badgeSprite: null, n: 0, xpBonus: TRAINER_XP};
 }

@@ -1,5 +1,5 @@
 // Boutiques posées sur la carte, objets achetables et effets actifs.
-import {zones} from './world.js';
+import {allZones as zones} from './world.js';
 import {fmtMoney} from './money.js';
 import {addTypeEgg, TYPE_COL} from './type-eggs.js';
 const SPRITE = n => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${n}.png`;
@@ -74,7 +74,15 @@ export const SHOPS = [
   {id:'ligue', name:'Boutique du Champion', after:'league', needElite:'blue', needLabel:'Bats le Champion Blue', at:{x:50,y:50}, stock:['turbo','rune','egg-psychic'], hello:'Bienvenue, Champion ! Le Turbo ×2 et la Pièce Rune pour les vrais vainqueurs.'},
   {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['safari','egg-electric','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
 ];
+// Boutiques de Johto (provisoires) : même principe, 3 Pokémon vaincus dans la zone pour entrer ; la dernière attend le Champion Peter.
+SHOPS.push(
+  {id:'j-rosalia', region:'johto', name:'Boutique de Rosalia', after:'ruinesalpha', before:'puitsramoloss', at:{x:50,y:50}, stock:['hyper-potion','max-potion','full-heal','oran','band'], hello:'Bienvenue à Johto ! Ici, on prépare les dresseurs aux longs voyages.'},
+  {id:'j-ecorcia', region:'johto', name:'Boutique d’Écorcia', after:'tourcendree', before:'tourferraille', beforeLabel:'l’arène d’Irisia', at:{x:50,y:50}, stock:['max-potion','full-heal','leftovers','ice-heal','burn-heal'], hello:'Bienvenue ! Les tours d’Écorcia ont l’air calmes… ne t’y fie pas.'},
+  {id:'j-oliville', region:'johto', name:'Boutique d’Oliville', after:'pharoliville', before:'montcreuset', at:{x:50,y:50}, stock:['max-potion','awakening','incense','moon-stone'], hello:'Bienvenue ! Le phare éclaire la route, mon stock aussi.'},
+  {id:'j-ligue', region:'johto', name:'Boutique du Champion de Johto', after:'montargente', needElite:'peterj', needLabel:'Bats le Champion Peter', at:{x:50,y:50}, stock:['incense','max-potion'], hello:'Bienvenue, Champion de Johto !'}
+);
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
+export const shopsOf = region => SHOPS.filter(s => (s.region || 'kanto') === region);
 export const zoneName = id => zones.find(z => z.id === id)?.name || id;
 // Évolutions par pierre : renvoie [{stone, to}] pour une espèce.
 export const stoneTargets = id => Object.values(ITEMS).filter(i => i.kind === 'stone' && i.evolves[id]).map(i => ({stone:i.id, to:i.evolves[id]}));

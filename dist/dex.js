@@ -1,4 +1,4 @@
-import {zones, zonePool, tierOf, types, TIER_NAMES, powers} from './world.js';
+import {allZones as zones, zonePool, tierOf, types, TIER_NAMES, powers} from './world.js';
 import {evolvesFrom} from './pokemon.js';
 import {ITEMS} from './shop.js';
 import {minLevel} from './levels.js';

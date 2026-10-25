@@ -64,7 +64,7 @@ assert.equal(maxHp(46),460);
 // Niveaux : départ à 5 (ou au niveau d'évolution), plafond par stade, expérience par doublon.
 assert.equal(START_LEVEL,5);
 assert.equal(minLevel(4),5);assert.equal(minLevel(5),16);assert.equal(minLevel(6),36);
-assert.equal(maxLevel(4),15);assert.equal(maxLevel(5),35);assert.equal(maxLevel(6),100);
+assert.equal(maxLevel(4),15);assert.equal(maxLevel(5),35);assert.equal(maxLevel(6),200);
 assert.equal(maxLevel(133),35);assert.equal(minLevel(134),36);
 assert.equal(maxLevel(25),35);
 for(const p of pool){assert.ok(minLevel(p.id)>=5&&maxLevel(p.id)>=minLevel(p.id),'Paliers incohérents : '+p.name);}
@@ -423,8 +423,8 @@ for(let id=1;id<=151;id++){assert.ok(formSprite(id,true).endsWith('/shiny/'+id+'
   // L'IA utilise une attaque de statut utile quand rand < 1/3 et qu'il n'y a pas de K.O.
   { const me = mk({moves:[hit({power:10}), thunderWave]}), foe = mk(); assert.equal(bt.chooseAiMove(me, foe, R(0.1)).name, 'thunder-wave'); assert.equal(bt.chooseAiMove(me, foe, R(0.9)).name, 'x'); foe.status = {type:'par', turns:0, n:1}; assert.equal(bt.chooseAiMove(me, foe, R(0.1)).name, 'x', 'pas de statut déjà présent'); }
 }
-for(const own of [1,5,13,35,40,99,100])for(const r of [0,.2,.5,.8,.999]){const l=wildLevelNear(own,()=>r);if(l<Math.max(1,own-2)||l>Math.min(100,own+2))throw new Error('Niveau sauvage hors ±2 : '+own+' → '+l);}
-assert.equal(wildLevelNear(35,()=>.999),37);assert.equal(wildLevelNear(13,()=>0),11);assert.equal(wildLevelNear(100,()=>.999),100);assert.equal(wildLevelNear(1,()=>0),1);
+for(const own of [1,5,13,35,40,99,100])for(const r of [0,.2,.5,.8,.999]){const l=wildLevelNear(own,()=>r);if(l<Math.max(1,own-2)||l>Math.min(200,own+2))throw new Error('Niveau sauvage hors ±2 : '+own+' → '+l);}
+assert.equal(wildLevelNear(35,()=>.999),37);assert.equal(wildLevelNear(13,()=>0),11);assert.equal(wildLevelNear(100,()=>.999),102);assert.equal(wildLevelNear(1,()=>0),1);
 console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages distincts, apparence persistante, 151 sprites face/dos et probabilités combinées normalisées.');
 {
   const A = await import('../dist/arena.js');
@@ -483,14 +483,14 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.ok(ev.some(e => e.type === 'msg' && /Restes/.test(e.text)), 'Restes soignent à chaque tour');
   console.log('OK : boutique des Îles Écume (6 objets, 2 CT, Restes) juste avant Morgane ; Restes en combat.');
 }
-{ const sh = await import('../dist/shop.js'); const all = sh.SHOPS.flatMap(s => s.stock); assert.equal(new Set(all).size, all.length, 'aucun objet vendu dans deux boutiques'); console.log('OK : aucun objet en double entre les boutiques.'); }
+{ const sh = await import('../dist/shop.js'); const all = sh.shopsOf('kanto').flatMap(s => s.stock); assert.equal(new Set(all).size, all.length, 'aucun objet vendu dans deux boutiques'); console.log('OK : aucun objet en double entre les boutiques de Kanto.'); }
 {
   const sh = await import('../dist/shop.js'), P = await import('../dist/pokemon.js');
   const stones = Object.values(sh.ITEMS).filter(i => i.kind === 'stone'); assert.equal(stones.length, 5);
   for (const s of stones) for (const [from, to] of Object.entries(s.evolves)) assert.equal(P.evolvesFrom[to], +from, `${s.id} : ${from} → ${to} est une vraie évolution`);
   assert.deepEqual(sh.stoneTargets(133).map(t => t.to).sort(), [134, 135, 136]); assert.equal(sh.stoneTargets(25)[0].to, 26); assert.equal(sh.stoneTargets(4).length, 0);
   for (const id of ['fire-stone', 'water-stone']) assert.ok(sh.SHOPS.some(x => x.stock.includes(id)), id + ' est en vente'); // Foudre, Plante, Lune : prévues plus tard
-  assert.equal(sh.SHOPS.length, 5, 'quatre boutiques'); assert.ok(sh.shopById('ligue').stock.includes('rune') && !sh.shopById('indigo').stock.includes('rune'), 'Pièce Rune à la boutique du Champion');
+  assert.equal(sh.shopsOf('kanto').length, 5, 'quatre boutiques'); assert.ok(sh.shopById('ligue').stock.includes('rune') && !sh.shopById('indigo').stock.includes('rune'), 'Pièce Rune à la boutique du Champion');
   console.log('OK : 5 pierres d’évolution, évolutions valides, Évoli (3 pierres), boutiques.');
 }
 {

@@ -41,10 +41,17 @@ const JOHTO_ROWS=[
  ['antredragon','Antre du Dragon',['dragon','dark'],'cave'],['montargente','Mont Argenté',['rock','ice'],'cave']
 ];
 export const johtoZones=JOHTO_ROWS.map(([id,name,bonus,color],i)=>({id,region:'johto',min:100+i*6,shares:zones[i].shares,levels:[100+i*6,106+i*6],name,bonus,note:bonus.map(t=>({normal:'Normal',flying:'Vol',bug:'Insecte',ghost:'Spectre',psychic:'Psy',rock:'Roche',water:'Eau',grass:'Plante',fire:'Feu',steel:'Acier',electric:'Électrik',ground:'Sol',ice:'Glace',dragon:'Dragon',dark:'Ténèbres'}[t])).join(' & ')+' · poids ×3',color,tier:zones[i].shares.length}));
+// Toutes les zones des deux régions ; `regionZones()` ne renvoie que celles de la région active (voir arena.js : setRegion).
+export const allZones=[...zones,...johtoZones];
+export const findZone=id=>allZones.find(z=>z.id===id);
+let activeRegion='kanto';
+export const getActiveRegion=()=>activeRegion;
+export const setActiveRegion=r=>{activeRegion=r==='johto'?'johto':'kanto';};
+export const regionZones=()=>activeRegion==='johto'?johtoZones:zones;
 
 export const itinerary=[{town:'Bourg Palette'},{zone:'route'},{town:'Jadielle'},{zone:'route2'},{zone:'forest'},{town:'Argenta'},{zone:'route3'},{zone:'cave'},{zone:'route4'},{town:'Azuria'}];
 // Arrière-plans du cadre 1, un par zone (fichiers dans assets/backgrounds/).
-export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant',bridge:'skyblueplains',rocktunnel:'echocave',tower:'echocave',safari:'wildplains',seafoam:'echocave',mansion:'ravagedfield',ceruleancave:'echocave',victory:'ravagedfield',league:'skyblueplains'};
+export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant',bridge:'skyblueplains',rocktunnel:'echocave',tower:'echocave',safari:'wildplains',seafoam:'echocave',mansion:'ravagedfield',ceruleancave:'echocave',victory:'ravagedfield',league:'skyblueplains',route29:'beauplains',route31:'wildplains',tourchetiflor:'echocave',ruinesalpha:'echocave',puitsramoloss:'echocave',boischenes:'overgrownforest',parcnaturel:'overgrownforest',tourcendree:'ravagedfield',tourferraille:'echocave',chenal40:'skyblueplains',pharoliville:'powerplant',montcreuset:'echocave',routeglace:'echocave',laccolere:'skyblueplains',antredragon:'echocave',montargente:'ravagedfield'};
 export const backgroundFor=id=>`assets/backgrounds/${backgrounds[id]||backgrounds.route}.png`;
 // Puissance de référence (au niveau 5) : ≈ 375 × (total des stats de base / 300)^5. Elle grandit ensuite avec le niveau (voir levels.js).
 // Valeurs PROVISOIRES : Bulbizarre démarre vers 500, une équipe de six légendaires niveau 100 plafonne vers 50 millions.
@@ -61,7 +68,7 @@ export const tierOf=id=>LEGENDARY.includes(id)?5:(t=>t<=320?1:t<=420?2:t<=485?3:
 // `rarityBonus` (Super Ball, Hyper Ball…) multiplie la part de chaque palier au-dessus des Communs, puis le total est ramené à 100 %.
 export function adjustedShares(shares,rarityBonus=0){if(!rarityBonus||shares.length<2)return shares;const raw=shares.map((s,i)=>i===0?s:s*(1+rarityBonus)),total=raw.reduce((a,b)=>a+b,0);return raw.map(s=>s/total);}
 let periodSource=()=>null;export const setPeriodSource=fn=>{periodSource=typeof fn==='function'?fn:()=>null;};
-export function zonePool(id,rarityBonus=0,period=undefined){const per=period===undefined?periodSource():period||null;const zone0=zones.find(z=>z.id===id)||johtoZones.find(z=>z.id===id)||zones[0],zone={...zone0,shares:adjustedShares(zone0.shares,rarityBonus)};
+export function zonePool(id,rarityBonus=0,period=undefined){const per=period===undefined?periodSource():period||null;const zone0=findZone(id)||zones[0],zone={...zone0,shares:adjustedShares(zone0.shares,rarityBonus)};
  const entries=pool.filter(p=>speciesRegion(p.id)===(zone.region||'kanto')&&zone.shares[tierOf(p.id)-1]>0).map(p=>({...p,power:powers[p.id-1],tier:tierOf(p.id),probability:p.probability*(types[p.id].some(t=>zone.bonus.includes(t))?3:1)*timeMult(types[p.id],per)}));
  const sums={};for(const p of entries)sums[p.tier]=(sums[p.tier]||0)+p.probability;
  // Légendaires : plus l'espèce est forte, plus elle est rare (Mewtwo bien plus rare qu'un oiseau), et le palier entier est réduit. La chance (balls, Pokédex, encens…) agit toujours dessus.

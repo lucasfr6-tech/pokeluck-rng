@@ -895,3 +895,4 @@ body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-
 /* Onglets verrouillés (Expéditions, Défis) */
 .view-locked{position:relative;filter:grayscale(.85) brightness(.7);cursor:not-allowed}
 .vlock{position:absolute;left:50%;top:6px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border:2px solid #3a2a06;border-radius:999px;background:#2b3a4d;color:#ffd25a;font:800 10px system-ui;white-space:nowrap;filter:none;z-index:3}
+.map-johto.back{left:auto;right:3%}.map-johto.back svg{transform:scaleX(-1)}
