@@ -1,6 +1,6 @@
 // Arènes de Kanto : 8 champions, 2 zones avant chacun. Équipes réelles des jeux (Rouge Feu / Vert Feuille), niveaux mis à l'échelle
 // pour que le dernier champion soit niveau 100. Pure donnée + règles d'accès, sans DOM.
-import {zones, findZone, tierOf, setActiveRegion} from './world.js';
+import {zones, findZone, tierOf, setActiveRegion, JOHTO_TOPS} from './world.js';
 
 // Ordre du parcours (serpentin) : deux zones, puis l'arène.
 export const KANTO_ZONE_ORDER = ['route', 'route2', 'forest', 'route3', 'cave', 'route4', 'bridge', 'rocktunnel', 'tower', 'safari', 'power', 'seafoam', 'mansion', 'ceruleancave', 'victory', 'league'];
@@ -26,7 +26,11 @@ export function badgeCount(badges) { return countIn(ARENAS, badges); }
 export const kantoBadgeCount = badges => countIn(KANTO_ARENAS, badges);
 export const johtoBadgeCount = badges => countIn(JOHTO_ARENAS, badges);
 // Plafond de niveau : 20 → 100 avec les 8 badges de Kanto, puis 100 → 200 avec les 8 badges de Johto.
-export const levelCap = badges => { const k = kantoBadgeCount(badges); return k < KANTO_ARENAS.length ? LEVEL_CAPS[k] : JOHTO_LEVEL_CAPS[johtoBadgeCount(badges)]; };
+// Johto : le plafond monte zone par zone (de 106 à la Route 29 jusqu'à 200 au Mont Argent), selon la zone la plus lointaine atteinte.
+let johtoReach = -1;
+export const setJohtoReach = i => { i = Math.max(-1, Math.min(JOHTO_TOPS.length - 1, Math.floor(+i) || -1)); johtoReach = i; return i; };
+export const getJohtoReach = () => johtoReach;
+export const levelCap = badges => { const k = kantoBadgeCount(badges); return k < KANTO_ARENAS.length ? LEVEL_CAPS[k] : (johtoReach >= 0 ? JOHTO_TOPS[johtoReach] : 100); };
 export const arenaById = id => ARENAS.find(a => a.id === id) || KANTO_ARENAS.find(a => a.id === id) || JOHTO_ARENAS.find(a => a.id === id);
 // Récompenses : prime en Pokédollars la première fois (puis 10 % en revanche), plus la CT du champion.
 // Prime : 5 000 ₽ × n° de l'arène (Pierre 5 000, Ondine 10 000 … Giovanni 40 000) ; revanche = 10 %.
@@ -89,13 +93,13 @@ const jbadge = n => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sp
 const jdef = (n, o) => ({...def(n, o), region:'johto', tm:null, badgeSprite:jbadge(n)});
 export const JOHTO_ARENAS = [
   jdef(1, {id:'mauville', city:'Mauville', leader:'Albert', title:'Champion d’arène de Mauville', type:'vol', badgeName:'Badge Zéphyr', trainer:'falkner', ace:112, need:100, real:[[16, 7], [17, 9]], quote:'Les oiseaux me guident ! Montre-moi ta valeur dans les airs !'}),
-  jdef(2, {id:'rosalia', city:'Rosalia', leader:'Hector', title:'Champion d’arène de Rosalia', type:'insecte', badgeName:'Badge Essaim', trainer:'bugsy', ace:125, need:110, real:[[11, 14], [14, 14], [123, 16]], quote:'Mes recherches sur les insectes sont mon plus grand trésor !'}),
-  jdef(3, {id:'doublonville', city:'Doublonville', leader:'Blanche', title:'Championne d’arène de Doublonville', type:'normal', badgeName:'Badge Plaine', trainer:'whitney', ace:137, need:123, real:[[35, 18], [241, 20]], quote:'Allez, ne me fais pas pleurer ! Je vais te montrer ce que je vaux !'}),
-  jdef(4, {id:'ecorcia', city:'Écorcia', leader:'Mortimer', title:'Champion d’arène d’Écorcia', type:'spectre', badgeName:'Badge Brume', trainer:'morty', ace:150, need:135, real:[[92, 21], [93, 21], [93, 23], [94, 25]], quote:'Je vois un avenir où je gagne… Prépare-toi, dresseur !'}),
-  jdef(5, {id:'irisia', city:'Irisia', leader:'Chuck', title:'Champion d’arène d’Irisia', type:'combat', badgeName:'Badge Tempête', trainer:'chuck', ace:162, need:148, real:[[57, 27], [62, 30]], quote:'Wahahah ! Tu veux défier mon poing d’acier ?'}),
-  jdef(6, {id:'oliville', city:'Oliville', leader:'Jasmine', title:'Championne d’arène d’Oliville', type:'acier', badgeName:'Badge Minéral', trainer:'jasmine', ace:175, need:160, real:[[81, 30], [81, 30], [208, 35]], quote:'… Je ferai de mon mieux. Mon Pokémon Acier est très solide.'}),
-  jdef(7, {id:'acajou', city:'Acajou', leader:'Frédo', title:'Champion d’arène d’Acajou', type:'glace', badgeName:'Badge Glacier', trainer:'pryce', ace:187, need:173, real:[[86, 27], [87, 29], [221, 31]], quote:'J’ai vu bien des hivers. L’expérience bat toujours la jeunesse !'}),
-  jdef(8, {id:'ebenelle', city:'Ébènelle', leader:'Sandra', title:'Championne d’arène d’Ébènelle', type:'dragon', badgeName:'Badge Élévation', trainer:'clair', ace:200, need:185, real:[[148, 37], [148, 37], [148, 37], [230, 40]], quote:'Je suis la meilleure des dresseurs de dragons. Tu ne me battras pas !'})
+  jdef(2, {id:'rosalia', city:'Rosalia', leader:'Hector', title:'Champion d’arène de Rosalia', type:'insecte', badgeName:'Badge Essaim', trainer:'bugsy', ace:125, need:112, real:[[11, 14], [14, 14], [123, 16]], quote:'Mes recherches sur les insectes sont mon plus grand trésor !'}),
+  jdef(3, {id:'doublonville', city:'Doublonville', leader:'Blanche', title:'Championne d’arène de Doublonville', type:'normal', badgeName:'Badge Plaine', trainer:'whitney', ace:137, need:125, real:[[35, 18], [241, 20]], quote:'Allez, ne me fais pas pleurer ! Je vais te montrer ce que je vaux !'}),
+  jdef(4, {id:'ecorcia', city:'Écorcia', leader:'Mortimer', title:'Champion d’arène d’Écorcia', type:'spectre', badgeName:'Badge Brume', trainer:'morty', ace:150, need:138, real:[[92, 21], [93, 21], [93, 23], [94, 25]], quote:'Je vois un avenir où je gagne… Prépare-toi, dresseur !'}),
+  jdef(5, {id:'irisia', city:'Irisia', leader:'Chuck', title:'Champion d’arène d’Irisia', type:'combat', badgeName:'Badge Tempête', trainer:'chuck', ace:162, need:150, real:[[57, 27], [62, 30]], quote:'Wahahah ! Tu veux défier mon poing d’acier ?'}),
+  jdef(6, {id:'oliville', city:'Oliville', leader:'Jasmine', title:'Championne d’arène d’Oliville', type:'acier', badgeName:'Badge Minéral', trainer:'jasmine', ace:175, need:162, real:[[81, 30], [81, 30], [208, 35]], quote:'… Je ferai de mon mieux. Mon Pokémon Acier est très solide.'}),
+  jdef(7, {id:'acajou', city:'Acajou', leader:'Frédo', title:'Champion d’arène d’Acajou', type:'glace', badgeName:'Badge Glacier', trainer:'pryce', ace:187, need:175, real:[[86, 27], [87, 29], [221, 31]], quote:'J’ai vu bien des hivers. L’expérience bat toujours la jeunesse !'}),
+  jdef(8, {id:'ebenelle', city:'Ébènelle', leader:'Sandra', title:'Championne d’arène d’Ébènelle', type:'dragon', badgeName:'Badge Élévation', trainer:'clair', ace:200, need:188, real:[[148, 37], [148, 37], [148, 37], [230, 40]], quote:'Je suis la meilleure des dresseurs de dragons. Tu ne me battras pas !'})
 ];
 export const JOHTO_LEVEL_CAPS = [100, 112, 125, 137, 150, 162, 175, 187, 200];
 // Ligue de Johto : Clément, Koga, Aldo, Marion, puis le champion Peter (Conseil des 4 d'Or / Argent).
