@@ -896,3 +896,9 @@ body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-
 .view-locked{position:relative;filter:grayscale(.85) brightness(.7);cursor:not-allowed}
 .vlock{position:absolute;left:50%;top:6px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border:2px solid #3a2a06;border-radius:999px;background:#2b3a4d;color:#ffd25a;font:800 10px system-ui;white-space:nowrap;filter:none;z-index:3}
 .map-johto.back{left:auto;right:3%}.map-johto.back svg{transform:scaleX(-1)}
+/* Fenêtre de vie du Pokémon en combat : petite, toujours en bas à droite */
+.fighter{left:auto!important;right:6px!important;width:clamp(138px,16cqw,200px)!important;padding:4px 8px 5px!important;border-radius:10px!important;gap:2px!important;font-size:10px!important}
+.fighter b{font-size:12px!important}
+.fighter .hp-track{height:8px!important;margin-top:2px!important}
+.fighter .xp{height:5px!important}
+.fighter small{font-size:9px!important}
