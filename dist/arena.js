@@ -42,6 +42,24 @@ export const zoneGate = id => Math.floor(ZONE_ORDER.indexOf(id) / 2);
 export const FLOORS = {tower:[8, 20, 38, 60], seafoam:[8, 20, 38, 60], ceruleancave:[10, 24, 44, 70],
   tourchetiflor:[8, 18, 32, 50, 75], tourcendree:[10, 22, 38, 60, 90], tourferraille:[10, 22, 38, 60, 90], antredragon:[10, 24, 44, 70]};
 export const FLOOR_BOOST = .08;
+// Gardien de fin d'étages : il apparaît au tirage suivant la dernière victoire de la zone et ferme les étages quand il est battu.
+export const FLOOR_BOSSES = {
+  tower:{leader:'Gardien de la Tour', team:[94, 97, 65, 24], sprite:'sage'},
+  seafoam:{leader:'Gardien des Îles Écume', team:[87, 91, 131, 144], sprite:'nageur'},
+  ceruleancave:{leader:'Gardien de la Grotte', team:[65, 80, 121, 150], sprite:'sage'},
+  tourchetiflor:{leader:'Sage de la Tour Chétiflor', team:[178, 97, 164, 200], sprite:'sage'},
+  tourcendree:{leader:'Gardien de la Tour Cendrée', team:[244, 243, 245, 229], sprite:'sage'},
+  tourferraille:{leader:'Gardien de la Tour Ferraille', team:[250, 149, 142, 6], sprite:'sage'},
+  antredragon:{leader:'Maître de l’Antre du Dragon', team:[149, 230, 130, 142], sprite:'sage'}
+};
+let bossFn = () => ({});
+export const setBossProgress = fn => { bossFn = typeof fn === 'function' ? fn : () => ({}); };
+export function floorBossDef(zoneId) {
+  const b = FLOOR_BOSSES[zoneId], z = findZone(zoneId); if (!b || !z) return null;
+  const lvl = Math.min(200, z.levels[1] + (z.region === 'johto' ? 2 : 3));
+  return {floorBoss:true, id:'fb-' + zoneId, zone:zoneId, n:0, leader:b.leader, title:b.leader + ' · ' + z.name, type:'varié', sprite:`assets/trainers/${b.sprite}.png`, alts:[], team:b.team.map(id => [id, lvl]), ace:lvl, badgeSprite:null};
+}
+export const floorBossDone = id => !!bossFn()[id];
 let progressFn = () => ({});
 export const setProgress = fn => { progressFn = typeof fn === 'function' ? fn : () => ({}); };
 export function floorInfo(id, kills = progressFn()) {
@@ -54,7 +72,7 @@ export const floorBoost = id => { const f = floorInfo(id); return f ? 1 + FLOOR_
 export function floorsDone(id, badges) {
   if (!FLOORS[id]) return true;
   const a = ARENAS[Math.floor(ZONE_ORDER.indexOf(id) / 2)]; if (a && badges?.[a.id]) return true;
-  return floorInfo(id).done;
+  return floorInfo(id).done && floorBossDone(id);
 }
 export function zoneAccess(id, leadLevel, badges) {
   const z = findZone(id); if (!z) return {ok:false, reason:'unknown'};
@@ -126,11 +144,11 @@ export const JOHTO_LEVEL_CAPS = [100, 112, 125, 137, 150, 162, 175, 187, 200];
 // Ligue de Johto : Clément, Koga, Aldo, Marion, puis le champion Peter (Conseil des 4 d'Or / Argent).
 const jeliteDef = (n, o) => ({...eliteDef(n, o), region:'johto', city:'Ligue Pokémon', badgeName:'Victoire sur ' + o.leader});
 export const JOHTO_ELITE = [
-  jeliteDef(1, {id:'clement', leader:'Clément', title:'Clément, du Conseil des 4', type:'psy', trainer:'will', ace:192, real:[[178, 40], [124, 41], [103, 41], [80, 41], [178, 42]], quote:'J’ai étudié le pouvoir psychique. Tu ne peux pas me surprendre !'}),
-  jeliteDef(2, {id:'kogaj', leader:'Koga', title:'Koga, du Conseil des 4', type:'poison', trainer:'koga', ace:194, real:[[168, 40], [205, 43], [89, 42], [49, 41], [169, 44]], quote:'Les ninjas frappent là où on ne les attend pas !'}),
-  jeliteDef(3, {id:'aldoj', leader:'Aldo', title:'Aldo, du Conseil des 4', type:'combat', trainer:'bruno', ace:196, real:[[237, 42], [106, 42], [107, 42], [95, 43], [68, 46]], quote:'Ma force et ma volonté sont sans limites !'}),
-  jeliteDef(4, {id:'marion', leader:'Marion', title:'Marion, du Conseil des 4', type:'ténèbres', trainer:'karen', ace:198, real:[[197, 42], [45, 42], [94, 45], [198, 44], [229, 47]], quote:'Les Pokémon des ténèbres sont les plus fidèles. Tu vas voir !'}),
-  jeliteDef(5, {id:'peterj', leader:'Peter', title:'Peter, Champion de la Ligue de Johto', type:'dragon', champion:true, trainer:'lance', ace:200, real:[[130, 44], [148, 47], [148, 47], [142, 46], [149, 50]], quote:'Je suis le maître des dragons. Montre-moi que tu mérites le titre !'})
+  jeliteDef(1, {id:'clement', leader:'Clément', title:'Clément, du Conseil des 4', type:'psy', trainer:'will', ace:192, real:[[65, 0], [178, 0], [196, 0], [199, 0], [103, 0], [122, 0]], quote:'J’ai étudié le pouvoir psychique. Tu ne peux pas me surprendre !'}),
+  jeliteDef(2, {id:'kogaj', leader:'Koga', title:'Koga, du Conseil des 4', type:'poison', trainer:'koga', ace:194, real:[[169, 0], [110, 0], [89, 0], [49, 0], [168, 0], [34, 0]], quote:'Les ninjas frappent là où on ne les attend pas !'}),
+  jeliteDef(3, {id:'aldoj', leader:'Aldo', title:'Aldo, du Conseil des 4', type:'combat', trainer:'bruno', ace:196, real:[[237, 0], [106, 0], [107, 0], [68, 0], [62, 0], [214, 0]], quote:'Ma force et ma volonté sont sans limites !'}),
+  jeliteDef(4, {id:'marion', leader:'Marion', title:'Marion, du Conseil des 4', type:'ténèbres', trainer:'karen', ace:198, real:[[197, 0], [229, 0], [215, 0], [198, 0], [94, 0], [248, 0]], quote:'Les Pokémon des ténèbres sont les plus fidèles. Tu vas voir !'}),
+  jeliteDef(5, {id:'peterj', leader:'Peter', title:'Peter, Champion de la Ligue de Johto', type:'dragon', champion:true, trainer:'lance', ace:200, real:[[149, 0], [130, 0], [142, 0], [6, 0], [230, 0], [149, 0]], quote:'Je suis le maître des dragons. Montre-moi que tu mérites le titre !'})
 ];
 
 // ---- Région active : ZONE_ORDER, ARENAS et ELITE sont des tableaux « vivants » remplacés sur place (les modules qui les importent voient la région courante).
