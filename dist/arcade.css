@@ -37,3 +37,32 @@
 .rk-bar{height:10px;border-radius:99px;background:#ffffff1c;overflow:hidden}.rk-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--g),#fff8);transition:width .4s}
 .rk-row small{color:#9db8d2;font-size:12px}
 
+
+/* ---------- Page Mode de jeu : vitrine ---------- */
+.mv{--c:#6d8bff;display:grid;grid-template-columns:290px minmax(0,1fr);gap:20px;min-height:min(560px,calc(100dvh - 190px));padding:4px 2px 10px}
+.mv-tabs{display:grid;gap:12px;align-content:start}
+.mv-tab{--c:#ff9b4a;display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:center;padding:10px 12px;border-radius:18px;border:3px solid #ffffff22;background:#0b142499;text-align:left;color:#fff;cursor:pointer;font:inherit;transition:transform .2s,border-color .2s,box-shadow .2s}
+.mv-tab img{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 4px 0 #0006)}
+.mv-tab b{display:block;font:900 17px system-ui}.mv-tab small{display:block;color:#9db8d2;font:600 12px system-ui}
+.mv-tab:hover{border-color:color-mix(in srgb,var(--c) 70%,#fff)}
+.mv-tab.on{border-color:var(--c);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 40%,#0b1424),#0b1424);box-shadow:0 0 22px color-mix(in srgb,var(--c) 45%,transparent);transform:translateX(10px)}
+.mv-tab.lk img{filter:grayscale(1) brightness(.6)}
+.mv-hero{position:relative;min-height:500px;border-radius:30px;border:4px solid var(--c);overflow:hidden;background:radial-gradient(circle at 72% 48%,color-mix(in srgb,var(--c) 70%,#fff 0),color-mix(in srgb,var(--c) 35%,#0b1424) 40%,#0b1424 80%);box-shadow:0 10px 0 #0008,0 0 50px color-mix(in srgb,var(--c) 40%,transparent)}
+.mv-hero:before{content:'';position:absolute;inset:-50%;background:repeating-conic-gradient(from 0deg at 72% 70%,#ffffff12 0 6deg,transparent 6deg 18deg);animation:mv-spin 40s linear infinite}
+@keyframes mv-spin{to{transform:rotate(360deg)}}
+@keyframes mv-bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1.5deg)}}
+@keyframes mv-pulse{50%{transform:scale(1.04)}}
+@keyframes mv-in{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+@keyframes mv-pop{from{opacity:0;transform:translateX(50px) scale(.9)}to{opacity:1;transform:none}}
+.mv-txt{position:absolute;left:40px;top:38px;max-width:46%;z-index:3;animation:mv-in .4s ease-out}
+.mv-tag{display:inline-block;padding:4px 12px;border-radius:99px;background:var(--c);color:#10283f;font:900 12px system-ui;letter-spacing:.1em}
+.mv-hero h2{margin:14px 0 10px;font:900 clamp(34px,5vw,60px)/.95 'Trebuchet MS',Arial,sans-serif;font-style:italic;text-transform:uppercase;text-shadow:0 6px 0 #0008,0 0 26px var(--c);color:#fff}
+.mv-hero p{font-size:16px;line-height:1.45;color:#e2eefa;margin:0 0 16px}
+.mv-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}.mv-stats div{padding:9px 15px;border-radius:14px;border:2px solid #ffffff30;background:#0b142499}.mv-stats span{display:block;font:700 10px system-ui;color:#9db8d2;letter-spacing:.08em}.mv-stats b{font:900 20px system-ui;color:#fff}
+.mv-go{padding:15px 44px;border:0;border-bottom:6px solid color-mix(in srgb,var(--c) 55%,#000);border-radius:18px;background:var(--c);color:#10283f;font:900 21px system-ui;letter-spacing:.08em;cursor:pointer;animation:mv-pulse 1.6s ease-in-out infinite}
+.mv-go:disabled{animation:none;opacity:.6;cursor:not-allowed;font-size:15px;letter-spacing:0}
+.mv-go:active{transform:translateY(3px);border-bottom-width:3px}
+.mv-m1{position:absolute;right:-30px;bottom:-40px;height:110%;max-width:60%;object-fit:contain;z-index:2;filter:drop-shadow(0 10px 0 #0006);animation:mv-pop .5s ease-out,mv-bob 3.6s ease-in-out .5s infinite}
+.mv-m2{position:absolute;right:34%;bottom:-30px;height:58%;max-width:30%;object-fit:contain;z-index:1;opacity:.92;filter:drop-shadow(0 8px 0 #0006);animation:mv-pop .6s ease-out,mv-bob 3.6s ease-in-out -1.8s infinite}
+.reduce-motion .mv-hero:before,.reduce-motion .mv-go,.reduce-motion .mv-m1,.reduce-motion .mv-m2,.reduce-motion .mv-txt{animation:none}
+@media(max-width:900px){.mv{grid-template-columns:1fr}.mv-tabs{grid-template-columns:repeat(2,1fr)}.mv-tab.on{transform:none}.mv-hero{min-height:560px}.mv-txt{max-width:70%;left:22px;top:24px}.mv-m1{height:46%;right:-30px;bottom:-20px}.mv-m2{display:none}}
