@@ -233,9 +233,9 @@ body.reduce-motion .has-ready:after{animation:none!important}
 
 /* Menu boussole B : médaillons ronds */
 #menu-drawer.compass-menu{width:640px}
-.cm{position:relative;height:640px;margin:8px 12px 4px}
-.cm-orbit{position:absolute;left:95px;top:85px;width:410px;height:410px;border-radius:50%;border:2px solid var(--menu-line);pointer-events:none;transition:border-color .2s}
-.cm-core{cursor:pointer;position:absolute;left:240px;top:230px;width:120px;height:120px;border-radius:50%;border:3px solid #ffd27c;background:radial-gradient(#2a5578,#10283f);display:grid;place-items:center}
+.cm{position:relative;height:700px;margin:8px 12px 4px}
+.cm-orbit{position:absolute;left:75px;top:75px;width:450px;height:450px;border-radius:50%;border:2px solid var(--menu-line);pointer-events:none;transition:border-color .2s}
+.cm-core{cursor:pointer;position:absolute;left:240px;top:240px;width:120px;height:120px;border-radius:50%;border:3px solid #ffd27c;background:radial-gradient(#2a5578,#10283f);display:grid;place-items:center}
 .cm-core img{width:68px;height:68px;image-rendering:pixelated;object-fit:contain}
 .cm .cm-b{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:132px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;border:0;background:none;color:#eef6ff;cursor:pointer;font:700 14px 'Trebuchet MS',Arial,sans-serif;text-align:center;transition:opacity .2s,left .25s,top .25s}
 .cm .cm-b i{display:grid;place-items:center;width:88px;height:88px;border-radius:50%;border:3px solid var(--tone);background:radial-gradient(#26506f,#10283f);box-shadow:0 0 20px color-mix(in srgb,var(--tone) 40%,transparent);transition:width .25s,height .25s}
@@ -252,11 +252,11 @@ body.reduce-motion .has-ready:after{animation:none!important}
 .cm.open-dex .cm-b[data-view=dex] i,.cm.open-quests .cm-b[data-view=quests] i{width:136px;height:136px}
 .cm.open-dex .cm-b[data-view=dex] img,.cm.open-quests .cm-b[data-view=quests] img{width:84px;height:84px}
 .cm.open-dex .cm-orbit{border-color:#6b4a49}
-.cm.open-dex .cm-b[data-view=dex]{--y:96px}
-.cm.open-quests .cm-b[data-view=quests]{--y:393px}
+.cm.open-dex .cm-b[data-view=dex]{--y:86px}
+.cm.open-quests .cm-b[data-view=quests]{--y:350px}
 .cm-hint{position:absolute;left:0;right:0;bottom:0;padding:11px 14px;border-radius:10px;border:2px solid var(--menu-line);background:var(--menu-soft);font-size:12px;color:var(--menu-muted)}
 .cm .cm-b.has-ready:after{content:"!";position:absolute;top:0;right:22px;width:22px;height:22px;border-radius:50%;background:#ff4a64;color:#fff;font:700 13px/22px sans-serif;box-shadow:0 0 0 2px #0d2035,0 0 10px #ff4a64;animation:readyPulse 1.6s ease-in-out infinite}
-@media(max-width:660px){#menu-drawer.compass-menu{width:calc(100vw - 16px)}.cm{transform:scale(.62);transform-origin:top center;height:400px;margin:8px auto;width:600px;max-width:none;left:50%;margin-left:-300px}}
+@media(max-width:660px){#menu-drawer.compass-menu{width:calc(100vw - 16px)}.cm{transform:scale(.62);transform-origin:top center;height:440px;margin:8px auto;width:600px;max-width:none;left:50%;margin-left:-300px}}
 /* Éclosion */
 .hx{position:fixed;inset:0;z-index:210;background:rgba(3,10,18,.9);display:grid;place-items:center;padding:12px;overflow:auto}
 .hx-box{display:flex;gap:20px;align-items:stretch;flex-wrap:wrap;justify-content:center}
