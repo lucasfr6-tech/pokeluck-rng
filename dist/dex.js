@@ -5,6 +5,13 @@ import {minLevel} from './levels.js';
 
 // Pokédex : paliers d'espèces découvertes, évolutions et zones où l'on trouve chaque espèce.
 export const DEX_TOTAL = 151;
+// Johto : 100 espèces (n° 152 à 251), paliers propres (clés 1025 / 1050 / 1100 dans la sauvegarde).
+export const JOHTO_FIRST = 152, JOHTO_TOTAL = 100, JOHTO_LAST = 251;
+export const JOHTO_DEX_MILESTONES = [
+  {n:25,  key:1025, luck:.30, money:150000,  label:'Chance +30 % · 150 000 ₽'},
+  {n:50,  key:1050, luck:.40, money:300000,  label:'Chance +40 % · 300 000 ₽'},
+  {n:100, key:1100, luck:.60, money:1500000, label:'Chance +60 % · 1 500 000 ₽ · titre Maître Pokédex de Johto'}
+];
 // Chaque palier fixe le bonus de chance (raretés) du Pokédex : +5 %, +15 %, +25 %, +50 % (le dernier atteint, pas cumulé). 25 et 151 ajoutent de l'argent.
 export const DEX_MILESTONES = [
   {n:25,  luck:.05, money:20000,  label:'Chance +5 % · 20 000 ₽'},
@@ -19,11 +26,13 @@ export const SHINY_MILESTONES = [
   {n:50,  mult:.25, label:'Chromatiques +25 %', money:100000},
   {n:151, mult:.50, label:'Chromatiques +50 % · 1 000 000 ₽ · titre Chasseur brillant', money:1000000}
 ];
-export const sanitizeDex = raw => { const claimed = {}, shinyClaimed = {}; if (raw?.claimed && typeof raw.claimed === 'object') for (const m of DEX_MILESTONES) if (raw.claimed[m.n] === true) claimed[m.n] = true; if (raw?.shinyClaimed && typeof raw.shinyClaimed === 'object') for (const m of SHINY_MILESTONES) if (raw.shinyClaimed[m.n] === true) shinyClaimed[m.n] = true; return {claimed, shinyClaimed}; };
+export const sanitizeDex = raw => { const claimed = {}, shinyClaimed = {}; if (raw?.claimed && typeof raw.claimed === 'object') for (const m of DEX_MILESTONES) if (raw.claimed[m.n] === true) claimed[m.n] = true; if (raw?.claimed && typeof raw.claimed === 'object') for (const m of JOHTO_DEX_MILESTONES) if (raw.claimed[m.key] === true) claimed[m.key] = true; if (raw?.shinyClaimed && typeof raw.shinyClaimed === 'object') for (const m of SHINY_MILESTONES) if (raw.shinyClaimed[m.n] === true) shinyClaimed[m.n] = true; return {claimed, shinyClaimed}; };
 export const shinyDexLuck = dex => SHINY_MILESTONES.reduce((l, m) => dex?.shinyClaimed?.[m.n] ? Math.max(l, m.mult) : l, 0);
-export const shinyOwned = shinyCounts => Object.keys(shinyCounts || {}).filter(k => shinyCounts[k] > 0).length;
+export const shinyOwned = (shinyCounts, region = 'kanto') => Object.keys(shinyCounts || {}).filter(k => shinyCounts[k] > 0 && (region === 'johto' ? +k >= JOHTO_FIRST && +k <= JOHTO_LAST : +k <= DEX_TOTAL)).length;
 export const shinyMilestoneState = (dex, owned) => SHINY_MILESTONES.map(m => ({...m, claimed: !!dex?.shinyClaimed?.[m.n], ready: owned >= m.n && !dex?.shinyClaimed?.[m.n]}));
-export const dexLuck = dex => DEX_MILESTONES.reduce((l, m) => dex?.claimed?.[m.n] ? Math.max(l, m.luck) : l, 0);
+export const dexLuck = dex => DEX_MILESTONES.reduce((l, m) => dex?.claimed?.[m.n] ? Math.max(l, m.luck) : l, JOHTO_DEX_MILESTONES.reduce((l, m) => dex?.claimed?.[m.key] ? Math.max(l, m.luck) : l, 0));
+export const dexMasterJohto = (dex, discovered) => !!dex?.claimed?.[1100] && discovered >= JOHTO_TOTAL;
+export const johtoMilestoneState = (dex, discovered) => JOHTO_DEX_MILESTONES.map(m => ({...m, claimed: !!dex?.claimed?.[m.key], ready: discovered >= m.n && !dex?.claimed?.[m.key]}));
 export const dexMaster = (dex, discovered) => !!dex?.claimed?.[151] && discovered >= DEX_TOTAL;
 export const milestoneState = (dex, discovered) => DEX_MILESTONES.map(m => ({...m, claimed: !!dex?.claimed?.[m.n], ready: discovered >= m.n && !dex?.claimed?.[m.n]}));
 export const nextEvolutions = id => Object.keys(evolvesFrom).map(Number).filter(to => evolvesFrom[to] === id);
