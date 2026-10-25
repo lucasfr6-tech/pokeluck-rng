@@ -88,7 +88,7 @@
 @keyframes ttl-pulse{0%,100%{opacity:.7}50%{opacity:1}}
 @keyframes ttl-spin{to{transform:rotate(360deg)}}
 #trainer-title .ttl{padding:1px 9px 1px 6px}#trainer-title .ttl b{font-size:10.5px}#trainer-title .ttl svg{width:12px;height:12px}
-#avatar-wrap{display:grid;flex-shrink:0;line-height:0}
+#avatar-wrap{display:grid;flex-shrink:0;line-height:0;width:max-content;height:max-content;justify-self:center;align-self:center}
 #avatar-wrap[data-frame]{margin:3px}
 /* ---------- Onglet Profil ---------- */
 .prof{display:grid;gap:16px}
