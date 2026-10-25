@@ -7,9 +7,9 @@ export const TEAM_SIZE = 3;
 export const MIN = 60 * 1000;
 // Puissance minimale de l'équipe (somme des trois Pokémon), durée, argent de base, nombre de tirages de butin, chances par rareté du butin (%).
 export const DIFFS = [
-  {id:'e', name:'Balade',           tier:0, min:500_000,   ms:30 * MIN,  money:30_000,  rolls:2, odds:[60, 30, 9, 1, 0]},
-  {id:'m', name:'Expédition',       tier:1, min:5_000_000, ms:120 * MIN, money:150_000, rolls:3, odds:[25, 40, 25, 9, 1]},
-  {id:'h', name:'Grande traversée', tier:2, min:50_000_000,ms:240 * MIN, money:800_000, rolls:4, odds:[5, 20, 40, 27, 8]}
+  {id:'e', name:'Balade',           tier:0, min:500_000,   ms:30 * MIN,  money:7_500,  rolls:2, odds:[60, 30, 9, 1, 0]},
+  {id:'m', name:'Expédition',       tier:1, min:5_000_000, ms:120 * MIN, money:37_500, rolls:3, odds:[25, 40, 25, 9, 1]},
+  {id:'h', name:'Grande traversée', tier:2, min:50_000_000,ms:240 * MIN, money:200_000, rolls:4, odds:[5, 20, 40, 27, 8]}
 ];
 export const RARITY = ['Commun', 'Peu commun', 'Rare', 'Épique', 'Jackpot'];
 // `bg` : décor du jeu ; `aff` : les deux types qui favorisent le butin de leur type.

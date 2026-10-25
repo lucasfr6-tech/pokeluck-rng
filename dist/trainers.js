@@ -30,8 +30,10 @@ export const trainerPrize = team => Math.round(TRAINER_MONEY * team.reduce((s, [
 
 // Rival : après l'arène n (1–8), il revient avec une équipe plus forte (niveau de l'as de l'arène + 3).
 const RIVAL_TEAMS = {1: [16, 63, 19], 2: [17, 64, 20], 3: [17, 64, 20, 58], 4: [18, 64, 111, 58], 5: [18, 65, 111, 59, 102], 6: [18, 65, 112, 59, 103], 7: [18, 65, 112, 59, 103, 9], 8: [18, 65, 112, 59, 103, 9]};
-export function rivalDef(n) {
-  const a = ARENAS[n - 1], lvl = Math.min(100, a.ace + 3), size = Math.min(6, 2 + Math.ceil(n / 2));
-  return {rival: true, id: 'rival-' + n, n, leader: 'Rival', title: `Ton rival · après ${a.city}`, sprite: 'assets/trainers/rival.png', alts: [], team: RIVAL_TEAMS[n].slice(0, size).map(id => [id, lvl]), badgeSprite: null, prize: Math.round(arenaPrize(a, true) * .6)};
+export function rivalDef(n, johto = false) {
+  const a = ARENAS[n - 1], lvl = Math.min(johto ? 200 : 100, a.ace + 3), size = Math.min(6, 2 + Math.ceil(n / 2));
+  return {rival: true, johto, id: 'rival-' + (johto ? 'j' : '') + n, n, leader: 'Rival', title: `Ton rival · après ${a.city}`, sprite: 'assets/trainers/rival.png', alts: [], team: (johto ? RIVAL_J_TEAM : RIVAL_TEAMS[n]).slice(0, size).map(id => [id, lvl]), badgeSprite: null, prize: Math.round(arenaPrize(a, true) * .6)};
 }
-export const sanitizeRival = r => { const o = {}; if (r && typeof r === 'object') for (let n = 1; n <= ARENAS.length; n++) if (r[n] === true) o[n] = true; return o; };
+export const sanitizeRival = r => { const o = {}; if (r && typeof r === 'object') for (let n = 1; n <= 16; n++) if (r[n] === true) o[n] = true; return o; };
+// Johto : clés 9 à 16 dans la sauvegarde (n° d'arène + 8).
+export const RIVAL_J_TEAM = [215, 169, 82, 94, 65, 160];

@@ -26,4 +26,9 @@ export async function unlockAudio(){
 }
 export function updateAudio(){if(master)master.gain.value=getPreferences().volume/100;if(!getPreferences().sound){for(const source of active){try{source.stop();}catch{}}active.clear();}}
 export async function playSound(kind){if(!await unlockAudio())return false;try{const samples=renderRetroNoise(kind,context.sampleRate),buffer=context.createBuffer(1,samples.length,context.sampleRate);buffer.copyToChannel(samples,0);const source=context.createBufferSource();source.buffer=buffer;source.connect(master);active.add(source);source.onended=()=>{active.delete(source);source.disconnect();};source.start();return true;}catch{return false;}}
+// Carillon d'apparition d'un chromatique : petit arpège aigu (synthèse, pas un enregistrement).
+export async function playShinyChime(){
+ if(!await unlockAudio())return false;
+ try{const t0=context.currentTime+.02;[[1319,0],[1568,.09],[2093,.18],[2637,.29]].forEach(([f,d],i)=>{const o=context.createOscillator(),g=context.createGain();o.type=i%2?'triangle':'square';o.frequency.value=f;g.gain.setValueAtTime(0,t0+d);g.gain.linearRampToValueAtTime(.16,t0+d+.01);g.gain.exponentialRampToValueAtTime(.001,t0+d+.32);o.connect(g);g.connect(master);o.start(t0+d);o.stop(t0+d+.34);active.add(o);o.onended=()=>{active.delete(o);o.disconnect();g.disconnect();};});return true;}catch{return false;}
+}
 if(typeof document!=='undefined'){document.addEventListener('pointerdown',()=>{void unlockAudio();},{passive:true});document.addEventListener('keydown',()=>{void unlockAudio();},{passive:true});document.addEventListener('visibilitychange',()=>{if(document.hidden&&context)void context.suspend();});}
