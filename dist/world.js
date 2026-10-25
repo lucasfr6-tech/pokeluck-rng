@@ -40,8 +40,8 @@ const JOHTO_ROWS=[
  ['routeglace','Route de Glace',['ice','water'],'cave'],['laccolere','Lac Colère',['water','dragon'],'route'],
  ['antredragon','Antre du Dragon',['dragon','dark'],'cave'],['montargente','Mont Argenté',['rock','ice'],'cave']
 ];
-const JCAP=[100,112,125,137,150,162,175,187,200],jMin=i=>{const c=JCAP[i>>1];return i%2?c:Math.max(100,c-8);};
-export const johtoZones=JOHTO_ROWS.map(([id,name,bonus,color],i)=>({id,region:'johto',min:jMin(i),shares:zones[i].shares,levels:[jMin(i),i===JOHTO_ROWS.length-1?200:Math.min(200,jMin(i)+6)],name,bonus,note:bonus.map(t=>({normal:'Normal',flying:'Vol',bug:'Insecte',ghost:'Spectre',psychic:'Psy',rock:'Roche',water:'Eau',grass:'Plante',fire:'Feu',steel:'Acier',electric:'Électrik',ground:'Sol',ice:'Glace',dragon:'Dragon',dark:'Ténèbres'}[t])).join(' & ')+' · poids ×3',color,tier:zones[i].shares.length}));
+const JCAP=[100,112,125,137,150,162,175,187,200],jLv=i=>{const c=JCAP[i>>1],lo=Math.max(100,c-(i%2?4:8));return i===15?[187,200]:[lo,lo+4];};
+export const johtoZones=JOHTO_ROWS.map(([id,name,bonus,color],i)=>({id,region:'johto',min:jLv(i)[0],shares:zones[i].shares,levels:jLv(i),name,bonus,note:bonus.map(t=>({normal:'Normal',flying:'Vol',bug:'Insecte',ghost:'Spectre',psychic:'Psy',rock:'Roche',water:'Eau',grass:'Plante',fire:'Feu',steel:'Acier',electric:'Électrik',ground:'Sol',ice:'Glace',dragon:'Dragon',dark:'Ténèbres'}[t])).join(' & ')+' · poids ×3',color,tier:zones[i].shares.length}));
 // Toutes les zones des deux régions ; `regionZones()` ne renvoie que celles de la région active (voir arena.js : setRegion).
 export const allZones=[...zones,...johtoZones];
 export const findZone=id=>allZones.find(z=>z.id===id);
