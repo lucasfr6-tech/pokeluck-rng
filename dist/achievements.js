@@ -66,12 +66,31 @@ export const ACHIEVEMENTS = [
   A('types-10', 2, 'Arc-en-ciel', 'Découvre des Pokémon de 10 types différents.', 'types', 10),
   A('types-15', 3, 'Tous les types', 'Découvre des Pokémon de 15 types différents.', 'types', 15),
   A('starters', 2, 'Trio de départ', 'Découvre Bulbizarre, Salamèche et Carapuce (ou leurs évolutions).', 'starters', 3),
-  A('eevee', 3, 'Évoli et ses évolutions', 'Découvre Évoli, Aquali, Voltali et Pyroli.', 'eevee', 4)
+  A('eevee', 3, 'Évoli et ses évolutions', 'Découvre Évoli, Aquali, Voltali et Pyroli.', 'eevee', 4),
+  // Johto et nouveautés
+  A('lvl-150', 3, 'Au-delà de 100', 'Atteins le niveau 150 avec un Pokémon.', 'maxLevel', 150),
+  A('lvl-200', 4, 'Niveau 200', 'Atteins le niveau 200 avec un Pokémon.', 'maxLevel', 200),
+  A('jdex-25', 1, 'Découvreur de Johto', 'Découvre 25 Pokémon de Johto.', 'johtoDex', 25),
+  A('jdex-50', 2, 'Naturaliste de Johto', 'Découvre 50 Pokémon de Johto.', 'johtoDex', 50),
+  A('jdex-100', 4, 'Maître du Pokédex de Johto', 'Découvre les 100 Pokémon de Johto.', 'johtoDex', 100),
+  A('jbadge-1', 1, 'Badge Zéphyr', 'Bats Albert et obtiens le Badge Zéphyr.', 'johtoBadges', 1),
+  A('jbadge-4', 2, 'Moitié du chemin', 'Obtiens 4 badges de Johto.', 'johtoBadges', 4),
+  A('jbadge-8', 3, 'Collection de Johto', 'Obtiens les 8 badges de Johto.', 'johtoBadges', 8),
+  A('jelite', 4, 'Maître de la Ligue de Johto', 'Bats Peter, Champion de la Ligue de Johto.', 'johtoElite', 1),
+  A('jzone-8', 2, 'Voyageur de Johto', 'Remporte un combat dans 8 zones de Johto.', 'johtoZones', 8),
+  A('jzone-16', 3, 'Tour de Johto', 'Remporte un combat dans les 16 zones de Johto.', 'johtoZones', 16),
+  A('jlegend-3', 3, 'Les bêtes légendaires', 'Découvre 3 légendaires de Johto.', 'johtoLegend', 3),
+  A('jlegend-6', 4, 'Tous les légendaires de Johto', 'Découvre les 6 légendaires de Johto.', 'johtoLegend', 6),
+  A('floor-1', 1, 'Premier gardien', 'Bats le gardien d’une zone à étages.', 'floorBosses', 1),
+  A('floor-4', 2, 'Grimpeur', 'Bats 4 gardiens de fin d’étages.', 'floorBosses', 4),
+  A('floor-7', 3, 'Maître des étages', 'Bats les 7 gardiens de fin d’étages.', 'floorBosses', 7),
+  A('egg-1', 1, 'Œuf de type', 'Fais éclore un œuf de type.', 'typeEggs', 1),
+  A('egg-10', 3, 'Éleveur d’œufs', 'Fais éclore 10 œufs de type.', 'typeEggs', 10)
 ];
 export const achievementById = id => ACHIEVEMENTS.find(a => a.id === id);
 export const progressOf = (a, m) => { const cur = Math.max(0, Math.floor(m[a.metric] || 0)); return {cur: Math.min(cur, a.target), target: a.target, done: cur >= a.target}; };
 export const sanitizeAch = raw => { const out = {}; if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const a of ACHIEVEMENTS) if (raw[a.id] === true) out[a.id] = true; return out; };
-const STAT_KEYS = ['moneyEarned', 'purchases', 'tmUsed', 'heals', 'evolutions', 'newSpecies', 'rareKills', 'arenaWins', ...['normal', 'water', 'grass', 'bug', 'poison', 'flying', 'ground'].map(t => 't_' + t)];
+const STAT_KEYS = ['moneyEarned', 'purchases', 'tmUsed', 'heals', 'evolutions', 'newSpecies', 'rareKills', 'arenaWins', 'typeEggs', 'floorWins', ...['normal', 'water', 'grass', 'bug', 'poison', 'flying', 'ground'].map(t => 't_' + t)];
 export const sanitizeStats = raw => { const out = {}; if (raw && typeof raw === 'object' && !Array.isArray(raw)) for (const k of STAT_KEYS) if (Number.isSafeInteger(raw[k]) && raw[k] > 0) out[k] = raw[k]; return out; };
 // Succès nouvellement remplis (non encore acquis) pour des statistiques données.
 export const newlyDone = (ach, m) => ACHIEVEMENTS.filter(a => !ach[a.id] && progressOf(a, m).done);

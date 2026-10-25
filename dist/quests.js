@@ -13,6 +13,8 @@ const TEMPLATES = [
   {key:'type',  metric:null,         weight:1.1, daily:[6, 10],  weekly:[60, 90],   text:(n, t) => `Tire ${n} Pokémon de type ${TYPE_FR[t] || t}`},
   {key:'rare',  metric:'rareKills',  weight:1.3, daily:[2, 4],   weekly:[20, 30],   text:n => `Bats ${n} Pokémon rares ou mieux`, needs:c => c.badges >= 2},
   {key:'new',   metric:'newSpecies', weight:1.2, weeklyWeight:2, daily:[1, 1], weekly:[20, 20], text:n => `Découvre ${n} nouvelle${n > 1 ? 's' : ''} espèce${n > 1 ? 's' : ''}`, needs:c => c.discovered <= 130},
+  {key:'floor', metric:'floorWins', weight:1.1, daily:[18, 28], weekly:[200, 300], text:n => `Gagne ${n} combats dans les tours et grottes à étages`, needs:c => c.badges >= 4},
+  {key:'teggs', metric:'typeEggs', weight:1.2, daily:[1, 1], weekly:[2, 3], text:n => `Fais éclore ${n} œuf${n > 1 ? 's' : ''} de type`, needs:c => c.badges >= 3},
   {key:'arena', metric:'arenaWins',  weight:1.2, daily:[1, 1],   weekly:[4, 6],     text:n => `Gagne ${n} combat${n > 1 ? 's' : ''} d’arène`, needs:c => c.badges >= 1}
 ];
 const pick = (rand, [lo, hi]) => lo + Math.floor(rand() * (hi - lo + 1));

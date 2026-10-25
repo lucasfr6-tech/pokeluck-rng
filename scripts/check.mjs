@@ -495,7 +495,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 }
 {
   const M = await import('../dist/achievements.js');
-  assert.equal(M.ACHIEVEMENTS.length, 50); assert.equal(new Set(M.ACHIEVEMENTS.map(a => a.id)).size, 50);
+  assert.equal(M.ACHIEVEMENTS.length, 68); assert.equal(new Set(M.ACHIEVEMENTS.map(a => a.id)).size, 68);
   for (const t of [1, 2, 3, 4]) assert.ok(M.ACHIEVEMENTS.filter(a => a.tier === t).length >= 5, 'chaque rang a des succès');
   for (const a of M.ACHIEVEMENTS) assert.ok(a.target > 0 && a.name && a.desc && M.TIERS[a.tier]);
   const m0 = {}, m1 = {draws:150, discovered:12};

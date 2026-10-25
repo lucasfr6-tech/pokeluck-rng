@@ -9,7 +9,7 @@ export const RCOLOR = ['#8aa0b3', '#5fbf7a', '#38bdf8', '#b46cf0', '#f0b429'];
 export const BANNERS = [
   {id:'kanto', name:'Kanto', period:2 * HOUR, periodLabel:'2 h', lo:1, hi:151, one:50_000, ten:500_000, comp:[5, 4, 3, 2, 1], rates:[54.5, 30, 12, 3.2, .3], cls:'', a:'#e5534b', b:'#2a5dbd', ball:'hyper',
    text:'Quinze Pokémon de Kanto, renouvelés toutes les 2 heures. Un seul légendaire à la une.'},
-  {id:'johto', name:'Johto', johto:true, period:2 * HOUR, periodLabel:'2 h', lo:152, hi:251, one:100_000, ten:1_000_000, comp:[5, 4, 3, 2, 1], rates:[54.5, 30, 12, 3.2, .3], cls:'', a:'#e0b341', b:'#3a6fb0', ball:'hyper',
+  {id:'johto', name:'Johto', johto:true, period:2 * HOUR, periodLabel:'2 h', lo:152, hi:251, one:65_000, ten:650_000, comp:[5, 4, 3, 2, 1], rates:[54.5, 30, 12, 3.2, .3], cls:'', a:'#e0b341', b:'#3a6fb0', ball:'hyper',
    text:'Quinze Pokémon de Johto, renouvelés toutes les 2 heures. Un seul légendaire à la une.'},
   {id:'spec', name:'Spéciale', period:72 * HOUR, periodLabel:'3 jours', lo:1, hi:151, hiJ:251, one:150_000, ten:1_500_000, comp:[3, 5, 4, 5, 3], rates:[50, 30, 14, 5, 1], cls:'sp2', a:'#b46cf0', b:'#4a2a8c', ball:'master',
    text:'Vingt Pokémon différents dont trois légendaires, renouvelés tous les 3 jours. Une fois Johto débloqué, les Pokémon de la 2e génération rejoignent cette bannière (les autres générations suivront).'}
