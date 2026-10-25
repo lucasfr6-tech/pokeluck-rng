@@ -18,7 +18,7 @@ export function eggOdds(type, rarityBonus = 0, regions = ['kanto']) {
   for (const id of ids) (by[tierOf(id)] = by[tierOf(id)] || []).push(id);
   const sh = adjustedShares(EGG_SHARES, rarityBonus), tiers = Object.keys(by).map(Number), sum = tiers.reduce((n, t) => n + sh[t - 1], 0) || 1;
   const odds = ids.map(id => ({id, tier: tierOf(id), probability: sh[tierOf(id) - 1] / sum / by[tierOf(id)].length}));
-  const fixed = LEGENDARY_EGG_EACH[type], leg = odds.filter(o => o.tier === 5), rest = odds.filter(o => o.tier !== 5);
+  const fixed = regions.includes('kanto') ? LEGENDARY_EGG_EACH[type] : undefined, leg = odds.filter(o => o.tier === 5), rest = odds.filter(o => o.tier !== 5);
   if (!fixed || !leg.length || !rest.length) return odds;
   for (const o of leg) o.probability = fixed;
   const restSum = rest.reduce((n, o) => n + o.probability, 0), k = (1 - fixed * leg.length) / restSum; for (const o of rest) o.probability *= k;
@@ -29,13 +29,14 @@ export function hatchPick(type, rarityBonus = 0, regions = ['kanto'], rand = Mat
   for (const o of odds) { if (r < o.probability) return o.id; r -= o.probability; }
   return odds.at(-1)?.id;
 }
-export const sanitizeTypeEggs = raw => Array.isArray(raw) ? raw.filter(e => e && TYPE_FR[e.type] && Number.isFinite(e.start) && e.start >= 0).slice(0, TYPE_EGG_SLOTS).map(e => ({type: e.type, start: e.start})) : [];
+export const sanitizeTypeEggs = raw => Array.isArray(raw) ? raw.filter(e => e && TYPE_FR[e.type] && Number.isFinite(e.start) && e.start >= 0).slice(0, TYPE_EGG_SLOTS).map(e => e.region === 'johto' ? {type: e.type, start: e.start, region: 'johto'} : {type: e.type, start: e.start}) : [];
+export const eggRegions = e => [e?.region === 'johto' ? 'johto' : 'kanto'];
 export const typeEggProgress = (e, wins) => Math.max(0, Math.min(TYPE_EGG_NEED, wins - e.start));
 export const typeEggReady = (e, wins) => typeEggProgress(e, wins) >= TYPE_EGG_NEED;
-export function addTypeEgg(state, type, wins) {
+export function addTypeEgg(state, type, wins, region = 'kanto') {
   state.typeEggs = sanitizeTypeEggs(state.typeEggs);
   if (state.typeEggs.length >= TYPE_EGG_SLOTS) return false;
-  state.typeEggs.push({type, start: wins}); return true;
+  state.typeEggs.push(region === 'johto' ? {type, start: wins, region} : {type, start: wins}); return true;
 }
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 export function typeEggsHtml(state, wins) {
@@ -44,7 +45,7 @@ export function typeEggsHtml(state, wins) {
     const e = list[i];
     if (!e) return `<div class="te-card empty"><span class="te-slot">Emplacement ${i + 1}</span><small>Libre · achète un Œuf de type en boutique</small></div>`;
     const p = typeEggProgress(e, wins), ready = p >= TYPE_EGG_NEED, c = TYPE_COL[e.type];
-    return `<div class="te-card${ready ? ' ready' : ''}" data-te-odds="${i}" role="button" tabindex="0" title="Voir les Pokémon possibles" style="--c:${c}"><span class="te-egg" aria-hidden="true"><img src="assets/egg.png" alt=""><i></i></span><b>Œuf ${esc(TYPE_FR[e.type])}</b><div class="te-bar" role="progressbar" aria-valuenow="${p}" aria-valuemax="${TYPE_EGG_NEED}"><i style="width:${p / TYPE_EGG_NEED * 100}%"></i></div><small>${ready ? 'Prêt à éclore !' : `${p} / ${TYPE_EGG_NEED} victoires`}</small>${ready ? `<button type="button" class="pg-button te-hatch" data-te-hatch="${i}">Faire éclore !</button>` : ''}</div>`;
+    return `<div class="te-card${ready ? ' ready' : ''}" data-te-odds="${i}" role="button" tabindex="0" title="Voir les Pokémon possibles" style="--c:${c}"><span class="te-egg" aria-hidden="true"><img src="assets/egg.png" alt=""><i></i></span><b>Œuf ${esc(TYPE_FR[e.type])}${e.region === 'johto' ? ' de Johto' : ''}</b><div class="te-bar" role="progressbar" aria-valuenow="${p}" aria-valuemax="${TYPE_EGG_NEED}"><i style="width:${p / TYPE_EGG_NEED * 100}%"></i></div><small>${ready ? 'Prêt à éclore !' : `${p} / ${TYPE_EGG_NEED} victoires`}</small>${ready ? `<button type="button" class="pg-button te-hatch" data-te-hatch="${i}">Faire éclore !</button>` : ''}</div>`;
   }).join('');
   return `<section class="te-box" aria-label="Œufs de type"><div class="te-head"><h3>Œufs de type</h3><span>${TYPE_EGG_NEED} victoires pour éclore · Pokémon du type choisi, rareté meilleure que dans la nature</span></div><div class="te-grid">${cards}</div></section>`;
 }

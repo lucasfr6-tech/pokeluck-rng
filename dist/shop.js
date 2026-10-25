@@ -1,7 +1,7 @@
 // Boutiques posées sur la carte, objets achetables et effets actifs.
 import {allZones as zones} from './world.js';
 import {fmtMoney} from './money.js';
-import {addTypeEgg, TYPE_COL} from './type-eggs.js';
+import {addTypeEgg, TYPE_COL, TYPE_FR} from './type-eggs.js';
 const SPRITE = n => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${n}.png`;
 export const CLERK_SPRITE = 'https://play.pokemonshowdown.com/sprites/trainers/clerk.png';
 // Prix PROVISOIRES, calés sur le temps de farm visé (Super Ball ≈ 15 min, Multi-XP ≈ 45 min, Hyper Ball ≈ 1 h, Pièce Rune ≈ 3 h).
@@ -97,12 +97,17 @@ export const SHOPS = [
   {id:'ligue', name:'Boutique du Champion', after:'league', needElite:'blue', needLabel:'Bats le Champion Blue', at:{x:50,y:50}, stock:['turbo','rune','egg-psychic'], hello:'Bienvenue, Champion ! Le Turbo ×2 et la Pièce Rune pour les vrais vainqueurs.'},
   {id:'indigo', name:'Boutique du Plateau', after:'victory', before:'league', beforeLabel:'l’arène de Giovanni', at:{x:74,y:68}, stock:['safari','egg-electric','awakening','moon-stone','incense','leaf-stone'], hello:'Bienvenue ! Dernière boutique avant Giovanni : la Pièce Rune double tes gains, et les pierres font évoluer tes Pokémon.'}
 ];
+// Œufs de type de Johto : mêmes règles que ceux de Kanto, mais le Pokémon vient de la 2e génération.
+for (const t of ['grass','fire','water','electric','normal','bug','poison','ground','flying','fighting','psychic','rock','ice']) {
+  const k = ITEMS['egg-' + t];
+  ITEMS['jegg-' + t] = {...k, id:'jegg-' + t, region:'johto', name:'Œuf ' + TYPE_FR[t] + ' de Johto', effect:'Éclôt après 50 victoires · Pokémon de type ' + TYPE_FR[t] + ' de Johto', desc:'Un Pokémon de 2e génération de type ' + TYPE_FR[t] + ' sommeille à l’intérieur, avec de meilleures chances de rareté que dans la nature. Va dans ta couveuse (Pension).'};
+}
 // Boutiques de Johto (provisoires) : même principe, 3 Pokémon vaincus dans la zone pour entrer ; la dernière attend le Champion Peter.
 SHOPS.push(
-  {id:'j-rosalia', region:'johto', name:'Boutique de Rosalia', after:'ruinesalpha', before:'puitsramoloss', at:{x:50,y:50}, stock:['fresh-water','heal-powder','ct-irontail','ct-steelwing','ct-solarbeam','sun-stone'], hello:'Bienvenue à Johto ! Ici, on prépare les dresseurs aux longs voyages.'},
-  {id:'j-ecorcia', region:'johto', name:'Boutique d’Écorcia', after:'tourcendree', before:'tourferraille', beforeLabel:'l’arène d’Irisia', at:{x:50,y:50}, stock:['lemonade','berry-juice','ct-shadowball','ct-sludgebomb','ct-gigadrain','kings-rock','metal-coat'], hello:'Bienvenue ! Les tours d’Écorcia ont l’air calmes… ne t’y fie pas.'},
-  {id:'j-oliville', region:'johto', name:'Boutique d’Oliville', after:'pharoliville', before:'montcreuset', at:{x:50,y:50}, stock:['moomoo-milk','ct-icepunch','ct-firepunch','ct-thunderpunch','ct-dragonbreath','dragon-scale','up-grade'], hello:'Bienvenue ! Le phare éclaire la route, mon stock aussi.'},
-  {id:'j-ligue', region:'johto', name:'Boutique du Champion de Johto', after:'montargente', needElite:'peterj', needLabel:'Bats le Champion Peter', at:{x:50,y:50}, stock:['ct-hyperbeam','ct-thunder25','ct-zapcannon','moomoo-milk'], hello:'Bienvenue, Champion de Johto !'}
+  {id:'j-rosalia', region:'johto', name:'Boutique de Rosalia', after:'ruinesalpha', before:'puitsramoloss', at:{x:50,y:50}, stock:['fresh-water','heal-powder','jegg-grass','jegg-water','jegg-normal','ct-irontail','ct-steelwing','ct-solarbeam','sun-stone'], hello:'Bienvenue à Johto ! Ici, on prépare les dresseurs aux longs voyages.'},
+  {id:'j-ecorcia', region:'johto', name:'Boutique d’Écorcia', after:'tourcendree', before:'tourferraille', beforeLabel:'l’arène d’Irisia', at:{x:50,y:50}, stock:['lemonade','berry-juice','jegg-bug','jegg-poison','jegg-ground','jegg-rock','ct-shadowball','ct-sludgebomb','ct-gigadrain','kings-rock','metal-coat'], hello:'Bienvenue ! Les tours d’Écorcia ont l’air calmes… ne t’y fie pas.'},
+  {id:'j-oliville', region:'johto', name:'Boutique d’Oliville', after:'pharoliville', before:'montcreuset', at:{x:50,y:50}, stock:['moomoo-milk','jegg-fire','jegg-electric','jegg-flying','jegg-fighting','ct-icepunch','ct-firepunch','ct-thunderpunch','ct-dragonbreath','dragon-scale','up-grade'], hello:'Bienvenue ! Le phare éclaire la route, mon stock aussi.'},
+  {id:'j-ligue', region:'johto', name:'Boutique du Champion de Johto', after:'montargente', needElite:'peterj', needLabel:'Bats le Champion Peter', at:{x:50,y:50}, stock:['jegg-psychic','jegg-ice','ct-hyperbeam','ct-thunder25','ct-zapcannon','moomoo-milk'], hello:'Bienvenue, Champion de Johto !'}
 );
 export const shopById = id => SHOPS.find(s => s.id === id) || SHOPS[0];
 export const shopsOf = region => SHOPS.filter(s => (s.region || 'kanto') === region);
@@ -164,7 +169,7 @@ export function buyItem(state, id, wins = 0) {
   if (!item || id === 'poke') return {ok:false, reason:'unknown'};
   if (item.kind === 'typeegg') {
     if (state.money < item.price) return {ok:false, reason:'money', missing:item.price - state.money};
-    if (!addTypeEgg(state, item.etype, wins)) return {ok:false, reason:'full'};
+    if (!addTypeEgg(state, item.etype, wins, item.region)) return {ok:false, reason:'full'};
     state.money -= item.price; return {ok:true};
   }
   if (!isStack(id) && owns(state.inv, id)) return {ok:false, reason:'owned'};

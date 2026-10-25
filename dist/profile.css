@@ -112,3 +112,11 @@
 .prof-card.frame strong{font-size:13px}
 @media(max-width:700px){.prof-hero{justify-content:center}.prof-grid{grid-template-columns:1fr 1fr}.prof-grid.frames{grid-template-columns:1fr 1fr}}
 #profile-host{grid-column:1/-1}
+/* Puces météo : événements de zone et errants (icônes SVG) */
+.wx-svg{display:grid;place-items:center;width:20px;height:20px;grid-row:1/3}
+.wx-svg svg{width:17px;height:17px}
+.wx-pill.zev{border-color:#b48cff;color:#eadcff}.wx-pill.zev .wx-svg{color:#c9a0ff}
+.wx-pill.roam{border-color:#ffb85c;color:#ffe9c9}.wx-pill.roam .wx-svg{color:#ffc15e}
+.wx-pill.zev.here,.wx-pill.roam.here{box-shadow:0 0 0 2px #ffdf8788,0 0 14px #ffdf8766}
+.wx-pill.zev,.wx-pill.roam{display:inline-flex;gap:6px;align-items:center;padding:3px 9px 3px 6px}
+.wx-pill.zev small,.wx-pill.roam small{font-size:10px;opacity:.85}
