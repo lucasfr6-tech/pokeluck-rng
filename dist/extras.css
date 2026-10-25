@@ -906,3 +906,6 @@ body.reduce-motion .gc-poster::before,body.reduce-motion .gc-legend,body.reduce-
 .te-odds{margin-top:12px;padding:10px;border:3px solid #3a6a96;border-radius:14px;background:#0b1c30}.te-odds h4{margin:0 0 8px;font-size:14px}
 .te-odds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
 .te-odd{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:2px solid #2a4a6c;border-radius:10px;background:#10294a;text-align:center}.te-odd img{width:56px;height:56px;object-fit:contain;image-rendering:pixelated}.te-odd b{font-size:11px}.te-odd small{color:#ffd25a;font-weight:800}
+/* Carte : l'info-bulle d'un bâtiment passe toujours au-dessus des autres bâtiments */
+.illustrated-map .map-spot:hover,.illustrated-map .map-spot:focus-visible,.illustrated-map .map-shop:hover,.illustrated-map .map-shop:focus-visible,.illustrated-map .map-rival:hover,.illustrated-map .map-rival:focus-visible,.illustrated-map .map-johto:hover{z-index:80!important}
+.illustrated-map .map-tooltip{z-index:90}
