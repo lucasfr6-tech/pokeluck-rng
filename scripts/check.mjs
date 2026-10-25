@@ -770,3 +770,25 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   assert.ok(Math.abs(odds.reduce((n, o) => n + o.probability, 0) - 1) < 1e-9);
   console.log('OK : œuf Psy (70 000 ₽, Mewtwo et Mew à 5 % chacun).');
 }
+
+{
+  const A = await import('../dist/arcade.js'), {ITEMS} = await import('../dist/shop.js'), P = await import('../dist/profile.js');
+  const w1 = A.towerFoes(1), w30 = A.towerFoes(30), w60 = A.towerFoes(60);
+  assert.equal(w1.team.length, 1); assert.equal(w30.team.length, 6); assert.ok(w60.team.every(([, l]) => l === A.towerLevel(60)));
+  assert.ok(w1.team.every(([id]) => tierOf(id) <= 2) && w30.team.every(([id]) => tierOf(id) >= 2 && tierOf(id) <= 4));
+  assert.deepEqual(A.towerFoes(12), A.towerFoes(12));
+  assert.equal(A.nextMilestone(0), 10); assert.equal(A.nextMilestone(10), 25); assert.equal(A.nextMilestone(100), null);
+  assert.deepEqual(A.challengeTeam('trio', [1, 2], [], () => 1), []); assert.deepEqual(A.challengeTeam('trio', [1, 2, 3, 4], [], () => 1), [1, 2, 3]);
+  assert.deepEqual(A.challengeTeam('mono', [], [4, 5, 6, 7], id => id, 'fire').length, 3);
+  assert.equal(A.monoFoes('water').length, 4);
+  const o = A.marketOffers(1e12), o2 = A.marketOffers(1e12 + 3600000);
+  assert.deepEqual(o, o2); assert.equal(o.length, 3);
+  assert.ok(o.every(x => ITEMS[x.id] && x.price < ITEMS[x.id].price && x.price >= 100));
+  assert.equal(ITEMS[o[1].id].kind, 'typeegg'); assert.equal(ITEMS[o[2].id].kind, 'tm');
+  const pr = P.sanitizeProf({comp: 25, mb: [true, 'x'], mday: 5});
+  assert.equal(pr.comp, 25); assert.deepEqual(pr.mb, [true, false, false]); assert.equal(P.sanitizeProf({comp: 9999}).comp, 0);
+  assert.ok(P.bonusOf({prof: {title: '', comp: 6}, counts: {6: 1}}, 'p') > 0 && P.bonusOf({prof: {title: '', comp: 6}, counts: {}}, 'p') === 0);
+  const rows = P.rankRows({discovered: 151, johtoDex: 0, shinies: 0, wins: 0, badges: 0, johtoBadges: 0, towerBest: 0, chalDone: {}}, {}, 0);
+  assert.equal(rows[0].g, 5); assert.equal(rows[0].pct, 100); assert.equal(rows[1].g, 0);
+  console.log('OK : Tour de combat, défis à règles, Marché du jour, compagnon, classement');
+}

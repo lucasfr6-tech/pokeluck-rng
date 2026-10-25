@@ -1,0 +1,38 @@
+/* Tour de combat, défis à règles, Marché du jour, compagnon et classement. */
+.ar{display:grid;gap:14px;padding:4px 2px 18px}
+.ar-hero{--c:#6d8bff;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding:18px;border-radius:20px;border:3px solid var(--c);background:radial-gradient(circle at 90% 0,color-mix(in srgb,var(--c) 45%,transparent),transparent 55%),linear-gradient(160deg,color-mix(in srgb,var(--c) 26%,#10283f),#10283f 70%)}
+.ar-tower{--c:#6d8bff}.ar-chal{--c:#e0574f}.ar-market{--c:#f2b632}
+.ar-hero>div:first-child{flex:1 1 320px}.ar-hero h2{margin:6px 0 6px;font:900 24px system-ui;color:#fff}.ar-hero p{margin:0;color:#cfe1f3;line-height:1.45}
+.ar-chip{display:inline-block;padding:4px 10px;border-radius:99px;background:var(--c);color:#10283f;font:800 11px system-ui;letter-spacing:.08em}
+.ar-stats{display:flex;gap:10px;flex-wrap:wrap}.ar-stats>div{min-width:104px;padding:10px 14px;border-radius:14px;border:2px solid #ffffff2a;background:#0b1d2f99;text-align:center}
+.ar-stats span{display:block;font:700 11px system-ui;color:#9db8d2;text-transform:uppercase}.ar-stats b{font:900 22px system-ui;color:#fff}
+.ar-box,.ar-card{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;border:3px solid #3b6280;background:linear-gradient(160deg,#1a3a58,#10283f 70%)}
+.ar-box h3{margin:0;font:900 16px system-ui;color:#fff}
+.ar-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.ar-card{--c:#c8803c;border-color:var(--c)}.ar-card.got{--c:#4fcf7e}
+.ar-card-hd{display:flex;justify-content:space-between;align-items:center}.ar-card-hd b{font:900 17px system-ui;color:#fff}.ar-card-hd span{padding:3px 9px;border-radius:99px;background:var(--c);color:#10283f;font:800 11px system-ui}
+.ar-card p{margin:0;color:#cfe1f3;font-size:14px;line-height:1.4}
+.ar-foes{display:flex;gap:8px;flex-wrap:wrap}.ar-foe{display:grid;justify-items:center;width:78px;padding:6px 4px;border-radius:12px;border:2px solid #ffffff26;background:#0b1d2f88}
+.ar-foe img{width:56px;height:56px;image-rendering:pixelated;object-fit:contain}.ar-foe b{font:800 11px system-ui;color:#fff;text-align:center}.ar-foe small{font:700 10px system-ui;color:#9db8d2}
+.ar-row{display:flex;justify-content:space-between;gap:8px;color:#cfe1f3;font-size:14px}.ar-row b{color:#fff}.ar-row s{color:#8aa4be;font-weight:600}
+.ar-go{margin-top:auto}.ar-btn{width:100%;padding:12px;border-radius:14px;border:0;border-bottom:5px solid color-mix(in srgb,var(--c,#6d8bff) 55%,#000);background:var(--c,#6d8bff);color:#10283f;font:800 15px system-ui;cursor:pointer;transition:transform .1s}
+.ar-hero~.ar-box .ar-btn{--c:#6d8bff}.ar-btn:hover:not(:disabled){transform:translateY(-2px)}.ar-btn:active{transform:translateY(2px);border-bottom-width:2px}.ar-btn:disabled{opacity:.5;cursor:not-allowed}.ar-btn.off{background:#3b6280;color:#eef6ff;border-bottom-color:#284a66}
+.ar-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}.ar-list li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;border:2px solid #ffffff22;background:#0b1d2f88;color:#cfe1f3}
+.ar-list li b{color:#fff}.ar-list li em{font:800 11px system-ui;color:#9db8d2}.ar-list li.got{border-color:#4fcf7e}.ar-list li.got em{color:#4fcf7e}
+.ar-note{margin:0;color:#9db8d2;font-size:13px}.ar-msg{margin:0;padding:10px 14px;border-radius:12px;border:2px solid #f2b632;background:#f2b63222;color:#ffe9b0;font-weight:700}
+.ar-sel{display:flex;align-items:center;gap:8px;color:#cfe1f3;font:700 13px system-ui}.ar-sel select{flex:1;padding:8px;border-radius:10px;border:2px solid #3b6280;background:#0b1d2f;color:#fff}
+.ar-offer{--c:#f2b632}.ar-item{width:64px;height:64px;image-rendering:pixelated;object-fit:contain;align-self:center}.ar-offer strong{color:#fff;text-align:center;font:900 16px system-ui}
+/* Compagnon sur la bannière */
+#avatar-wrap{position:relative}.fr>img.comp{position:absolute;right:-18px;bottom:-10px;width:44px;height:44px;padding:0;border-radius:0;background:none;image-rendering:pixelated;object-fit:contain;z-index:5;filter:drop-shadow(0 3px 0 #0006);animation:comp-bob 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes comp-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.reduce-motion .fr>img.comp{animation:none}
+/* Profil : compagnon et classement */
+.cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;max-height:230px;overflow:auto;padding:6px;border-radius:14px;border:2px solid #3b6280;background:#0b1d2f88}
+.cp-mon{display:grid;justify-items:center;padding:4px;border-radius:12px;border:2px solid transparent;background:#ffffff0d;cursor:pointer}.cp-mon img{width:52px;height:52px;image-rendering:pixelated;object-fit:contain}.cp-mon:hover{border-color:#ffffff55}.cp-mon.on{border-color:#f2b632;background:#f2b63229}
+.cp-now{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;border:2px solid #f2b632;background:#f2b63218;margin-bottom:10px}.cp-now img{width:56px;height:56px;image-rendering:pixelated}.cp-now b{color:#fff}.cp-now small{display:block;color:#cfe1f3}
+.rk-all{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:2px solid var(--g,#f2b632);background:linear-gradient(135deg,color-mix(in srgb,var(--g,#f2b632) 25%,#10283f),#10283f);margin-bottom:10px}.rk-all>div{display:grid;gap:2px}.rk-all b{font:900 20px system-ui;color:#fff}.rk-all small{color:#cfe1f3}
+.rk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.rk-row{--g:#8aa4be;display:grid;gap:6px;padding:12px;border-radius:14px;border:2px solid #3b6280;background:#0b1d2f88}
+.rk-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.rk-top b{color:#fff}.rk-top em{padding:2px 9px;border-radius:99px;background:var(--g);color:#10283f;font:800 11px system-ui;font-style:normal}
+.rk-bar{height:10px;border-radius:99px;background:#ffffff1c;overflow:hidden}.rk-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--g),#fff8);transition:width .4s}
+.rk-row small{color:#9db8d2;font-size:12px}

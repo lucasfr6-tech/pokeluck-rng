@@ -1,6 +1,7 @@
 // Profil du dresseur : titres animés (petits bonus) et cadres de photo animés.
 // Rien ici ne touche au tirage : les bonus sont faibles (1 à 5 %) et un seul titre est actif à la fois.
 import {getAvatar,mountAvatar,DEFAULT_AVATAR} from './avatar.js';
+import {companionBonus} from './arcade.js';
 
 // Icônes pixel-propres en SVG (aucun emoji).
 export const ICONS={
@@ -72,10 +73,10 @@ export function sanitizeProf(p){
  const o=p&&typeof p==='object'&&!Array.isArray(p)?p:{};
  const done={};if(o.done&&typeof o.done==='object')for(const k of Object.keys(o.done))if(/^[a-z0-9-]{1,24}$/.test(k)&&o.done[k]===true)done[k]=true;
  const n=v=>Number.isFinite(+v)?Math.max(0,Math.min(1e6,Math.floor(+v))):0;
- return{title:titleById(o.title)?o.title:'',frame:frameById(o.frame)?o.frame:'plain',done,towerBest:n(o.towerBest),roam:n(o.roam),market:n(o.market)};
+ return{title:titleById(o.title)?o.title:'',frame:frameById(o.frame)?o.frame:'plain',done,towerBest:n(o.towerBest),roam:n(o.roam),market:n(o.market),comp:n(o.comp)>0&&n(o.comp)<=251?n(o.comp):0,mday:n(o.mday),mb:[0,1,2].map(i=>Array.isArray(o.mb)&&o.mb[i]===true)};
 }
 // key : 'p' (puissance), 'm' (pièces), 'x' (XP) ; renvoie la fraction de bonus.
-export const bonusOf=(state,key)=>{const t=titleById(state.prof?.title);return t?.bonus?.[key]||0;};
+export const bonusOf=(state,key)=>{const t=titleById(state.prof?.title),c=state.prof?.comp&&state.counts?.[state.prof.comp]?companionBonus(state.prof.comp):null;return (t?.bonus?.[key]||0)+(c?.[key]||0);};
 const unlockedTitle=(t,m,s)=>{try{return !!t.t(m,s);}catch{return false;}};
 export const ownedTitles=(m,s)=>TITLES.filter(t=>unlockedTitle(t,m,s));
 export const ownedFrames=(m,s)=>FRAMES.filter(f=>{try{return !!f.t(m,s);}catch{return false;}});
@@ -91,10 +92,26 @@ export const frameBox=(frame,src,cls='')=>`<span class="fr ${cls}" data-frame="$
 export function applyProfile(state){
  const p=state.prof||{},wrap=document.querySelector('#avatar-wrap'),el=document.querySelector('#trainer-title');
  if(wrap){const k=p.frame||'plain';if(wrap.dataset.frame!==k){wrap.dataset.frame=k;if(!wrap.querySelector(':scope>i'))wrap.insertAdjacentHTML('beforeend',frameInner());}}
+ if(wrap){const cid=p.comp&&state.counts?.[p.comp]?p.comp:0;if((+wrap.dataset.comp||0)!==cid){wrap.dataset.comp=cid;wrap.querySelector(':scope>.comp')?.remove();if(cid)wrap.insertAdjacentHTML('beforeend',`<img class="comp" alt="" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cid}.png">`);}}
  if(el){const t=titleById(p.title),k=t?t.id:(state.eliteDone?.blue?'~master':'~base');if(el.dataset.k!==k){el.dataset.k=k;el.classList.remove('master');if(t){el.innerHTML=titlePill(t);}else if(k==='~master'){el.textContent='★ MAÎTRE DE LA LIGUE';el.classList.add('master');}else el.textContent='DRESSEUR';}}
 }
 
-export function mountProfile(host,{getState,metrics,save,onChange,getName,onName}){
+
+// Classement : cinq grades par objectif à long terme.
+export const GRADES=[['Aucun','#8aa4be'],['Bronze','#c8803c'],['Argent','#b8c4d0'],['Or','#f2b632'],['Platine','#7fe3d6'],['Maître','#c77bff']];
+export const rankRows=(m,st,ach)=>[
+ ['Pokédex de Kanto',m.discovered,[20,60,100,140,151],'espèces'],
+ ['Pokédex de Johto',m.johtoDex,[10,30,60,90,100],'espèces'],
+ ['Chromatiques',m.shinies,[1,5,20,50,100],'obtenus'],
+ ['Victoires sauvages',m.wins,[100,1000,5000,20000,100000],'victoires'],
+ ['Badges d’arène',m.badges+m.johtoBadges,[2,5,8,12,16],'badges'],
+ ['Tour de combat',m.towerBest,[5,10,25,50,100],'vague max'],
+ ['Succès',ach,[10,25,40,55,68],'débloqués'],
+ ['Titres',ownedTitles(m,st).length,[3,6,10,15,TITLES.length],'débloqués'],
+ ['Défis à règles',['trio','bare','mono'].filter(k=>m.chalDone?.[k]).length,[1,2,3,3,3],'réussis']
+].map(([name,v,goals,unit])=>{const g=goals.filter(x=>v>=x).length,nx=goals[g],pv=g?goals[g-1]:0;return{name,v,goals,unit,g,nx,pct:nx?Math.round((v-pv)/(nx-pv)*100):100};});
+
+export function mountProfile(host,{getState,metrics,save,onChange,getName,onName,owned,sprite,pname,achCount}){
  const s=()=>getState();
  function paint(){
   const st=s(),m=metrics(),p=st.prof,cur=titleById(p.title),fr=frameById(p.frame)||FRAMES[0];
@@ -104,10 +121,13 @@ export function mountProfile(host,{getState,metrics,save,onChange,getName,onName
   <article class="setting-card wide prof-hero"><div class="prof-hero-art">${frameBox(p.frame,getAvatar(),'big')}</div><div class="prof-hero-info"><label class="setting-label" for="trainer-setting-name">Pseudo</label><input id="trainer-setting-name" type="text" maxlength="24" autocomplete="nickname" value="${esc(getName())}"><div class="prof-now"><span>Titre actif</span>${cur?titlePill(cur):'<em>Aucun titre</em>'}<small>${bonusText(cur?.bonus)}</small></div><div class="prof-now"><span>Cadre actif</span><b>${fr.name}</b><small>${fr.hint}</small></div></div></article>
   <article class="setting-card wide"><h4>Titres <small class="prof-count">${nOT} / ${TITLES.length}</small></h4><p>Un seul titre actif à la fois : il s’affiche sous ta photo et donne un petit bonus. Les bonus restent faibles et ne changent jamais les chances de tirage.</p><div class="prof-grid" role="group" aria-label="Titres">${TITLES.map(t=>{const own=ot.has(t.id);return `<button type="button" class="prof-card title${own?'':' locked'}${p.title===t.id?' on':''}" data-title="${t.id}" ${own?'':'aria-disabled="true"'} aria-pressed="${p.title===t.id}">${titlePill(t)}<small class="pc-bonus">${bonusText(t.bonus)}</small><small class="pc-need">${own?(p.title===t.id?'Actif · clique pour retirer':'Débloqué'):'Verrouillé · '+esc(t.need)}</small></button>`;}).join('')}</div></article>
   <article class="setting-card wide"><h4>Cadres de photo <small class="prof-count">${nOF} / ${FRAMES.length}</small></h4><p>Purement décoratifs. Tous les cadres sont animés ; ceux que tu n’as pas encore s’affichent en aperçu.</p><div class="prof-grid frames" role="group" aria-label="Cadres">${FRAMES.map(f=>{const own=of.has(f.id);return `<button type="button" class="prof-card frame${own?'':' locked'}${p.frame===f.id?' on':''}" data-frame-pick="${f.id}" ${own?'':'aria-disabled="true"'} aria-pressed="${p.frame===f.id}">${frameBox(f.id,getAvatar())}<strong>${f.name}</strong><small class="pc-need">${own?(p.frame===f.id?'Actif':'Débloqué'):'Verrouillé · '+esc(f.need)}</small></button>`;}).join('')}</div></article>
+  <article class="setting-card wide"><h4>Compagnon</h4><p>Un Pokémon de ta collection te suit à côté de ta photo et donne un petit bonus selon son type (jamais sur les chances de tirage).</p>${p.comp&&st.counts[p.comp]?`<div class="cp-now"><img src="${sprite(p.comp)}" alt=""><div><b>${esc(pname(p.comp))}</b><small>${bonusText(companionBonus(p.comp))}</small></div></div>`:'<div class="cp-now"><div><b>Aucun compagnon</b><small>Choisis-en un ci-dessous.</small></div></div>'}<div class="cp-grid" role="group" aria-label="Choisir un compagnon">${owned().map(id=>`<button type="button" class="cp-mon${p.comp===id?' on':''}" data-comp="${id}" title="${esc(pname(id))} · ${bonusText(companionBonus(id))}" aria-pressed="${p.comp===id}"><img src="${sprite(id)}" alt="${esc(pname(id))}" loading="lazy"></button>`).join('')}</div></article>
+  <article class="setting-card wide"><h4>Classement de collection</h4><p>Tes objectifs à long terme, du Bronze jusqu’au grade Maître.</p>${(()=>{const rows=rankRows(m,st,achCount()),avg=rows.reduce((n,r)=>n+r.g,0)/rows.length,top=GRADES[Math.min(5,Math.round(avg))];return `<div class="rk-all" style="--g:${top[1]}"><div><small>RANG GLOBAL</small><b>${top[0]}</b></div><small>Moyenne de tes ${rows.length} objectifs</small></div><div class="rk-grid">${rows.map(r=>`<div class="rk-row" style="--g:${GRADES[r.g][1]}"><div class="rk-top"><b>${r.name}</b><em>${GRADES[r.g][0]}</em></div><div class="rk-bar"><i style="width:${r.pct}%"></i></div><small>${r.v.toLocaleString('fr-FR')} ${r.unit}${r.nx?' · prochain grade à '+r.nx.toLocaleString('fr-FR'):' · grade maximal'}</small></div>`).join('')}</div>`;})()}</article>
   <article class="setting-card wide"><h4>Photo de profil</h4><p>Importe ta propre image : elle est recadrée puis stockée uniquement dans ce navigateur.</p><div id="avatar-settings"></div></article></div>`;
   mountAvatar(host.querySelector('#avatar-settings'));
  }
  host.addEventListener('click',e=>{
+  const cpk=e.target.closest('[data-comp]');if(cpk){const id=+cpk.dataset.comp,st=s();if(!st.counts[id])return;st.prof.comp=st.prof.comp===id?0:id;save();onChange();paint();return;}
   const t=e.target.closest('[data-title]'),f=e.target.closest('[data-frame-pick]');
   if(t){const own=ownedTitles(metrics(),s()).some(x=>x.id===t.dataset.title);if(!own)return;const st=s();st.prof.title=st.prof.title===t.dataset.title?'':t.dataset.title;save();onChange();paint();}
   else if(f){const own=ownedFrames(metrics(),s()).some(x=>x.id===f.dataset.framePick);if(!own)return;s().prof.frame=f.dataset.framePick;save();onChange();paint();}

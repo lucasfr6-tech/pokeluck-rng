@@ -119,7 +119,7 @@ export function createFight(ctx) {
     let html;
     if (!lost) {
       // La récompense (badge, argent) est attribuée tout de suite, avant les attentes réseau de l'écran d'XP : rien ne doit pouvoir la perdre.
-      const win = boss ? ctx.arenaWin?.(boss) : null, prize = boss ? (win?.money || 0) : (ctx.addMoney?.(bt.wild.id, wildLevel) || 0);
+      const win = boss ? ctx.arenaWin?.(boss, bt) : null, prize = boss ? (win?.money || 0) : (ctx.addMoney?.(bt.wild.id, wildLevel) || 0);
       const rows = [];
       const partIds = Array.from(resolvedBattle.participants), shareIds = ctx.xpShare?.() ? (ctx.team?.() || []).filter(i => !partIds.includes(i)) : [];
       for (const id of boss?.defi ? [] : [...partIds, ...shareIds]) {
@@ -240,10 +240,11 @@ export function createFight(ctx) {
         const ids = arena.defi ? arena.defi.team : ctx.team(), lv = id => ctx.level(id);
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
         const [foes, mine] = await Promise.all([
-          Promise.all(arena.team.map(([id, lvl]) => buildFighter(null, lvl, ctx.types(id), id, ctx.foeName?.(id) || String(id), createTraining(), undefined, ctx.foeBoost?.(true) || 1))),
-          Promise.all(ids.map(async id => buildFighter(null, lv(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id), ctx.form?.(id))))]);
+          Promise.all(arena.team.map(([id, lvl]) => buildFighter(null, lvl, ctx.types(id), id, ctx.foeName?.(id) || String(id), createTraining(), undefined, arena.boost || ctx.foeBoost?.(true) || 1))),
+          Promise.all(ids.map(async id => buildFighter(null, lv(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), (arena.defi?.noItems ? ctx.bareBoost?.(id) : ctx.boost?.(id)) || 1, !arena.defi?.noItems && !!ctx.sash?.(id), !arena.defi?.noItems && !!ctx.oran?.(id), ctx.trait?.(id), !arena.defi?.noItems && !!ctx.leftovers?.(id), ctx.form?.(id))))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
+        if (arena.hpCarry) for (const m of mine) { const v = arena.hpCarry[m.fighter.id]; if (v != null) m.fighter.hp = Math.max(1, Math.min(m.fighter.maxHp, Math.round(v * m.fighter.maxHp))); }
         bt = createBattle(mine.map(m => m.fighter), foes[0].fighter, undefined, foes.slice(1).map(f => f.fighter));
         this.wild = foes[0].fighter; wildLevel = foes[0].fighter.level;
         ctx.showFoe?.(foes[0].fighter.id);
