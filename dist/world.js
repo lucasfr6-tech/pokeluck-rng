@@ -66,8 +66,8 @@ export const tierOf=id=>LEGENDARY.includes(id)?5:(t=>t<=320?1:t<=420?2:t<=485?3:
 // Chaque zone répartit ses tirages entre les paliers (`shares`, du palier 1 au palier 5, total 100 %) :
 // la Route 1 ne donne que des Communs, puis chaque zone laisse une place plus grande aux paliers suivants.
 // Dans un palier, les espèces se départagent selon leurs poids de base, avec le bonus de type ×3 de la zone.
-// `rarityBonus` (Super Ball, Hyper Ball…) multiplie la part de chaque palier au-dessus des Communs, puis le total est ramené à 100 %.
-export function adjustedShares(shares,rarityBonus=0){if(!rarityBonus||shares.length<2)return shares;const raw=shares.map((s,i)=>i===0?s:s*(1+rarityBonus)),total=raw.reduce((a,b)=>a+b,0);return raw.map(s=>s/total);}
+// `rarityBonus` (Super Ball, Hyper Ball…) multiplie la part de chaque palier au-dessus des Communs (de plus en plus pour les paliers élevés : ×(1+bonus) pour les Peu communs, ×(1+bonus)² pour les Légendaires), puis le total est ramené à 100 %.
+export function adjustedShares(shares,rarityBonus=0){if(!rarityBonus||shares.length<2)return shares;const raw=shares.map((s,i)=>i===0?s:s*(1+Math.min(rarityBonus,2))**(1+(i-1)/3)),total=raw.reduce((a,b)=>a+b,0);return raw.map(s=>s/total);}
 let periodSource=()=>null;export const setPeriodSource=fn=>{periodSource=typeof fn==='function'?fn:()=>null;};
 export function zonePool(id,rarityBonus=0,period=undefined){const per=period===undefined?periodSource():period||null;const zone0=findZone(id)||zones[0],zone={...zone0,shares:adjustedShares(zone0.shares,rarityBonus)};
  const entries=pool.filter(p=>speciesRegion(p.id)===(zone.region||'kanto')&&zone.shares[tierOf(p.id)-1]>0).map(p=>({...p,power:powers[p.id-1],tier:tierOf(p.id),probability:p.probability*(types[p.id].some(t=>zone.bonus.includes(t))?3:1)*timeMult(types[p.id],per)}));
