@@ -240,7 +240,7 @@ export function createFight(ctx) {
         const ids = arena.defi ? arena.defi.team : ctx.team(), lv = id => ctx.level(id);
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
         const [foes, mine] = await Promise.all([
-          Promise.all(arena.team.map(([id, lvl]) => buildFighter(null, lvl, ctx.types(id), id, ctx.foeName?.(id) || String(id), createTraining()))),
+          Promise.all(arena.team.map(([id, lvl]) => buildFighter(null, lvl, ctx.types(id), id, ctx.foeName?.(id) || String(id), createTraining(), undefined, ctx.foeBoost?.(true) || 1))),
           Promise.all(ids.map(async id => buildFighter(null, lv(id), ctx.types(id), id, ctx.name(id), ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id), ctx.form?.(id))))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
@@ -264,7 +264,7 @@ export function createFight(ctx) {
       try {
         const ids = ctx.team();
         if (!ids.length) { say('Aucun Pokémon dans ton équipe.'); return; }
-        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id), ctx.form?.(id)))]);
+        const [wild, ...mine] = await Promise.all([buildFighter(null, wildLevel, types, p.id, p.name+(p.shiny?' ✦':''),encounterTraining, undefined, ctx.foeBoost?.(false) || 1), ...ids.map(async id => buildFighter(null, ctx.level(id), ctx.types(id), id, ctx.name(id),ctx.training?.(id), await ctx.moves?.(id), ctx.boost?.(id) || 1, !!ctx.sash?.(id), !!ctx.oran?.(id), ctx.trait?.(id), !!ctx.leftovers?.(id), ctx.form?.(id)))]);
         if (my !== token) return;
         learnsets = Object.fromEntries(mine.map(m => [m.fighter.id, m.learnset]));
         bt = createBattle(mine.map(m => m.fighter), wild.fighter); bt.weather = ctx.weather?.() || null;
