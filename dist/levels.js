@@ -71,7 +71,9 @@ export function wildLevelNear(ownLevel, rand = Math.random) {
 }
 // Niveau sauvage par zone : niveau d'entrée de la zone (Route 2 → 8, Route 3 → 22…) jusqu'à +2, sans jamais dépasser le niveau d'entrée de la zone suivante − 1.
 export function wildLevelZone(zoneId, rand = Math.random) {
-  const i = Math.max(0, zones.findIndex(z => z.id === zoneId)), lo = zones[i].min, hi = Math.min(MAX_LEVEL, zones[i + 1] ? zones[i + 1].min - 1 : MAX_LEVEL);
+  const z = zones.find(x => x.id === zoneId);
+  if (z?.region === 'johto') { const [lo, hi] = z.levels; return lo + Math.floor(rand() * (hi - lo + 1)); }
+  const i = Math.max(0, zones.findIndex(z => z.id === zoneId)), lo = zones[i].min, hi = Math.min(MAX_LEVEL, zones[i + 1] && !zones[i + 1].region ? zones[i + 1].min - 1 : 100);
   return Math.min(hi, lo + Math.floor(rand() * (WILD_SPREAD + 1)));
 }
 // (Ancien tirage par zone, conservé pour référence.) Niveau d'un Pokémon sauvage : toujours tiré dans la fourchette de la zone (de la Route 1 au niveau 100 à la Centrale).
