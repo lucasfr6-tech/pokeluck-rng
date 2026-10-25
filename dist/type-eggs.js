@@ -9,8 +9,8 @@ export const TYPE_FR = {grass:'Plante', fire:'Feu', water:'Eau', electric:'Élec
 export const TYPE_COL = {grass:'#78c850', fire:'#f08030', water:'#6890f0', electric:'#f8d030', normal:'#a8a878', bug:'#a8b820', poison:'#a040a0', ground:'#e0c068', flying:'#a890f0', fighting:'#c03028', psychic:'#f85888', rock:'#b8a038', ice:'#98d8d8', ghost:'#705898', dragon:'#7038f8'};
 export const EGG_TYPES = Object.keys(TYPE_FR);
 export const eggPrice = t => t === 'psychic' ? 70000 : ['dragon', 'ghost', 'ice'].includes(t) ? 90000 : 40000;
-// Dans un œuf, la chance de chaque légendaire est divisée par deux (le reste du tirage reprend la différence).
-export const LEGENDARY_EGG_FACTOR = .5;
+// Chance fixe de chaque légendaire dans certains œufs (Œuf Psy : Mewtwo et Mew à 5 % chacun) ; le reste du tirage se partage le reste.
+export const LEGENDARY_EGG_EACH = {psychic: .05};
 export const eggPool = (type, regions = ['kanto']) => pool.filter(p => regions.includes(speciesRegion(p.id)) && types[p.id].includes(type)).map(p => p.id);
 // Probabilité de chaque espèce : le palier est tiré d'après EGG_SHARES (+ bonus de Ball), restreint aux paliers présents.
 export function eggOdds(type, rarityBonus = 0, regions = ['kanto']) {
@@ -18,10 +18,10 @@ export function eggOdds(type, rarityBonus = 0, regions = ['kanto']) {
   for (const id of ids) (by[tierOf(id)] = by[tierOf(id)] || []).push(id);
   const sh = adjustedShares(EGG_SHARES, rarityBonus), tiers = Object.keys(by).map(Number), sum = tiers.reduce((n, t) => n + sh[t - 1], 0) || 1;
   const odds = ids.map(id => ({id, tier: tierOf(id), probability: sh[tierOf(id) - 1] / sum / by[tierOf(id)].length}));
-  const leg = odds.filter(o => o.tier === 5), rest = odds.filter(o => o.tier !== 5), legSum = leg.reduce((n, o) => n + o.probability, 0), restSum = rest.reduce((n, o) => n + o.probability, 0);
-  if (!leg.length || !rest.length) return odds;
-  for (const o of leg) o.probability *= LEGENDARY_EGG_FACTOR;
-  const k = (1 - legSum * LEGENDARY_EGG_FACTOR) / restSum; for (const o of rest) o.probability *= k;
+  const fixed = LEGENDARY_EGG_EACH[type], leg = odds.filter(o => o.tier === 5), rest = odds.filter(o => o.tier !== 5);
+  if (!fixed || !leg.length || !rest.length) return odds;
+  for (const o of leg) o.probability = fixed;
+  const restSum = rest.reduce((n, o) => n + o.probability, 0), k = (1 - fixed * leg.length) / restSum; for (const o of rest) o.probability *= k;
   return odds;
 }
 export function hatchPick(type, rarityBonus = 0, regions = ['kanto'], rand = Math.random) {

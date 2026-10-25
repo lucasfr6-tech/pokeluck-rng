@@ -759,16 +759,14 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   console.log('OK : Johto (16 zones, 8 arènes, Ligue de 5, plafonds jusqu’à 200).');
 }
 
-// ---- Œuf Psy : prix et légendaires divisés par deux ----
+// ---- Œuf Psy : prix et Mewtwo / Mew à 5 % ----
 {
   const te = await import('../dist/type-eggs.js'), sh = await import('../dist/shop.js');
   assert.equal(sh.ITEMS['egg-psychic'].price, 70000);
   assert.ok(sh.shopById('ligue').stock.includes('egg-psychic')); assert.ok(!sh.shopById('sud').stock.includes('egg-water'));
   const odds = te.eggOdds('psychic'), legs = odds.filter(o => o.tier === 5);
   assert.deepEqual(legs.map(o => o.id).sort((a, b) => a - b), [150, 151]);
+  assert.ok(legs.every(o => Math.abs(o.probability - .05) < 1e-12), 'Mewtwo et Mew à 5 %');
   assert.ok(Math.abs(odds.reduce((n, o) => n + o.probability, 0) - 1) < 1e-9);
-  const old = (.04 / 1) ; // part de palier légendaire avant division : EGG_SHARES[4] normalisé
-  const total = legs.reduce((n, o) => n + o.probability, 0), plain = te.EGG_SHARES[4] / te.EGG_SHARES.reduce((n, v) => n + v, 0);
-  assert.ok(Math.abs(total - plain / 2) < 1e-9, 'légendaires de l’œuf Psy divisés par deux');
-  console.log('OK : œuf Psy (70 000 ₽, Mewtwo et Mew ÷ 2).');
+  console.log('OK : œuf Psy (70 000 ₽, Mewtwo et Mew à 5 % chacun).');
 }
