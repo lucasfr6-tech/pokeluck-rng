@@ -28,6 +28,20 @@ export const zones=[
  {id:'league',min:94,shares:[.10,.18,.24,.40,.08],levels:[94,100],name:'Plateau Indigo',bonus:['dragon','psychic'],note:'Dragon & Psy · poids ×3',color:'route'}
 ];
 zones.forEach(z=>{z.tier=z.shares.length;});
+// ---- Johto : 16 zones sur le même modèle (voir arena.js : 2 zones, puis une arène). Pokémon de Johto uniquement (region:'johto'),
+// paliers de rareté calqués sur ceux de Kanto. Niveaux PROVISOIRES (100 → 200), à équilibrer plus tard.
+const JOHTO_ROWS=[
+ ['route29','Route 29',['normal','flying'],'route'],['route31','Route 31',['normal','bug'],'route'],
+ ['tourchetiflor','Tour Chétiflor',['ghost','flying'],'cave'],['ruinesalpha','Ruines d’Alpha',['psychic','rock'],'cave'],
+ ['puitsramoloss','Puits Ramoloss',['water','psychic'],'cave'],['boischenes','Bois aux Chênes',['grass','bug'],'forest'],
+ ['parcnaturel','Parc Naturel',['bug','grass'],'forest'],['tourcendree','Tour Cendrée',['fire','ghost'],'cave'],
+ ['tourferraille','Tour Ferraille',['steel','ghost'],'cave'],['chenal40','Chenal 40',['water','flying'],'route'],
+ ['pharoliville','Phare d’Oliville',['electric','steel'],'power'],['montcreuset','Mont Creuset',['rock','ground'],'cave'],
+ ['routeglace','Route de Glace',['ice','water'],'cave'],['laccolere','Lac Colère',['water','dragon'],'route'],
+ ['antredragon','Antre du Dragon',['dragon','dark'],'cave'],['montargente','Mont Argenté',['rock','ice'],'cave']
+];
+export const johtoZones=JOHTO_ROWS.map(([id,name,bonus,color],i)=>({id,region:'johto',min:100+i*6,shares:zones[i].shares,levels:[100+i*6,106+i*6],name,bonus,note:bonus.map(t=>({normal:'Normal',flying:'Vol',bug:'Insecte',ghost:'Spectre',psychic:'Psy',rock:'Roche',water:'Eau',grass:'Plante',fire:'Feu',steel:'Acier',electric:'Électrik',ground:'Sol',ice:'Glace',dragon:'Dragon',dark:'Ténèbres'}[t])).join(' & ')+' · poids ×3',color,tier:zones[i].shares.length}));
+
 export const itinerary=[{town:'Bourg Palette'},{zone:'route'},{town:'Jadielle'},{zone:'route2'},{zone:'forest'},{town:'Argenta'},{zone:'route3'},{zone:'cave'},{zone:'route4'},{town:'Azuria'}];
 // Arrière-plans du cadre 1, un par zone (fichiers dans assets/backgrounds/).
 export const backgrounds={route:'beauplains',route2:'wildplains',route3:'skyblueplains',route4:'ravagedfield',forest:'overgrownforest',cave:'echocave',power:'powerplant',bridge:'skyblueplains',rocktunnel:'echocave',tower:'echocave',safari:'wildplains',seafoam:'echocave',mansion:'ravagedfield',ceruleancave:'echocave',victory:'ravagedfield',league:'skyblueplains'};
@@ -47,7 +61,7 @@ export const tierOf=id=>LEGENDARY.includes(id)?5:(t=>t<=320?1:t<=420?2:t<=485?3:
 // `rarityBonus` (Super Ball, Hyper Ball…) multiplie la part de chaque palier au-dessus des Communs, puis le total est ramené à 100 %.
 export function adjustedShares(shares,rarityBonus=0){if(!rarityBonus||shares.length<2)return shares;const raw=shares.map((s,i)=>i===0?s:s*(1+rarityBonus)),total=raw.reduce((a,b)=>a+b,0);return raw.map(s=>s/total);}
 let periodSource=()=>null;export const setPeriodSource=fn=>{periodSource=typeof fn==='function'?fn:()=>null;};
-export function zonePool(id,rarityBonus=0,period=undefined){const per=period===undefined?periodSource():period||null;const zone0=zones.find(z=>z.id===id)||zones[0],zone={...zone0,shares:adjustedShares(zone0.shares,rarityBonus)};
+export function zonePool(id,rarityBonus=0,period=undefined){const per=period===undefined?periodSource():period||null;const zone0=zones.find(z=>z.id===id)||johtoZones.find(z=>z.id===id)||zones[0],zone={...zone0,shares:adjustedShares(zone0.shares,rarityBonus)};
  const entries=pool.filter(p=>speciesRegion(p.id)===(zone.region||'kanto')&&zone.shares[tierOf(p.id)-1]>0).map(p=>({...p,power:powers[p.id-1],tier:tierOf(p.id),probability:p.probability*(types[p.id].some(t=>zone.bonus.includes(t))?3:1)*timeMult(types[p.id],per)}));
  const sums={};for(const p of entries)sums[p.tier]=(sums[p.tier]||0)+p.probability;
  // Légendaires : plus l'espèce est forte, plus elle est rare (Mewtwo bien plus rare qu'un oiseau), et le palier entier est réduit. La chance (balls, Pokédex, encens…) agit toujours dessus.

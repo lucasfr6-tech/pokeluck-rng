@@ -75,3 +75,29 @@ export function eliteAccess(badges, ownedIds) {
   if (!hasLegendary(ownedIds)) return {ok:false, reason:'legend'};
   return {ok:true};
 }
+
+// ---- Johto : 8 champions (équipes des jeux Or / Argent / Cristal), niveaux PROVISOIRES de 112 à 200 (équilibrage à faire).
+// Le plafond de niveau part de 100 (fin de Kanto) et monte jusqu'à 200 avec les badges de Johto. Pas de CT pour l'instant (tm:null).
+export const JOHTO_ZONE_ORDER = ['route29', 'route31', 'tourchetiflor', 'ruinesalpha', 'puitsramoloss', 'boischenes', 'parcnaturel', 'tourcendree', 'tourferraille', 'chenal40', 'pharoliville', 'montcreuset', 'routeglace', 'laccolere', 'antredragon', 'montargente'];
+const jbadge = n => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${n + 8}.png`;
+const jdef = (n, o) => ({...def(n, o), region:'johto', tm:null, badgeSprite:jbadge(n)});
+export const JOHTO_ARENAS = [
+  jdef(1, {id:'mauville', city:'Mauville', leader:'Albert', title:'Champion d’arène de Mauville', type:'vol', badgeName:'Badge Zéphyr', trainer:'falkner', ace:112, need:108, real:[[16, 7], [17, 9]], quote:'Les oiseaux me guident ! Montre-moi ta valeur dans les airs !'}),
+  jdef(2, {id:'rosalia', city:'Rosalia', leader:'Hector', title:'Champion d’arène de Rosalia', type:'insecte', badgeName:'Badge Essaim', trainer:'bugsy', ace:125, need:120, real:[[11, 14], [14, 14], [123, 16]], quote:'Mes recherches sur les insectes sont mon plus grand trésor !'}),
+  jdef(3, {id:'doublonville', city:'Doublonville', leader:'Blanche', title:'Championne d’arène de Doublonville', type:'normal', badgeName:'Badge Plaine', trainer:'whitney', ace:137, need:132, real:[[35, 18], [241, 20]], quote:'Allez, ne me fais pas pleurer ! Je vais te montrer ce que je vaux !'}),
+  jdef(4, {id:'ecorcia', city:'Écorcia', leader:'Mortimer', title:'Champion d’arène d’Écorcia', type:'spectre', badgeName:'Badge Brume', trainer:'morty', ace:150, need:144, real:[[92, 21], [93, 21], [93, 23], [94, 25]], quote:'Je vois un avenir où je gagne… Prépare-toi, dresseur !'}),
+  jdef(5, {id:'irisia', city:'Irisia', leader:'Chuck', title:'Champion d’arène d’Irisia', type:'combat', badgeName:'Badge Tempête', trainer:'chuck', ace:162, need:156, real:[[57, 27], [62, 30]], quote:'Wahahah ! Tu veux défier mon poing d’acier ?'}),
+  jdef(6, {id:'oliville', city:'Oliville', leader:'Jasmine', title:'Championne d’arène d’Oliville', type:'acier', badgeName:'Badge Minéral', trainer:'jasmine', ace:175, need:168, real:[[81, 30], [81, 30], [208, 35]], quote:'… Je ferai de mon mieux. Mon Pokémon Acier est très solide.'}),
+  jdef(7, {id:'acajou', city:'Acajou', leader:'Frédo', title:'Champion d’arène d’Acajou', type:'glace', badgeName:'Badge Glacier', trainer:'pryce', ace:187, need:180, real:[[86, 27], [87, 29], [221, 31]], quote:'J’ai vu bien des hivers. L’expérience bat toujours la jeunesse !'}),
+  jdef(8, {id:'ebenelle', city:'Ébènelle', leader:'Sandra', title:'Championne d’arène d’Ébènelle', type:'dragon', badgeName:'Badge Élévation', trainer:'clair', ace:200, need:192, real:[[148, 37], [148, 37], [148, 37], [230, 40]], quote:'Je suis la meilleure des dresseurs de dragons. Tu ne me battras pas !'})
+];
+export const JOHTO_LEVEL_CAPS = [100, 112, 125, 137, 150, 162, 175, 187, 200];
+// Ligue de Johto : Clément, Koga, Aldo, Marion, puis le champion Peter (Conseil des 4 d'Or / Argent).
+const jeliteDef = (n, o) => ({...eliteDef(n, o), region:'johto', city:'Ligue Pokémon', badgeName:'Victoire sur ' + o.leader});
+export const JOHTO_ELITE = [
+  jeliteDef(1, {id:'clement', leader:'Clément', title:'Clément, du Conseil des 4', type:'psy', trainer:'will', ace:192, real:[[178, 40], [124, 41], [103, 41], [80, 41], [178, 42]], quote:'J’ai étudié le pouvoir psychique. Tu ne peux pas me surprendre !'}),
+  jeliteDef(2, {id:'kogaj', leader:'Koga', title:'Koga, du Conseil des 4', type:'poison', trainer:'koga', ace:194, real:[[168, 40], [205, 43], [89, 42], [49, 41], [169, 44]], quote:'Les ninjas frappent là où on ne les attend pas !'}),
+  jeliteDef(3, {id:'aldoj', leader:'Aldo', title:'Aldo, du Conseil des 4', type:'combat', trainer:'bruno', ace:196, real:[[237, 42], [106, 42], [107, 42], [95, 43], [68, 46]], quote:'Ma force et ma volonté sont sans limites !'}),
+  jeliteDef(4, {id:'marion', leader:'Marion', title:'Marion, du Conseil des 4', type:'ténèbres', trainer:'karen', ace:198, real:[[197, 42], [45, 42], [94, 45], [198, 44], [229, 47]], quote:'Les Pokémon des ténèbres sont les plus fidèles. Tu vas voir !'}),
+  jeliteDef(5, {id:'peterj', leader:'Peter', title:'Peter, Champion de la Ligue de Johto', type:'dragon', champion:true, trainer:'lance', ace:200, real:[[130, 44], [148, 47], [148, 47], [142, 46], [149, 50]], quote:'Je suis le maître des dragons. Montre-moi que tu mérites le titre !'})
+];

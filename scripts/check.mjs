@@ -746,3 +746,15 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
   if (te.typeEggReady(st.typeEggs[0], 59) || !te.typeEggReady(st.typeEggs[0], 60)) { console.error('ÉCHEC : 50 victoires'); process.exit(1); }
   console.log('OK : œufs de type (types, probabilités, bonus, couveuse, 50 victoires)');
 }
+
+// ---- Johto : données (zones, arènes, Ligue) ----
+{
+  const w = await import('../dist/world.js'), a = await import('../dist/arena.js');
+  assert.equal(w.johtoZones.length, 16); assert.equal(a.JOHTO_ZONE_ORDER.length, 16);
+  assert.deepEqual(a.JOHTO_ZONE_ORDER, w.johtoZones.map(z => z.id));
+  for (const z of w.johtoZones) { const p = w.zonePool(z.id, 0, null); assert.ok(p.length > 0 && p.every(x => x.id > 151), 'Johto : ' + z.id); assert.ok(Math.abs(p.reduce((n, x) => n + x.probability, 0) - 1) < 1e-9); }
+  assert.equal(a.JOHTO_ARENAS.length, 8); assert.equal(a.JOHTO_ELITE.length, 5); assert.equal(a.JOHTO_LEVEL_CAPS.length, 9);
+  assert.equal(a.JOHTO_LEVEL_CAPS.at(-1), 200);
+  for (const x of [...a.JOHTO_ARENAS, ...a.JOHTO_ELITE]) { assert.ok(x.team.length >= 2); assert.ok(x.team.every(([id, lv]) => id >= 1 && id <= 251 && lv >= 100)); }
+  console.log('OK : Johto (16 zones, 8 arènes, Ligue de 5, plafonds jusqu’à 200).');
+}
