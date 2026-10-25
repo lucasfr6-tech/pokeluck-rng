@@ -44,7 +44,7 @@ export function typeEggsHtml(state, wins) {
     const e = list[i];
     if (!e) return `<div class="te-card empty"><span class="te-slot">Emplacement ${i + 1}</span><small>Libre · achète un Œuf de type en boutique</small></div>`;
     const p = typeEggProgress(e, wins), ready = p >= TYPE_EGG_NEED, c = TYPE_COL[e.type];
-    return `<div class="te-card${ready ? ' ready' : ''}" style="--c:${c}"><span class="te-egg" aria-hidden="true"><img src="assets/egg.png" alt=""><i></i></span><b>Œuf ${esc(TYPE_FR[e.type])}</b><div class="te-bar" role="progressbar" aria-valuenow="${p}" aria-valuemax="${TYPE_EGG_NEED}"><i style="width:${p / TYPE_EGG_NEED * 100}%"></i></div><small>${ready ? 'Prêt à éclore !' : `${p} / ${TYPE_EGG_NEED} victoires`}</small>${ready ? `<button type="button" class="pg-button te-hatch" data-te-hatch="${i}">Faire éclore !</button>` : ''}</div>`;
+    return `<div class="te-card${ready ? ' ready' : ''}" data-te-odds="${i}" role="button" tabindex="0" title="Voir les Pokémon possibles" style="--c:${c}"><span class="te-egg" aria-hidden="true"><img src="assets/egg.png" alt=""><i></i></span><b>Œuf ${esc(TYPE_FR[e.type])}</b><div class="te-bar" role="progressbar" aria-valuenow="${p}" aria-valuemax="${TYPE_EGG_NEED}"><i style="width:${p / TYPE_EGG_NEED * 100}%"></i></div><small>${ready ? 'Prêt à éclore !' : `${p} / ${TYPE_EGG_NEED} victoires`}</small>${ready ? `<button type="button" class="pg-button te-hatch" data-te-hatch="${i}">Faire éclore !</button>` : ''}</div>`;
   }).join('');
   return `<section class="te-box" aria-label="Œufs de type"><div class="te-head"><h3>Œufs de type</h3><span>${TYPE_EGG_NEED} victoires pour éclore · Pokémon du type choisi, rareté meilleure que dans la nature</span></div><div class="te-grid">${cards}</div></section>`;
 }
