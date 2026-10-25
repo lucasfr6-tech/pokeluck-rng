@@ -37,5 +37,3 @@
 .rk-bar{height:10px;border-radius:99px;background:#ffffff1c;overflow:hidden}.rk-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--g),#fff8);transition:width .4s}
 .rk-row small{color:#9db8d2;font-size:12px}
 
-/* Boussole : le groupe Modes de jeu forme un carré au centre */
-.cm.open-modes .cm-core{opacity:0!important;pointer-events:none!important}
