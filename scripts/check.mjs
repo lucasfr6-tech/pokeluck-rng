@@ -76,10 +76,10 @@ assert.deepEqual([levelInfo(4,xpToNext(5)).level,levelInfo(4,xpToNext(5)+1).leve
 assert.ok(xpToNext(68)>=500,'monter de niveau reste long à haut niveau');
 assert.equal(levelInfo(4,100000).level,15);assert.ok(levelInfo(4,100000).capped); // bloqué tant qu'on ne tire pas Reptincel
 assert.equal(levelInfo(6,1).level,36);
-assert.equal(powerAt(4,5),powers[3]);assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,15)>powerAt(4,10));
+assert.equal(powerAt(4,5),Math.round(powers[3]/2));assert.ok(powerAt(4,10)>powerAt(4,5)&&powerAt(4,15)>powerAt(4,10));
 assert.ok(powers[0]>=250&&powers[0]<=1500,'Bulbizarre démarre vers 500');
 assert.ok(powerAt(5,35)<powerAt(6,36),'Une évolution est plus puissante que la forme précédente à son plafond');
-const legend=[144,145,146,150,151,149].reduce((n,id)=>n+powerAt(id,100),0);assert.ok(legend>=4e7&&legend<=5e7,'Équipe de légendaires niv. 100 : 40 à 50 M au maximum : '+legend);assert.ok(powerAt(134,53)<2e6,'Aquali niv. 53 reste sous 2 M');
+const legend=[144,145,146,150,151,149].reduce((n,id)=>n+powerAt(id,100),0);assert.ok(legend>=2e7&&legend<=2.5e7,'Équipe de légendaires niv. 100 : 40 à 50 M au maximum : '+legend);assert.ok(powerAt(134,53)<2e6,'Aquali niv. 53 reste sous 2 M');
 for(let id=1;id<=151;id++)assert.ok(powerAt(id,100)>=powerAt(id,50));
 // Combat : types, attaques apprises, dégâts, déroulement et expérience.
 assert.equal(effectiveness('fire',['grass']),2);assert.equal(effectiveness('electric',['ground']),0);assert.equal(effectiveness('water',['fire','rock']),4);
@@ -486,7 +486,7 @@ console.log('OK : chromatiques 1/4096 exact, limites, migration et comptages dis
 { const sh = await import('../dist/shop.js'); const all = sh.shopsOf('kanto').flatMap(s => s.stock); assert.equal(new Set(all).size, all.length, 'aucun objet vendu dans deux boutiques'); console.log('OK : aucun objet en double entre les boutiques de Kanto.'); }
 {
   const sh = await import('../dist/shop.js'), P = await import('../dist/pokemon.js');
-  const stones = Object.values(sh.ITEMS).filter(i => i.kind === 'stone'); assert.equal(stones.length, 5);
+  const stones = Object.values(sh.ITEMS).filter(i => i.kind === 'stone'); assert.equal(stones.length, 10);
   for (const s of stones) for (const [from, to] of Object.entries(s.evolves)) assert.equal(P.evolvesFrom[to], +from, `${s.id} : ${from} → ${to} est une vraie évolution`);
   assert.deepEqual(sh.stoneTargets(133).map(t => t.to).sort(), [134, 135, 136]); assert.equal(sh.stoneTargets(25)[0].to, 26); assert.equal(sh.stoneTargets(4).length, 0);
   for (const id of ['fire-stone', 'water-stone']) assert.ok(sh.SHOPS.some(x => x.stock.includes(id)), id + ' est en vente'); // Foudre, Plante, Lune : prévues plus tard

@@ -59,8 +59,10 @@ export const xpBonusMax = (id, count = 1, ceiling = MAX_LEVEL) => xpRoom(id, cou
 // Puissance : valeur de référence de l'espèce (niveau 5) multipliée par (niveau / 5)^2,15.
 // Une équipe de six Pokémon niv. 100 (légendaires compris) ≈ 50 M au maximum ; Mewtwo niv. 100 ≈ 14 M (provisoire).
 export const LEVEL_POWER_EXP = 2.15;
+// La puissance affichée est divisée par 2 (les stats de combat ne changent pas) : monter dans les rangs de puissance demande deux fois plus d'efforts.
+export const POWER_DIVISOR = 2;
 export function powerAt(id, level) {
-  return Math.round(powers[id - 1] * (Math.max(1, level) / START_LEVEL) ** LEVEL_POWER_EXP);
+  return Math.round(powers[id - 1] * (Math.max(1, level) / START_LEVEL) ** LEVEL_POWER_EXP / POWER_DIVISOR);
 }
 
 // Niveau d'un Pokémon sauvage : celui de ton Pokémon de tête ±2 (jamais moins de 1 ni plus de 100), dans toutes les zones.
