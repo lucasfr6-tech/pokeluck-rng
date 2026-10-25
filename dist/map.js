@@ -43,7 +43,7 @@ export function mapMarkup(selected,busy=false,shops=[],info={zones:{},arenas:{}}
     const p=pos[i],style=`left:${p.x}%;top:${p.y}%`;
     if(n.kind==='zone'){
       const z=findZone(n.id),acc=info.zones?.[n.id]||{ok:true},cur=n.id===selected;
-      const need=acc.ok?`niveau ${z.min}+`:acc.reason==='badge'?`badge n°${acc.arena.n} requis (${acc.arena.leader})`:`niveau ${acc.need} requis`;
+      const need=acc.ok?`niveau ${z.min}+`:acc.reason==='badge'?`badge n°${acc.arena.n} requis (${acc.arena.leader})`:acc.reason==='floors'?`termine les étages de ${acc.zone.name} (${acc.info.kills} / ${acc.info.total})`:`niveau ${acc.need} requis`;
       html+=`<button class="map-spot${cur?' current':''}${acc.ok?'':' locked'}${side(p)}" data-zone="${n.id}" aria-label="${esc(z.name)} (${need})" aria-pressed="${cur}" ${busy?'disabled':''} style="${style}">${bld(zoneArt(z.id),ZONE_MON[z.id],z.name,cur?'TU ES ICI':'',zoneCls(z.id))}<span class="map-tooltip">${i+1} · ${esc(z.name)}<small>${acc.ok?'Niv. '+z.min+'+':'🔒 '+esc(need)}</small></span></button>`;
     }else if(n.kind==='elite'){
       const m=eliteById(n.id),ac=info.elite||{},done=!!ac.members?.[m.id];

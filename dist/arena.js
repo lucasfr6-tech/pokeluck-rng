@@ -37,10 +37,30 @@ export const arenaById = id => ARENAS.find(a => a.id === id) || KANTO_ARENAS.fin
 export const arenaPrize = (arena, first) => Math.round(5000 * arena.n * (first ? 1 : .1));
 // Zone d'après l'arène k (1..8) : il faut le badge k pour y entrer.
 export const zoneGate = id => Math.floor(ZONE_ORDER.indexOf(id) / 2);
+// Étages : certaines zones (tours, grottes, îles) demandent plusieurs paliers de victoires, de plus en plus corsés, avant la zone ou l'arène suivante.
+// Seuils cumulés de victoires dans la zone ; chaque étage ajoute +8 % aux stats des Pokémon sauvages de la zone.
+export const FLOORS = {tower:[8, 20, 38, 60], seafoam:[8, 20, 38, 60], ceruleancave:[10, 24, 44, 70],
+  tourchetiflor:[8, 18, 32, 50, 75], tourcendree:[10, 22, 38, 60, 90], tourferraille:[10, 22, 38, 60, 90], antredragon:[10, 24, 44, 70]};
+export const FLOOR_BOOST = .08;
+let progressFn = () => ({});
+export const setProgress = fn => { progressFn = typeof fn === 'function' ? fn : () => ({}); };
+export function floorInfo(id, kills = progressFn()) {
+  const t = FLOORS[id]; if (!t) return null;
+  const k = Math.max(0, +kills?.[id] || 0), done = k >= t.at(-1), floor = done ? t.length : t.findIndex(x => k < x) + 1, from = floor > 1 ? t[floor - 2] : 0;
+  return {floors:t.length, floor, done, wins:done ? t.at(-1) - from : k - from, need:t[floor - 1] - from, total:t.at(-1), kills:k};
+}
+export const floorBoost = id => { const f = floorInfo(id); return f ? 1 + FLOOR_BOOST * (f.floor - 1) : 1; };
+// Les joueurs déjà passés (badge de l'arène suivante obtenu) ne sont pas bloqués.
+export function floorsDone(id, badges) {
+  if (!FLOORS[id]) return true;
+  const a = ARENAS[Math.floor(ZONE_ORDER.indexOf(id) / 2)]; if (a && badges?.[a.id]) return true;
+  return floorInfo(id).done;
+}
 export function zoneAccess(id, leadLevel, badges) {
   const z = findZone(id); if (!z) return {ok:false, reason:'unknown'};
   const gate = zoneGate(id);
   if (gate > 0 && !badges?.[ARENAS[gate - 1].id]) return {ok:false, reason:'badge', arena:ARENAS[gate - 1]};
+  { const pi = ZONE_ORDER.indexOf(id) - 1; if (pi >= 0 && !floorsDone(ZONE_ORDER[pi], badges)) return {ok:false, reason:'floors', zone:findZone(ZONE_ORDER[pi]), info:floorInfo(ZONE_ORDER[pi])}; }
   if ((leadLevel || 0) < z.min) return {ok:false, reason:'level', need:z.min};
   return {ok:true};
 }
@@ -48,6 +68,7 @@ export function arenaAccess(arena, leadLevel, badges) {
   if (arena.n > 1 && !badges?.[ARENAS[arena.n - 2].id]) return {ok:false, reason:'badge', arena:ARENAS[arena.n - 2]};
   const prev = zoneAccess(ZONE_ORDER[arena.n * 2 - 1], leadLevel, badges);
   if (!prev.ok) return prev;
+  { const zid = ZONE_ORDER[arena.n * 2 - 1]; if (!floorsDone(zid, badges)) return {ok:false, reason:'floors', zone:findZone(zid), info:floorInfo(zid)}; }
   if ((leadLevel || 0) < arena.need) return {ok:false, reason:'level', need:arena.need};
   return {ok:true};
 }
