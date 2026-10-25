@@ -2,7 +2,7 @@
 export const AVATAR_KEY='pokeluck-avatar-v1';
 export const DEFAULT_AVATAR='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png';
 export function getAvatar(){try{const value=localStorage.getItem(AVATAR_KEY);if(value?.length<500000&&/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(value))return value;}catch{}return DEFAULT_AVATAR;}
-export function applyAvatar(){const image=document.querySelector('#edit-profile img');if(image){const src=getAvatar();image.src=src;image.alt=src===DEFAULT_AVATAR?'Avatar Pikachu':'Photo de profil du dresseur';image.classList.toggle('custom-avatar',src!==DEFAULT_AVATAR);}}
+export function applyAvatar(){const image=document.querySelector('#edit-profile img');if(image){const src=getAvatar();image.src=src;image.alt=src===DEFAULT_AVATAR?'Avatar Pikachu':'Photo de profil du dresseur';image.classList.toggle('custom-avatar',src!==DEFAULT_AVATAR);}window.dispatchEvent(new Event('pokeluck-avatar'));}
 // Coordonnées source bornées : le carré reste toujours rempli, même au zoom maximal.
 export function cropRect(width,height,zoom,x,y){const side=Math.min(width,height)/zoom;return {sx:(width-side)*(x+1)/2,sy:(height-side)*(y+1)/2,side};}
 export function mountAvatar(host){
