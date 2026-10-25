@@ -38,10 +38,10 @@ export const arenaPrize = (arena, first) => Math.round(5000 * arena.n * (first ?
 // Zone d'après l'arène k (1..8) : il faut le badge k pour y entrer.
 export const zoneGate = id => Math.floor(ZONE_ORDER.indexOf(id) / 2);
 // Étages : certaines zones (tours, grottes, îles) demandent plusieurs paliers de victoires, de plus en plus corsés, avant la zone ou l'arène suivante.
-// Seuils cumulés de victoires dans la zone ; chaque étage ajoute +8 % aux stats des Pokémon sauvages de la zone.
+// Seuils cumulés de victoires dans la zone ; chaque étage ajoute +5 % aux stats des Pokémon sauvages de la zone.
 export const FLOORS = {tower:[8, 20, 38, 60], seafoam:[8, 20, 38, 60], ceruleancave:[10, 24, 44, 70],
   tourchetiflor:[8, 18, 32, 50, 75], tourcendree:[10, 22, 38, 60, 90], tourferraille:[10, 22, 38, 60, 90], antredragon:[10, 24, 44, 70]};
-export const FLOOR_BOOST = .08;
+export const FLOOR_BOOST = .05;
 // Gardien de fin d'étages : il apparaît au tirage suivant la dernière victoire de la zone et ferme les étages quand il est battu.
 export const FLOOR_BOSSES = {
   tower:{leader:'Gardien de la Tour', team:[94, 97, 65, 24], sprite:'sage'},
