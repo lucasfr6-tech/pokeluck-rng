@@ -129,7 +129,8 @@ export function eliteAccess(badges, ownedIds) {
 // Le plafond de niveau part de 100 (fin de Kanto) et monte jusqu'à 200 avec les badges de Johto. Pas de CT pour l'instant (tm:null).
 export const JOHTO_ZONE_ORDER = ['route29', 'route31', 'tourchetiflor', 'ruinesalpha', 'puitsramoloss', 'boischenes', 'parcnaturel', 'tourcendree', 'tourferraille', 'chenal40', 'pharoliville', 'montcreuset', 'routeglace', 'laccolere', 'antredragon', 'montargente'];
 const jbadge = n => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/${n + 8}.png`;
-const jdef = (n, o) => ({...def(n, o), region:'johto', tm:null, badgeSprite:jbadge(n)});
+// Niveaux des arènes de Johto réduits de 8 % (ajustement d'équilibrage).
+const jdef = (n, o) => ({...def(n, {...o, ace:Math.round(o.ace * .92)}), region:'johto', tm:null, badgeSprite:jbadge(n)});
 export const JOHTO_ARENAS = [
   jdef(1, {id:'mauville', city:'Mauville', leader:'Albert', title:'Champion d’arène de Mauville', type:'vol', badgeName:'Badge Zéphyr', trainer:'falkner', ace:112, need:100, real:[[18, 0], [22, 0], [164, 0], [85, 0], [227, 0], [178, 0]], quote:'Les oiseaux me guident ! Montre-moi ta valeur dans les airs !'}),
   jdef(2, {id:'rosalia', city:'Rosalia', leader:'Hector', title:'Champion d’arène de Rosalia', type:'insecte', badgeName:'Badge Essaim', trainer:'bugsy', ace:125, need:112, real:[[212, 0], [214, 0], [168, 0], [127, 0], [205, 0], [15, 0]], quote:'Mes recherches sur les insectes sont mon plus grand trésor !'}),
