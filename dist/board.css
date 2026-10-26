@@ -62,6 +62,7 @@ body.boss-fight .scene>.battle:not([hidden])~.flee{display:block;min-height:40px
 .game .tc-info{gap:2px}.game .tc-moves{gap:2px 6px}.game .tc-moves .mv{font-size:12px;line-height:1.2;padding:0 8px;text-align:center;overflow:hidden;text-overflow:ellipsis}
 /* Garder deux lignes d'attaques lisibles lorsque le panneau est peu haut. */
 @container team (max-height:300px){
+  .game .tc-info{gap:1px}
   .game .tc-types .pw-mini{padding:0 4px;min-height:0;height:24px;gap:3px}
   .game .tc-types .pw-mini .medal{width:20px;height:20px}
   .game .tc-types .pw-mini b{font-size:14px}
