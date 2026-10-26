@@ -58,8 +58,15 @@ body.boss-fight .scene>.battle:not([hidden])~.flee{display:block;min-height:40px
 }
 /* Cartes d'équipe : plus de stats (visibles au clic sur le profil) ; attaques un peu plus grandes, en 2×2, noms complets */
 .game .tc-stats{display:none!important}
-.game .tc-moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 6px;overflow:visible;min-height:0}
+.game .tc-moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 6px;overflow:visible;min-height:min-content;flex-shrink:0}
 .game .tc-info{gap:2px}.game .tc-moves{gap:2px 6px}.game .tc-moves .mv{font-size:12px;line-height:1.2;padding:0 8px;text-align:center;overflow:hidden;text-overflow:ellipsis}
+/* Garder deux lignes d'attaques lisibles lorsque le panneau est peu haut. */
+@container team (max-height:300px){
+  .game .tc-types .pw-mini{padding:0 4px;min-height:0;height:24px;gap:3px}
+  .game .tc-types .pw-mini .medal{width:20px;height:20px}
+  .game .tc-types .pw-mini b{font-size:14px}
+  .game .tc-bar{font-size:9px;line-height:10px}
+}
 /* Dresseur d'arène derrière le Pokémon adverse */
 .boss-trainer{position:absolute;right:-2%;top:0;height:min(78cqh,42cqw);width:auto;aspect-ratio:1;object-fit:contain;image-rendering:pixelated;pointer-events:none!important;z-index:0;transform-origin:50% 100%;animation:trainer-idle 1.6s steps(8) infinite;filter:drop-shadow(0 6px 0 #0004)}
 .boss-trainer.throw{animation:trainer-throw .6s ease-out 1}
